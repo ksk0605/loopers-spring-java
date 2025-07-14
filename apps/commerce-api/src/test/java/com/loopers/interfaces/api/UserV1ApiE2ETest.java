@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
-import java.util.function.Function;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +31,7 @@ import com.loopers.utils.DatabaseCleanUp;
 public class UserV1ApiE2ETest {
 
     private static final String ENDPOINT_POST = "/api/v1/users";
-    private static final Function<String, String> ENDPOINT_GET = id -> "/api/v1/users/" + id;
+    private static final String ENDPOINT_GET = "/api/v1/users/me";
 
     @Autowired
     private TestRestTemplate testRestTemplate;
@@ -116,7 +115,7 @@ public class UserV1ApiE2ETest {
         );
     }
 
-    @DisplayName("GET /api/v1/users/{id}")
+    @DisplayName("GET /api/v1/users/me")
     @Nested
     class Get {
         @DisplayName("내 정보 조회에 성공할 경우, 해당하는 유저 정보를 응답으로 반환한다.")
@@ -132,14 +131,14 @@ public class UserV1ApiE2ETest {
                     "test@loopers.com"
                 )
             );
-
-            String requestUrl = ENDPOINT_GET.apply(userId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-USER-ID", userId);
 
             // act
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
             };
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
-                testRestTemplate.exchange(requestUrl, HttpMethod.GET, new HttpEntity<>(null), responseType);
+                testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
 
             // assert
             assertAll(
@@ -157,13 +156,14 @@ public class UserV1ApiE2ETest {
         void throwsException_whenInvalidIdIsProvided() {
             // arrange
             String invalidUserId = "useruser";
-            String requestUrl = ENDPOINT_GET.apply(invalidUserId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-USER-ID", invalidUserId); // 헤더로 유저 식별
 
             // act
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
             };
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
-                testRestTemplate.exchange(requestUrl, HttpMethod.GET, new HttpEntity<>(null), responseType);
+                testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
 
             // assert
             assertAll(

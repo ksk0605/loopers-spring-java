@@ -1,5 +1,7 @@
 package com.loopers.interfaces.api.user;
 
+import org.springframework.web.bind.annotation.RequestHeader;
+
 import com.loopers.interfaces.api.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,16 +19,12 @@ public interface UserV1ApiSpec {
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "201",
+            responseCode = "200",
             description = "회원 가입 성공",
             content = @Content(schema = @Schema(implementation = UserV1Dto.UserResponse.class))
         ),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "400",
-            description = "잘못된 요청 (필수 정보 누락, 형식 오류 등)"
-        ),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "409",
             description = "중복된 사용자 ID"
         )
     })
@@ -39,11 +37,13 @@ public interface UserV1ApiSpec {
     );
 
     @Operation(
-        summary = "유저 조회",
-        description = "USER_ID로 유저를 조회합니다."
+        summary = "내 정보 조회",
+        description = "X-USER-ID 헤더로 유저를 식별하여 내 정보를 조회합니다."
     )
-    ApiResponse<UserV1Dto.UserResponse> getUser(
-        @Schema(name = "유저 ID", description = "조회할 유저의 USER_ID")
-        String userId
+    ApiResponse<UserV1Dto.UserResponse> getMe(
+        @RequestHeader(
+            name = "X-USER-ID",
+            required = true
+        ) String userId
     );
 }
