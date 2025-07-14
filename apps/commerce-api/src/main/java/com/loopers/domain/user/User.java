@@ -3,10 +3,16 @@ package com.loopers.domain.user;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+import com.loopers.domain.BaseEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
-public class User {
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "user")
+public class User extends BaseEntity {
 
     private static final String USER_ID_PATTERN = "^[a-zA-Z0-9]+$";
     private static final int MAX_USER_ID_LENGTH = 10;
@@ -17,6 +23,9 @@ public class User {
     private Gender gender;
     private LocalDate birthDate;
     private String email;
+
+    protected User() {
+    }
 
     public User(String userId, Gender gender, String birthDate, String email) {
         validateUserId(userId);

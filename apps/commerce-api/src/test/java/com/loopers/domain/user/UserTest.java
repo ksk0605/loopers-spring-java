@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
-public class UserModelTest {
+public class UserTest {
     @DisplayName("유저를 생성할 때, ")
     @Nested
     class Create {

@@ -1,0 +1,25 @@
+package com.loopers.domain.user;
+
+import org.springframework.stereotype.Component;
+
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
+
+@Component
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public User createUser(String userId, Gender gender, String birthDate, String email) {
+        userRepository.find(userId).ifPresent(user -> {
+            throw new CoreException(ErrorType.CONFLICT, "이미 가입한 ID입니다. [userId = " + userId + "]");
+        });
+        return userRepository.save(
+            new User(userId, gender, birthDate, email)
+        );
+    }
+}
