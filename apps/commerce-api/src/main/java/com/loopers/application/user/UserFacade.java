@@ -24,4 +24,9 @@ public class UserFacade {
         User user = userService.createUser(userId, gender, birthDate, email);
         return UserInfo.from(user);
     }
+
+    public UserInfo getUser(String userId) {
+        User user = userService.getUser(userId);
+        return UserInfo.from(user);
+    }
 }

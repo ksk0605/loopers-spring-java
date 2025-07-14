@@ -76,4 +76,42 @@ public class UserServiceIntegrationTest {
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.CONFLICT);
         }
     }
+
+    @DisplayName("유저 조회 시, ")
+    @Nested
+    class Get {
+        @DisplayName("해당 ID의 유저가 존재하는 경우, 회원 정보가 반환된다.")
+        @Test
+        void returnsExampleInfo_whenValidIdIsProvided() {
+            // arrange
+            String userId = "testUser";
+            userJpaRepository.save(
+                new User(userId, Gender.MALE, "1997-06-05", "test@loopers.com")
+            );
+
+            // act
+            User user = userService.getUser(userId);
+
+            // assert
+            assertThat(user.getUserId()).isEqualTo(userId);
+        }
+
+        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, NOT_FOUND 예외가 발생한다.")
+        @Test
+        void throwsException_whenInvalidIdIsProvided() {
+            // arrange
+            userJpaRepository.save(
+                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
+            );
+            String invalidUserId = "useruser";
+
+            // act
+            CoreException exception = assertThrows(CoreException.class, () -> {
+                userService.getUser(invalidUserId);
+            });
+
+            // assert
+            assertThat(exception.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
+        }
+    }
 }

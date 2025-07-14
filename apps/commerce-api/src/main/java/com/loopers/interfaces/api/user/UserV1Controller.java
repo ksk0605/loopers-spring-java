@@ -1,5 +1,7 @@
 package com.loopers.interfaces.api.user;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,5 +34,14 @@ public class UserV1Controller implements UserV1ApiSpec {
         );
         UserV1Dto.UserResponse response = UserV1Dto.UserResponse.from(info);
         return ApiResponse.success(response);
+    }
+
+    @GetMapping("/{userId}")
+    @Override
+    public ApiResponse<UserV1Dto.UserResponse> getUser(
+        @PathVariable String userId
+    ) {
+        UserInfo userInfo = userFacade.getUser(userId);
+        return ApiResponse.success(UserV1Dto.UserResponse.from(userInfo));
     }
 }

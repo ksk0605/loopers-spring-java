@@ -22,4 +22,9 @@ public class UserService {
             new User(userId, gender, birthDate, email)
         );
     }
+
+    public User getUser(String userId) {
+        return userRepository.find(userId)
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 유저 ID 입니다. [userId = " + userId + "]"));
+    }
 }

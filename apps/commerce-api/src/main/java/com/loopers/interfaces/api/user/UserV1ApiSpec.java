@@ -1,7 +1,5 @@
 package com.loopers.interfaces.api.user;
 
-import org.springframework.web.bind.annotation.PostMapping;
-
 import com.loopers.interfaces.api.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,12 +30,20 @@ public interface UserV1ApiSpec {
             description = "중복된 사용자 ID"
         )
     })
-    @PostMapping
     ApiResponse<UserV1Dto.UserResponse> createUser(
         @RequestBody(
             description = "회원 가입 요청 정보",
             required = true,
             content = @Content(schema = @Schema(implementation = UserV1Dto.CreateUserRequest.class))
         ) UserV1Dto.CreateUserRequest request
+    );
+
+    @Operation(
+        summary = "유저 조회",
+        description = "USER_ID로 유저를 조회합니다."
+    )
+    ApiResponse<UserV1Dto.UserResponse> getUser(
+        @Schema(name = "유저 ID", description = "조회할 유저의 USER_ID")
+        String userId
     );
 }
