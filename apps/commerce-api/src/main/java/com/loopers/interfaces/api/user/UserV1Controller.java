@@ -11,7 +11,7 @@ import com.loopers.interfaces.api.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/users")
-public class UserV1Controller {
+public class UserV1Controller implements UserV1ApiSpec {
 
     private final UserFacade userFacade;
 
@@ -20,7 +20,8 @@ public class UserV1Controller {
     }
 
     @PostMapping
-    public ApiResponse<UserV1Dto.UserResponse> getExample(
+    @Override
+    public ApiResponse<UserV1Dto.UserResponse> createUser(
         @RequestBody UserV1Dto.CreateUserRequest request
     ) {
         UserInfo info = userFacade.createUser(
