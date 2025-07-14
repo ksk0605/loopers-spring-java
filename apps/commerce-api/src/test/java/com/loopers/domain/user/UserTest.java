@@ -1,7 +1,10 @@
 package com.loopers.domain.user;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,6 +19,28 @@ public class UserTest {
     @DisplayName("유저를 생성할 때, ")
     @Nested
     class Create {
+        @DisplayName("제목과 설명이 모두 주어지면, 정상적으로 생성된다.")
+        @Test
+        void createsUser_whenValidUserInfosAreProvided() {
+            // arrange
+            String userId = "testUser";
+            Gender gender = Gender.MALE;
+            String birthDate = "1990-01-01";
+            String email = "test@test.com";
+
+            // act
+            User user = new User(userId, gender, birthDate, email);
+
+            // assert
+            assertAll(
+                () -> assertThat(user.getUserId()).isNotNull(),
+                () -> assertThat(user.getGender()).isEqualTo(Gender.MALE),
+                () -> assertThat(user.getBirthDate()).isEqualTo(LocalDate.parse(birthDate)),
+                () -> assertThat(user.getEmail()).isEqualTo(email),
+                () -> assertThat(user.getPoint()).isEqualTo(0)
+            );
+        }
+
         @DisplayName("ID가 빈칸으로만 이루어져 있으면, BAD_REQUEST 예외가 발생한다.")
         @Test
         void throwsBadRequestException_whenIdIsBlank() {

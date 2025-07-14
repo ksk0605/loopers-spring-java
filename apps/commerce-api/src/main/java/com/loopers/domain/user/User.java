@@ -18,11 +18,13 @@ public class User extends BaseEntity {
     private static final int MAX_USER_ID_LENGTH = 10;
     private static final String EMAIL_PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private static final String BIRTH_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
+    private static final int INITIAL_POINT = 0;
 
     private String userId;
     private Gender gender;
     private LocalDate birthDate;
     private String email;
+    private int point;
 
     protected User() {
     }
@@ -37,6 +39,7 @@ public class User extends BaseEntity {
         this.gender = gender;
         this.birthDate = LocalDate.parse(birthDate);
         this.email = email;
+        this.point = INITIAL_POINT;
     }
 
     private void validateUserId(String userId) {
@@ -94,5 +97,9 @@ public class User extends BaseEntity {
 
     public String getEmail() {
         return email;
+    }
+
+    public int getPoint() {
+        return point;
     }
 }
