@@ -1,4 +1,4 @@
-package com.loopers.domain.point;
+package com.loopers.application.point;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -7,6 +7,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -18,10 +20,10 @@ import com.loopers.support.error.ErrorType;
 import com.loopers.utils.DatabaseCleanUp;
 
 @SpringBootTest
-public class PointServiceIntegrationTest {
+class PointFacadeIntegrationTest {
 
     @Autowired
-    private PointService pointService;
+    private PointFacade pointFacade;
 
     @Autowired
     private UserJpaRepository userJpaRepository;
@@ -34,9 +36,10 @@ public class PointServiceIntegrationTest {
         databaseCleanUp.truncateAllTables();
     }
 
-    @DisplayName("보유 포인트를 조회할 때, ")
+    @DisplayName("포인트 조회를 시도할 때, ")
     @Nested
     class Get {
+
         @DisplayName("해당 ID 의 회원이 존재할 경우, 보유 포인트가 반환된다.")
         @Test
         void returnsMyPoints_whenValidUserIdIsProvided() {
@@ -47,10 +50,10 @@ public class PointServiceIntegrationTest {
             );
 
             // act
-            int myPoint = pointService.getMyPoint(userId);
+            PointInfo pointInfo = pointFacade.getMyPoint(userId);
 
             // assert
-            assertThat(myPoint).isEqualTo(0);
+            assertThat(pointInfo.point()).isEqualTo(0);
         }
 
         @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, NOT_FOUND 예외가 발생한다.")
@@ -64,7 +67,46 @@ public class PointServiceIntegrationTest {
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
-                pointService.getMyPoint(invalidUserId);
+                pointFacade.getMyPoint(invalidUserId);
+            });
+
+            // assert
+            assertThat(exception.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
+        }
+    }
+
+    @DisplayName("포인트 충전을 시도할 때, ")
+    @Nested
+    class Create {
+        @DisplayName("충전 가능한 액수로 시도한 경우, 포인트를 정상적으로 충전한다.")
+        @ParameterizedTest
+        @ValueSource(ints = {1, 1000})
+        void createPointHistory_whenValidAmountIsProvided(int amount) {
+            // arrange
+            String userId = "testUser";
+            userJpaRepository.save(
+                new User(userId, Gender.MALE, "1997-06-05", "test@loopers.com")
+            );
+
+            // act
+            PointInfo pointInfo = pointFacade.chargePoint(userId, amount);
+
+            // assert
+            assertThat(pointInfo.point()).isEqualTo(amount);
+        }
+
+        @DisplayName("존재하지 않는 유저 ID 로 충전할 경우, NOT_FOUND 예외가 발생한다.")
+        @Test
+        void throwsException_whenInvalidUserIdIsProvided() {
+            // arrange
+            userJpaRepository.save(
+                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
+            );
+            String invalidUserId = "testtest";
+
+            // act
+            CoreException exception = assertThrows(CoreException.class, () -> {
+                pointFacade.chargePoint(invalidUserId, 1000);
             });
 
             // assert

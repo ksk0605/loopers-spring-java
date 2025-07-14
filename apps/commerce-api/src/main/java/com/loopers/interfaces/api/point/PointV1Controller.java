@@ -1,6 +1,8 @@
 package com.loopers.interfaces.api.point;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,9 +25,18 @@ public class PointV1Controller implements PointV1ApiSpec {
     @Override
     public ApiResponse<PointV1Dto.PointResponse> getPoint(
         @RequestHeader("X-USER-ID") String userId
-
     ) {
         PointInfo pointInfo = pointFacade.getMyPoint(userId);
+        return ApiResponse.success(PointV1Dto.PointResponse.from(pointInfo));
+    }
+
+    @PostMapping("/charge")
+    @Override
+    public ApiResponse<PointV1Dto.PointResponse> chargePoint(
+        @RequestHeader("X-USER-ID") String userId,
+        @RequestBody PointV1Dto.ChargePointRequest request
+    ) {
+        PointInfo pointInfo = pointFacade.chargePoint(userId, request.amount());
         return ApiResponse.success(PointV1Dto.PointResponse.from(pointInfo));
     }
 }

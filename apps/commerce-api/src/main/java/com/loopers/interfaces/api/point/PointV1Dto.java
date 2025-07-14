@@ -10,4 +10,9 @@ public class PointV1Dto {
             return new PointResponse(pointInfo.point());
         }
     }
+
+    public record ChargePointRequest(
+        int amount
+    ) {
+    }
 }

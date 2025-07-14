@@ -8,6 +8,8 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,9 +23,14 @@ public class User extends BaseEntity {
     private static final int INITIAL_POINT = 0;
 
     private String userId;
+
+    @Enumerated(EnumType.STRING)
     private Gender gender;
+
     private LocalDate birthDate;
+
     private String email;
+
     private int point;
 
     protected User() {
@@ -81,6 +88,10 @@ public class User extends BaseEntity {
         if (!email.matches(EMAIL_PATTERN)) {
             throw new CoreException(ErrorType.BAD_REQUEST, "이메일 형식이 올바르지 않습니다.");
         }
+    }
+
+    public void updatePoint(int balance) {
+        this.point = balance;
     }
 
     public String getUserId() {
