@@ -29,13 +29,32 @@ public class User extends BaseEntity {
 
     public User(String userId, Gender gender, String birthDate, String email) {
         validateUserId(userId);
-        validateEmail(email);
+        validateGender(gender);
         validateBirthDate(birthDate);
+        validateEmail(email);
 
         this.userId = userId;
         this.gender = gender;
         this.birthDate = LocalDate.parse(birthDate);
         this.email = email;
+    }
+
+    private void validateUserId(String userId) {
+        if (userId == null || userId.isBlank()) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "ID는 비어있을 수 없습니다.");
+        }
+        if (!userId.matches(USER_ID_PATTERN)) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "ID는 영문자와 숫자만 허용됩니다.");
+        }
+        if (userId.length() > MAX_USER_ID_LENGTH) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "ID는 10자 이내여야 합니다.");
+        }
+    }
+
+    private void validateGender(Gender gender) {
+        if (gender == null) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "성별은 필수 정보 입니다.");
+        }
     }
 
     private void validateBirthDate(String birthDate) {
@@ -61,15 +80,19 @@ public class User extends BaseEntity {
         }
     }
 
-    private void validateUserId(String userId) {
-        if (userId == null || userId.isBlank()) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "ID는 비어있을 수 없습니다.");
-        }
-        if (!userId.matches(USER_ID_PATTERN)) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "ID는 영문자와 숫자만 허용됩니다.");
-        }
-        if (userId.length() > MAX_USER_ID_LENGTH) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "ID는 10자 이내여야 합니다.");
-        }
+    public String getUserId() {
+        return userId;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public String getEmail() {
+        return email;
     }
 }
