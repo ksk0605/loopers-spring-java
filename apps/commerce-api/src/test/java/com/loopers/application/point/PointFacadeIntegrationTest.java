@@ -44,13 +44,12 @@ class PointFacadeIntegrationTest {
         @Test
         void returnsMyPoints_whenValidUserIdIsProvided() {
             // arrange
-            String userId = "testUser";
             userJpaRepository.save(
-                new User(userId, Gender.MALE, "1997-06-05", "test@loopers.com")
+                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
             );
 
             // act
-            PointInfo pointInfo = pointFacade.getMyPoint(userId);
+            PointInfo pointInfo = pointFacade.getMyPoint("testUser");
 
             // assert
             assertThat(pointInfo.point()).isEqualTo(0);
@@ -63,11 +62,10 @@ class PointFacadeIntegrationTest {
             userJpaRepository.save(
                 new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
             );
-            String invalidUserId = "testtest";
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
-                pointFacade.getMyPoint(invalidUserId);
+                pointFacade.getMyPoint("testtest");
             });
 
             // assert
@@ -83,13 +81,12 @@ class PointFacadeIntegrationTest {
         @ValueSource(ints = {1, 1000})
         void createPointHistory_whenValidAmountIsProvided(int amount) {
             // arrange
-            String userId = "testUser";
             userJpaRepository.save(
-                new User(userId, Gender.MALE, "1997-06-05", "test@loopers.com")
+                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
             );
 
             // act
-            PointInfo pointInfo = pointFacade.chargePoint(userId, amount);
+            PointInfo pointInfo = pointFacade.chargePoint("testUser", amount);
 
             // assert
             assertThat(pointInfo.point()).isEqualTo(amount);
@@ -102,11 +99,10 @@ class PointFacadeIntegrationTest {
             userJpaRepository.save(
                 new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
             );
-            String invalidUserId = "testtest";
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
-                pointFacade.chargePoint(invalidUserId, 1000);
+                pointFacade.chargePoint("testtest", 1000);
             });
 
             // assert

@@ -37,7 +37,28 @@ public class PointHistory extends BaseEntity {
         this.type = type;
     }
 
+    public static PointHistory earn(String userId, int currentBalance, int amount) {
+        return new PointHistory(
+            userId,
+            amount,
+            currentBalance + amount,
+            PointHistoryType.EARN
+        );
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
     public int getBalance() {
         return balance;
+    }
+
+    public PointHistoryType getType() {
+        return type;
     }
 }

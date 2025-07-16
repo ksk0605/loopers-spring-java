@@ -46,13 +46,10 @@ public class UserTest {
         void throwsBadRequestException_whenIdIsBlank() {
             // arrange
             String userId = "    ";
-            Gender gender = Gender.MALE;
-            String birthDate = "1990-01-01";
-            String email = "test@test.com";
 
             // act
             CoreException result = assertThrows(CoreException.class, () -> {
-                new User(userId, gender, birthDate, email);
+                new User(userId, Gender.MALE, "1990-01-01", "test@test.com");
             });
 
             // assert
@@ -65,13 +62,10 @@ public class UserTest {
         void throwsBadRequestException_whenIdContainsNonAlphanumericCharacters(String source) {
             // arrange
             String userId = "testId" + source;
-            Gender gender = Gender.MALE;
-            String birthDate = "1990-01-01";
-            String email = "test@test.com";
 
             // act
             CoreException result = assertThrows(CoreException.class, () -> {
-                new User(userId, gender, birthDate, email);
+                new User(userId, Gender.MALE, "1990-01-01", "test@test.com");
             });
 
             // assert
@@ -83,13 +77,10 @@ public class UserTest {
         void throwsBadRequestException_whenIdExceeds10Characters() {
             // arrange
             String userId = "12overTenId";
-            Gender gender = Gender.MALE;
-            String birthDate = "1990-01-01";
-            String email = "test@test.com";
 
             // act
             CoreException result = assertThrows(CoreException.class, () -> {
-                new User(userId, gender, birthDate, email);
+                new User(userId, Gender.MALE, "1990-01-01", "test@test.com");
             });
 
             // assert
@@ -100,14 +91,11 @@ public class UserTest {
         @Test
         void throwsBadRequestException_whenEmailIsBlank() {
             // arrange
-            String userId = "testUser66";
-            Gender gender = Gender.MALE;
-            String birthDate = "1990-01-01";
             String email = "  ";
 
             // act
             CoreException result = assertThrows(CoreException.class, () -> {
-                new User(userId, gender, birthDate, email);
+                new User("testUser66", Gender.MALE, "1990-01-01", email);
             });
 
             // assert
@@ -121,15 +109,13 @@ public class UserTest {
             "test@", // 도메인 없음
             "test@test" // 최상위 도메인 없음
         })
-        void throwsBadRequestException_whenEmailFormatIsInvalid(String email) {
+        void throwsBadRequestException_whenEmailFormatIsInvalid(String value) {
             // arrange
-            String userId = "testUser66";
-            Gender gender = Gender.MALE;
-            String birthDate = "1990-01-01";
+            String email = value;
 
             // act
             CoreException result = assertThrows(CoreException.class, () -> {
-                new User(userId, gender, birthDate, email);
+                new User("testUser66", Gender.MALE, "1990-01-01", email);
             });
 
             // assert
@@ -140,14 +126,11 @@ public class UserTest {
         @Test
         void throwsBadRequestException_whenBirthDateIsBlank() {
             // arrange
-            String userId = "testUser66";
-            Gender gender = Gender.MALE;
             String birthDate = "  ";
-            String email = "test@test.com";
 
             // act
             CoreException result = assertThrows(CoreException.class, () -> {
-                new User(userId, gender, birthDate, email);
+                new User("testUser", Gender.MALE, birthDate, "test@test.com");
             });
 
             // assert
@@ -164,15 +147,13 @@ public class UserTest {
             "1990-01-1", // 한 자리 일
             "1990-1-01" // 한 자리 월
         })
-        void throwsBadRequestException_whenBirthDateFormatIsInvalid(String birthDate) {
+        void throwsBadRequestException_whenBirthDateFormatIsInvalid(String value) {
             // arrange
-            String userId = "testUser66";
-            Gender gender = Gender.MALE;
-            String email = "test@test.com";
+            String birthDate = value;
 
             // act
             CoreException result = assertThrows(CoreException.class, () -> {
-                new User(userId, gender, birthDate, email);
+                new User("testUser", Gender.MALE, birthDate, "test@test.com");
             });
 
             // assert
@@ -186,15 +167,13 @@ public class UserTest {
             "1990-12-32",
             "1990-01-00",
         })
-        void throwsBadRequestException_whenBirthDateIsInvalid(String birthDate) {
+        void throwsBadRequestException_whenBirthDateIsInvalid(String value) {
             // arrange
-            String userId = "testUser66";
-            Gender gender = Gender.MALE;
-            String email = "test@test.com";
+            String birthDate = value;
 
             // act
             CoreException result = assertThrows(CoreException.class, () -> {
-                new User(userId, gender, birthDate, email);
+                new User("testUser", Gender.MALE, birthDate, "test@test.com");
             });
 
             // assert

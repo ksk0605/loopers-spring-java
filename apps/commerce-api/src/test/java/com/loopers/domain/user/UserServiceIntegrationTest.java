@@ -1,11 +1,13 @@
 package com.loopers.domain.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
@@ -51,10 +53,16 @@ public class UserServiceIntegrationTest {
             String email = "test@loopers.com";
 
             // act
-            userService.createUser(userId, gender, birthDate, email);
+            User user = userService.createUser(userId, gender, birthDate, email);
 
             // assert
-            verify(userJpaRepository, times(1)).save(any(User.class));
+            assertAll(
+                () -> verify(userJpaRepository, times(1)).save(any(User.class)),
+                () -> assertThat(user.getUserId()).isEqualTo(userId),
+                () -> assertThat(user.getGender()).isEqualTo(gender),
+                () -> assertThat(user.getBirthDate()).isEqualTo(LocalDate.parse(birthDate)),
+                () -> assertThat(user.getEmail()).isEqualTo(email)
+            );
         }
 
         @DisplayName("이미 가입된 ID라면, CONFLICT 예외가 발생한다.")
@@ -64,14 +72,10 @@ public class UserServiceIntegrationTest {
             userJpaRepository.save(
                 new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
             );
-            String userId = "testUser";
-            Gender gender = Gender.FEMALE;
-            String birthDate = "1998-06-05";
-            String email = "test2@loopers.com";
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
-                userService.createUser(userId, gender, birthDate, email);
+                userService.createUser("testUser", Gender.FEMALE, "1998-06-05", "test2@loopers.com");
             });
 
             // assert
