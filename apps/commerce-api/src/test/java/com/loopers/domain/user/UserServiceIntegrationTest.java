@@ -6,6 +6,8 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -90,13 +92,14 @@ public class UserServiceIntegrationTest {
             );
 
             // act
-            User user = userService.getUser(userId);
+            Optional<User> user = userService.getUser(userId);
 
             // assert
-            assertThat(user.getUserId()).isEqualTo(userId);
+            assertThat(user.isPresent()).isTrue();
+            assertThat(user.get().getUserId()).isEqualTo(userId);
         }
 
-        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, NOT_FOUND 예외가 발생한다.")
+        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, Null을 반환한다.")
         @Test
         void throwsException_whenInvalidIdIsProvided() {
             // arrange
@@ -106,12 +109,10 @@ public class UserServiceIntegrationTest {
             String invalidUserId = "useruser";
 
             // act
-            CoreException exception = assertThrows(CoreException.class, () -> {
-                userService.getUser(invalidUserId);
-            });
+            Optional<User> user = userService.getUser(invalidUserId);
 
             // assert
-            assertThat(exception.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
+            assertThat(user).isEmpty();
         }
     }
 }

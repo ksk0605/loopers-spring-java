@@ -7,6 +7,8 @@ import com.loopers.domain.point.PointHistory;
 import com.loopers.domain.point.PointService;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
 
 @Component
 public class PointFacade {
@@ -20,13 +22,15 @@ public class PointFacade {
     }
 
     public PointInfo getMyPoint(String userId) {
-        User user = userService.getUser(userId);
+        User user = userService.getUser(userId)
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 유저가 존재하지 않습니다. [userId = " + userId + "]"));
         return PointInfo.from(user.getPoint());
     }
 
     @Transactional
     public PointInfo chargePoint(String userId, int amount) {
-        User user = userService.getUser(userId);
+        User user = userService.getUser(userId)
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 유저가 존재하지 않습니다. [userId = " + userId + "]"));
         PointHistory pointHistory = pointService.earnHistory(user.getUserId(), user.getPoint(), amount);
         user.updatePoint(pointHistory.getBalance());
         return PointInfo.from(user.getPoint());

@@ -11,6 +11,8 @@ import com.loopers.application.user.UserFacade;
 import com.loopers.application.user.UserInfo;
 import com.loopers.interfaces.api.ApiResponse;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserV1Controller implements UserV1ApiSpec {
@@ -24,11 +26,11 @@ public class UserV1Controller implements UserV1ApiSpec {
     @PostMapping
     @Override
     public ApiResponse<UserV1Dto.UserResponse> createUser(
-        @RequestBody UserV1Dto.CreateUserRequest request
+        @RequestBody @Valid UserV1Dto.CreateUserRequest request
     ) {
         UserInfo info = userFacade.createUser(
             request.userId(),
-            request.gender(),
+            request.gender().name(),
             request.birthDate(),
             request.email()
         );

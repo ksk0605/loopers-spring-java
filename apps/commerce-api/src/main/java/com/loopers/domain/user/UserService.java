@@ -1,5 +1,7 @@
 package com.loopers.domain.user;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +28,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUser(String userId) {
-        return userRepository.find(userId)
-            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 유저 ID 입니다. [userId = " + userId + "]"));
+    public Optional<User> getUser(String userId) {
+        return userRepository.find(userId);
     }
 }

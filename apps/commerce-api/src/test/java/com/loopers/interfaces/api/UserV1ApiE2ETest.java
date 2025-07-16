@@ -55,7 +55,7 @@ public class UserV1ApiE2ETest {
         void returnsUserInfo_whenValidUserInfoIsProvided() {
             // arrange
             String userId = "testUser";
-            Gender gender = Gender.MALE;
+            UserV1Dto.Gender gender = UserV1Dto.Gender.MALE;
             String date = "1997-06-05";
             String email = "test@loopers.com";
             UserV1Dto.CreateUserRequest request = new UserV1Dto.CreateUserRequest(
@@ -145,7 +145,7 @@ public class UserV1ApiE2ETest {
                 () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
                 () -> assertThat(response.getBody().data().id()).isEqualTo(user.getId()),
                 () -> assertThat(response.getBody().data().userId()).isEqualTo(user.getUserId()),
-                () -> assertThat(response.getBody().data().gender()).isEqualTo(user.getGender()),
+                () -> assertThat(response.getBody().data().gender()).isEqualTo(UserV1Dto.Gender.from(user.getGender().name())),
                 () -> assertThat(response.getBody().data().birthDate()).isEqualTo(user.getBirthDate()),
                 () -> assertThat(response.getBody().data().email()).isEqualTo(user.getEmail())
             );

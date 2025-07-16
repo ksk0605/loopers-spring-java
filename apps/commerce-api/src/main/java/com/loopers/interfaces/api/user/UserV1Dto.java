@@ -3,12 +3,13 @@ package com.loopers.interfaces.api.user;
 import java.time.LocalDate;
 
 import com.loopers.application.user.UserInfo;
-import com.loopers.domain.user.Gender;
+
+import jakarta.validation.constraints.NotNull;
 
 public class UserV1Dto {
     public record CreateUserRequest(
         String userId,
-        Gender gender,
+        @NotNull Gender gender,
         String birthDate,
         String email
     ) {
@@ -25,10 +26,19 @@ public class UserV1Dto {
             return new UserResponse(
                 userInfo.id(),
                 userInfo.userId(),
-                userInfo.gender(),
+                Gender.from(userInfo.gender().name()),
                 userInfo.birthDate(),
                 userInfo.email()
             );
+        }
+    }
+
+    public enum Gender {
+        MALE,
+        FEMALE;
+
+        public static Gender from(String gender) {
+            return Gender.valueOf(gender.toUpperCase());
         }
     }
 }
