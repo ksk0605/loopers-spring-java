@@ -19,7 +19,7 @@ public class UserTest {
     @DisplayName("유저를 생성할 때, ")
     @Nested
     class Create {
-        @DisplayName("제목과 설명이 모두 주어지면, 정상적으로 생성된다.")
+        @DisplayName("필요한 정보가 모두 주어지면, 정상적으로 생성된다.")
         @Test
         void createsUser_whenValidUserInfosAreProvided() {
             // arrange

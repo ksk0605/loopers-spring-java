@@ -96,7 +96,7 @@ public class UserServiceIntegrationTest {
             );
 
             // act
-            Optional<User> user = userService.getUser(userId);
+            Optional<User> user = userService.findUser(userId);
 
             // assert
             assertThat(user.isPresent()).isTrue();
@@ -113,7 +113,7 @@ public class UserServiceIntegrationTest {
             String invalidUserId = "useruser";
 
             // act
-            Optional<User> user = userService.getUser(invalidUserId);
+            Optional<User> user = userService.findUser(invalidUserId);
 
             // assert
             assertThat(user).isEmpty();

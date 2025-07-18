@@ -28,7 +28,7 @@ public class UserFacade {
     }
 
     public UserInfo getUser(String userId) {
-        User user = userService.getUser(userId)
+        User user = userService.findUser(userId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 유저가 존재하지 않습니다. [userId = " + userId + "]"));
         return UserInfo.from(user);
     }

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.function.Function;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,8 +30,7 @@ import com.loopers.utils.DatabaseCleanUp;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PointV1ApiE2ETest {
 
-    private static final String ENDPOINT_GET = "/api/v1/points";
-    private static final String ENDPOINT_POST = "/api/v1/points";
+    private static final Function<String, String> ENDPOINT = source -> "/api/v1/points" + source;
 
     @Autowired
     private TestRestTemplate testRestTemplate;
@@ -65,12 +66,13 @@ public class PointV1ApiE2ETest {
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", userId);
+            String requestUrl = ENDPOINT.apply("");
 
             // act
             ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
             };
             ResponseEntity<ApiResponse<PointV1Dto.PointResponse>> response =
-                testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+                testRestTemplate.exchange(requestUrl, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
 
             // assert
             assertAll(
@@ -84,12 +86,13 @@ public class PointV1ApiE2ETest {
         void throwsException_whenUserIdIsNotProvided() {
             // arrange
             HttpHeaders headers = new HttpHeaders();
+            String requestUrl = ENDPOINT.apply("");
 
             // act
             ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
             };
             ResponseEntity<ApiResponse<PointV1Dto.PointResponse>> response =
-                testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+                testRestTemplate.exchange(requestUrl, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
 
             // assert
             assertAll(
@@ -120,7 +123,7 @@ public class PointV1ApiE2ETest {
                 chargeAmount
             );
 
-            String requestUrl = ENDPOINT_POST + "/charge";
+            String requestUrl = ENDPOINT.apply("/charge");
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", userId);
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -148,7 +151,7 @@ public class PointV1ApiE2ETest {
                 chargeAmount
             );
 
-            String requestUrl = ENDPOINT_POST + "/charge";
+            String requestUrl = ENDPOINT.apply("/charge");
             HttpHeaders headers = new HttpHeaders();
 
             // act
@@ -176,7 +179,7 @@ public class PointV1ApiE2ETest {
                 chargeAmount
             );
 
-            String requestUrl = ENDPOINT_POST + "/charge";
+            String requestUrl = ENDPOINT.apply("/charge");
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", invalidUserId);
             headers.setContentType(MediaType.APPLICATION_JSON);
