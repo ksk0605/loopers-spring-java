@@ -29,7 +29,7 @@ sequenceDiagram
     end
 ```
 
-### 상품 상세 조회
+### 상품 정보 조회
 
 ```mermaid
 sequenceDiagram
