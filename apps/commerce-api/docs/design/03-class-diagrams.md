@@ -14,6 +14,7 @@ classDiagram
         +Brand brand
         +Category category
         +Integer stockQuantity
+        +List<ProductImage> images
         
         +changeStatus(ProductStatus status)
         +updateStock(Integer quantity)
@@ -40,6 +41,16 @@ classDiagram
         +String name
         +String description
         +Category parent
+    }
+
+    class ProductImage {
+        +Long id
+        +String imageUrl
+        +Integer sortOrder
+        +Boolean isMain
+        
+        +setAsMain()
+        +updateSortOrder(Integer order)
     }
 
     class ProductOption {
@@ -233,6 +244,7 @@ classDiagram
     Product --> "1" ProductStatus
     Product --> "1" Brand
     Product --> "1" Category
+    Product --> "N" ProductImage
     Product --> "N" ProductOption
     Product --> "N" CartItem
     Product --> "N" OrderItem
@@ -259,6 +271,7 @@ classDiagram
 
 ### 상품 도메인
 - **Product**: 상품 기본 정보 (이름, 가격, 상태 등)
+- **ProductImage**: 상품 사진 (url, 순서, 메인여부)
 - **ProductStatus**: 상품 판매 상태 (판매중, 품절, 판매중단)
 - **Brand**: 브랜드 정보
 - **Category**: 상품 카테고리 (계층 구조 지원)
