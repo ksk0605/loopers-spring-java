@@ -19,6 +19,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.loopers.domain.brand.Brand;
+import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.interfaces.api.brand.BrandV1Dto;
 import com.loopers.utils.DatabaseCleanUp;
 
@@ -29,6 +31,9 @@ public class BrandV1ApiE2ETest {
 
     @Autowired
     private TestRestTemplate testRestTemplate;
+
+    @Autowired
+    private BrandJpaRepository brandJpaRepository;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -45,6 +50,12 @@ public class BrandV1ApiE2ETest {
         @Test
         void returnsBrandInfo_whenValidIdIsProvided() {
             // arrange
+            String name = "테스트 브랜드";
+            String description = "테스트 브랜드 설명입니다.";
+            String logoUrl = "https://test.image.url";
+            brandJpaRepository.save(
+                new Brand(name, description, logoUrl)
+            );
             String requestUrl = ENDPOINT.apply("/" + 1);
 
             // act
@@ -57,9 +68,9 @@ public class BrandV1ApiE2ETest {
             assertAll(
                 () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
                 () -> assertThat(response.getBody().data().id()).isEqualTo(1L),
-                () -> assertThat(response.getBody().data().name()).isEqualTo("테스트 브랜드"),
-                () -> assertThat(response.getBody().data().description()).isEqualTo("브랜드 설명"),
-                () -> assertThat(response.getBody().data().logoUrl()).isEqualTo("https://test.image.url")
+                () -> assertThat(response.getBody().data().name()).isEqualTo(name),
+                () -> assertThat(response.getBody().data().description()).isEqualTo(description),
+                () -> assertThat(response.getBody().data().logoUrl()).isEqualTo(logoUrl)
             );
         }
 
