@@ -78,15 +78,19 @@ classDiagram
         +updateQuantity(Integer quantity)
     }
 
-    %% 좋아요 도메인
+%% 좋아요 도메인
     class Like {
         +Long id
         +User user
-        +Long targetId
-        +LikeType targetType
+        +LikeTarget target
     }
 
-    class LikeType {
+    class LikeTarget {
+        +Long id
+        +LikeTargetType type
+    }
+
+    class LikeTargetType {
         <<enumeration>>
         PRODUCT
         BRAND
