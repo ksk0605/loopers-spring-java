@@ -18,4 +18,12 @@ public class LikeService {
         Like like = new Like(userId, targetId, targetType);
         likeRepository.save(like);
     }
+
+    @Transactional
+    public void unlike(Long userId, Long targetId, LikeTargetType targetType) {
+        if (!likeRepository.existsByTarget(new LikeTarget(targetId, targetType))) {
+            return;
+        }
+        likeRepository.deleteByTarget(new LikeTarget(targetId, targetType));
+    }
 }

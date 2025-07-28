@@ -1,11 +1,10 @@
-package com.loopers.infrastructure;
+package com.loopers.infrastructure.like;
 
 import org.springframework.stereotype.Component;
 
 import com.loopers.domain.like.Like;
 import com.loopers.domain.like.LikeRepository;
 import com.loopers.domain.like.LikeTarget;
-import com.loopers.infrastructure.user.LikeJpaRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,5 +21,10 @@ public class LikeRepositoryImpl implements LikeRepository {
     @Override
     public boolean existsByTarget(LikeTarget target) {
         return likeJpaRepository.existsByTarget(target);
+    }
+
+    @Override
+    public void deleteByTarget(LikeTarget target) {
+        likeJpaRepository.deleteByTarget(target);
     }
 }
