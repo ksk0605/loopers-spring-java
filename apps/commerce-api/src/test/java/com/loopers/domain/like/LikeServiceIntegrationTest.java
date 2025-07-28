@@ -109,4 +109,21 @@ class LikeServiceIntegrationTest {
             );
         }
     }
+
+    @DisplayName("좋아요를 조회할 때, ")
+    @Nested
+    class Get {
+        @DisplayName("타겟 ID와 타겟 타입이 주어지면, 해당 타입의 좋아요 숫자를 반환한다.")
+        @Test
+        void returnsLikeCount_whenTargetIdAndTargetTypeProvided() {
+            // arrange
+            likeJpaRepository.save(new Like(1L, 1L, LikeTargetType.PRODUCT));
+
+            // act
+            Long likeCount = likeService.count(1L, LikeTargetType.PRODUCT);
+
+            // assert
+            assertThat(likeCount).isEqualTo(1);
+        }
+    }
 }

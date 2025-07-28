@@ -6,4 +6,6 @@ public interface LikeRepository {
     boolean existsByTarget(LikeTarget target);
 
     void deleteByTarget(LikeTarget target);
+
+    Long count(LikeTarget likeTarget);
 }

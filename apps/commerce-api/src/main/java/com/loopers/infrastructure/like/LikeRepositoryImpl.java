@@ -27,4 +27,9 @@ public class LikeRepositoryImpl implements LikeRepository {
     public void deleteByTarget(LikeTarget target) {
         likeJpaRepository.deleteByTarget(target);
     }
+
+    @Override
+    public Long count(LikeTarget likeTarget) {
+        return likeJpaRepository.countByTarget(likeTarget);
+    }
 }

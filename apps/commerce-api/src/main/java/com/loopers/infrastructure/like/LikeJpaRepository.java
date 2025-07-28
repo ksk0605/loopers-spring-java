@@ -9,4 +9,6 @@ public interface LikeJpaRepository extends JpaRepository<Like, Long> {
     boolean existsByTarget(LikeTarget target);
 
     void deleteByTarget(LikeTarget target);
+
+    Long countByTarget(LikeTarget likeTarget);
 }

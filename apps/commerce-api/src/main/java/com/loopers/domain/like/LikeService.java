@@ -26,4 +26,8 @@ public class LikeService {
         }
         likeRepository.deleteByTarget(new LikeTarget(targetId, targetType));
     }
+
+    public Long count(Long targetId, LikeTargetType targetType) {
+        return likeRepository.count(new LikeTarget(targetId, targetType));
+    }
 }
