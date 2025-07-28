@@ -5,24 +5,40 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import com.loopers.domain.BaseEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "product")
 @Getter
-public class Product {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Product extends BaseEntity {
     private static final int MAXIMUM_DESCRIPTION_LENGTH = 255;
     private static final int MINIMUM_DESCRIPTION_LENGTH = 50;
     private static final int MAIN_IMAGE_SORT_ORDER = 0;
 
-    private Long id;
     private String name;
     private String description;
     private BigDecimal price;
+    @Enumerated(EnumType.STRING)
     private ProductStatus status;
     private Long categoryId;
     private Long brandId;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "product_id")
     private List<ProductImage> images;
 
     public Product(String name, String description, BigDecimal price, ProductStatus status, Long brandId, Long categoryId) {

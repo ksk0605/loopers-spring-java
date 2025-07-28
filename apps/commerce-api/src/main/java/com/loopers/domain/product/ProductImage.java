@@ -1,10 +1,18 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.BaseEntity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "product_image")
 @Getter
-public class ProductImage {
-
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ProductImage extends BaseEntity {
     private String imageUrl;
     private boolean isMain;
     private int sortOrder;
