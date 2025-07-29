@@ -125,9 +125,6 @@ classDiagram
         +User user
         +List<OrderItem> items
         +OrderStatus status
-        +BigDecimal totalAmount
-        +BigDecimal deliveryFee
-        +DeliveryAddress deliveryAddress
         +LocalDateTime orderDate
         +place()
         +cancel()
@@ -151,7 +148,6 @@ classDiagram
         +Long id
         +Product product
         +ProductOption productOption
-        +Integer quantity
         +BigDecimal unitPrice
         +BigDecimal totalPrice
         +calculateTotal()
