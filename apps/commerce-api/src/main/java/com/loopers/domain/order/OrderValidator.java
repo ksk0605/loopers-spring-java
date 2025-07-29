@@ -25,6 +25,10 @@ public class OrderValidator {
     }
 
     private void validateOrderItem(OrderItem item) {
+        if(item.getQuantity() <= 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "주문 수량은 1개 이상이어야 합니다.");
+        }
+
         Product product = productRepository.find(item.getProductId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND,
                         "상품을 찾을 수 없습니다. 상품 ID: " + item.getProductId()));

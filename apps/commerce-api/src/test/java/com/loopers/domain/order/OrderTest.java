@@ -24,7 +24,7 @@ public class OrderTest {
         void createOrder_whenValidInfoProvided() {
             // arrange
             Long userId = 1L;
-            List<OrderItem> items = List.of(new OrderItem(1L, 1L));
+            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1));
             
             // act
             Order order = new Order(userId, items);
@@ -40,7 +40,7 @@ public class OrderTest {
         @Test
         void createOrder_whenUserIdIsNull() {
             // arrange
-            List<OrderItem> items = List.of(new OrderItem(1L, 1L));
+            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1));
 
             // act
             CoreException result = assertThrows(CoreException.class, 

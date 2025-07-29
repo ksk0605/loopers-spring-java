@@ -55,7 +55,7 @@ public class OrderValidatorTest {
         void validateOrder_whenProductIsNotFound() {
             // arrange
             when(productRepository.find(anyLong())).thenReturn(Optional.empty());
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L)));
+            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
 
             // act
             CoreException result = assertThrows(CoreException.class, 
@@ -81,7 +81,7 @@ public class OrderValidatorTest {
                 LocalDateTime.now().plusDays(1)
             );
             when(productRepository.find(anyLong())).thenReturn(Optional.of(product));
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L)));
+            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
     
             // act
             CoreException result = assertThrows(CoreException.class, 
@@ -90,6 +90,21 @@ public class OrderValidatorTest {
     
             // assert
             assertThat(result.getErrorType()).isEqualTo(ErrorType.CONFLICT);
+        }
+
+        @DisplayName("주문 수량이 0 이하면, BAD REQUEST 예외를 발생시킨다.")
+        @Test
+        void validateOrder_whenQuantityIsZero() {
+            // arrange
+            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 0)));
+
+            // act
+            CoreException result = assertThrows(CoreException.class, 
+                () -> validator.validateOrder(order)
+            );
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 }

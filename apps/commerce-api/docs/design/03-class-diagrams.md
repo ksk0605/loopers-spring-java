@@ -148,6 +148,7 @@ classDiagram
         +Long id
         +Product product
         +ProductOption productOption
+        +Integer quantity
         +BigDecimal unitPrice
         +BigDecimal totalPrice
         +calculateTotal()
