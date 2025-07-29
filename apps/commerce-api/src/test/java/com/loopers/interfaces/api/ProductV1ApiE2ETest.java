@@ -19,8 +19,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import com.loopers.domain.brand.Brand;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductStatus;
+import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.interfaces.api.product.ProductV1Dto;
 import com.loopers.utils.DatabaseCleanUp;
@@ -34,6 +36,9 @@ public class ProductV1ApiE2ETest {
 
     @Autowired
     private ProductJpaRepository productJpaRepository;
+
+    @Autowired
+    private BrandJpaRepository brandJpaRepository;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -58,6 +63,11 @@ public class ProductV1ApiE2ETest {
                 1L,
                 1L
             ));
+            brandJpaRepository.save(new Brand(
+                "테스트 브랜드",
+                "테스트 브랜드 설명",
+                null
+            ));
             String requestUrl = ENDPOINT.apply("/" + 1);
 
             // act
@@ -70,7 +80,11 @@ public class ProductV1ApiE2ETest {
             assertAll(
                 () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
                 () -> assertThat(response.getBody().data().id()).isEqualTo(1L),
-                () -> assertThat(response.getBody().data().name()).isEqualTo("테스트 상품")
+                () -> assertThat(response.getBody().data().name()).isEqualTo("테스트 상품"),
+                () -> assertThat(response.getBody().data().brand().id()).isEqualTo(1L),
+                () -> assertThat(response.getBody().data().brand().name()).isEqualTo("테스트 브랜드"),
+                () -> assertThat(response.getBody().data().brand().logoUrl()).isNull(),
+                () -> assertThat(response.getBody().data().likeCount()).isEqualTo(0)
             );
         }
     }
