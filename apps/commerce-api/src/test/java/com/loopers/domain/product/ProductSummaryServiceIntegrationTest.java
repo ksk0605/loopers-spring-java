@@ -23,9 +23,9 @@ import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 
 @SpringBootTest
-class ProductServiceIntegrationTest {
+class ProductSummaryServiceIntegrationTest {
     @Autowired
-    private ProductService productService;
+    private ProductSummaryService productSummaryService;
 
     @Autowired
     private ProductJpaRepository productJpaRepository;
@@ -102,7 +102,7 @@ class ProductServiceIntegrationTest {
         @Test
         void getProducts_orderByPrice() {
             // arrange
-            ProductSearchCondition condition = new ProductSearchCondition(
+            SummarySearchCondition condition = new SummarySearchCondition(
                 SortBy.PRICE,
                 0,
                 20,
@@ -110,7 +110,7 @@ class ProductServiceIntegrationTest {
             );
 
             // act
-            Page<ProductView> products = productService.list(condition);
+            Page<ProductSummary> products = productSummaryService.summaries(condition);
 
             // assert
             assertThat(products.getContent()).hasSize(3);
@@ -127,7 +127,7 @@ class ProductServiceIntegrationTest {
         @Test
         void getProducts_orderByLikes() {
             // arrange
-            ProductSearchCondition condition = new ProductSearchCondition(
+            SummarySearchCondition condition = new SummarySearchCondition(
                 SortBy.LIKES,
                 0,
                 20,
@@ -135,7 +135,7 @@ class ProductServiceIntegrationTest {
             );
 
             // act
-            Page<ProductView> products = productService.list(condition);
+            Page<ProductSummary> products = productSummaryService.summaries(condition);
 
             // assert
             // 2 -> 3 -> 1번 순서
@@ -152,7 +152,7 @@ class ProductServiceIntegrationTest {
         @Test
         void getProducts_orderByLatest() {
             // arrange
-            ProductSearchCondition condition = new ProductSearchCondition(
+            SummarySearchCondition condition = new SummarySearchCondition(
                 SortBy.LATEST,
                 0,
                 20,
@@ -160,7 +160,7 @@ class ProductServiceIntegrationTest {
             );
 
             // act
-            Page<ProductView> products = productService.list(condition);
+            Page<ProductSummary> products = productSummaryService.summaries(condition);
 
             // assert
             assertThat(products.getContent()).hasSize(3);

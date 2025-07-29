@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ProductSearchCondition {
+public class SummarySearchCondition {
     private SortBy sortBy;
     private int page;
     private int size;

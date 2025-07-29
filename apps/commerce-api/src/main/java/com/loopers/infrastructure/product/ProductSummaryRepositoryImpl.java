@@ -13,10 +13,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import com.loopers.domain.product.ProductImage;
-import com.loopers.domain.product.ProductSearchCondition;
 import com.loopers.domain.product.ProductStatus;
-import com.loopers.domain.product.ProductView;
-import com.loopers.domain.product.ProductViewRepository;
+import com.loopers.domain.product.ProductSummary;
+import com.loopers.domain.product.ProductSummaryRepository;
+import com.loopers.domain.product.SummarySearchCondition;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -25,11 +25,11 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class ProductViewRepositoryImpl implements ProductViewRepository {
+public class ProductSummaryRepositoryImpl implements ProductSummaryRepository {
     private final EntityManager entityManager;
 
     @Override
-    public Page<ProductView> findProducts(ProductSearchCondition condition) {
+    public Page<ProductSummary> findAll(SummarySearchCondition condition) {
         String jpql = """
             SELECT
                 p.id,
@@ -61,31 +61,31 @@ public class ProductViewRepositoryImpl implements ProductViewRepository {
 
         List<Object[]> results = query.getResultList();
 
-        List<ProductView> productViews = results.stream()
-            .map(this::convertToProductView)
+        List<ProductSummary> productSummaries = results.stream()
+            .map(this::convert)
             .toList();
 
         Long total = getTotalCount(condition);
 
-        getProductImages(productViews);
+        getProductImages(productSummaries);
 
         return new PageImpl<>(
-            productViews,
+            productSummaries,
             PageRequest.of(condition.getPage(), condition.getSize()),
             total);
     }
 
-    private ProductView convertToProductView(Object[] result) {
-        ProductView productView = new ProductView();
-        productView.setId((Long)result[0]);
-        productView.setName((String)result[1]);
+    private ProductSummary convert(Object[] result) {
+        ProductSummary productSummary = new ProductSummary();
+        productSummary.setId((Long)result[0]);
+        productSummary.setName((String)result[1]);
         if (result[2] != null) {
-            productView.setDescription((String)result[2]);
+            productSummary.setDescription((String)result[2]);
         }
-        productView.setPrice((BigDecimal)result[3]);
-        productView.setStatus(((ProductStatus)result[4]));
+        productSummary.setPrice((BigDecimal)result[3]);
+        productSummary.setStatus(((ProductStatus)result[4]));
 
-        ProductView.Brand brandInfo = new ProductView.Brand();
+        ProductSummary.Brand brandInfo = new ProductSummary.Brand();
         brandInfo.setId((Long)result[5]);
         if (result[6] != null) {
             brandInfo.setDescription((String)result[6]);
@@ -93,30 +93,30 @@ public class ProductViewRepositoryImpl implements ProductViewRepository {
         if (result[7] != null) {
             brandInfo.setLogoUrl((String)result[7]);
         }
-        productView.setBrand(brandInfo);
+        productSummary.setBrand(brandInfo);
 
-        productView.setSaleStartDate((LocalDateTime)result[9]);
+        productSummary.setSaleStartDate((LocalDateTime)result[9]);
         if (result[10] != null) {
-            productView.setSaleEndDate((LocalDateTime)result[10]);
+            productSummary.setSaleEndDate((LocalDateTime)result[10]);
         }
-        productView.setLikeCount((Long)result[11]);
-        return productView;
+        productSummary.setLikeCount((Long)result[11]);
+        return productSummary;
     }
 
-    private Long getTotalCount(ProductSearchCondition condition) {
+    private Long getTotalCount(SummarySearchCondition condition) {
         String countJpql = "SELECT COUNT(p) FROM Product p WHERE p.status = :status";
         TypedQuery<Long> countQuery = entityManager.createQuery(countJpql, Long.class);
         countQuery.setParameter("status", condition.getStatus());
         return countQuery.getSingleResult();
     }
 
-    private void getProductImages(List<ProductView> productViews) {
-        if (productViews.isEmpty()) {
+    private void getProductImages(List<ProductSummary> productSummaries) {
+        if (productSummaries.isEmpty()) {
             return;
         }
 
-        List<Long> productIds = productViews.stream()
-            .map(ProductView::getId)
+        List<Long> productIds = productSummaries.stream()
+            .map(ProductSummary::getId)
             .toList();
 
         String sql = """
@@ -149,9 +149,9 @@ public class ProductViewRepositoryImpl implements ProductViewRepository {
             imageMap.computeIfAbsent(productId, k -> new ArrayList<>()).add(productImage);
         }
 
-        for (ProductView productView : productViews) {
-            List<ProductImage> images = imageMap.getOrDefault(productView.getId(), new ArrayList<>());
-            productView.setImages(images);
+        for (ProductSummary productSummary : productSummaries) {
+            List<ProductImage> images = imageMap.getOrDefault(productSummary.getId(), new ArrayList<>());
+            productSummary.setImages(images);
         }
     }
 }

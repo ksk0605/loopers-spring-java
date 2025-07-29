@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductView {
+public class ProductSummary {
     private Long id;
     private String name;
     private String description;
