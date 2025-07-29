@@ -158,7 +158,6 @@ classDiagram
         +PaymentMethod method
         +PaymentStatus status
         +BigDecimal amount
-        +String transactionId
         +LocalDateTime paymentDate
         +process()
         +refund()
