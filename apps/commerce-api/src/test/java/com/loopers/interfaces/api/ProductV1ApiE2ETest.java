@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.AfterEach;
@@ -61,7 +62,8 @@ public class ProductV1ApiE2ETest {
                 BigDecimal.valueOf(20000),
                 ProductStatus.ON_SALE,
                 1L,
-                1L
+                1L,
+                LocalDateTime.now().plusDays(3)
             ));
             brandJpaRepository.save(new Brand(
                 "테스트 브랜드",

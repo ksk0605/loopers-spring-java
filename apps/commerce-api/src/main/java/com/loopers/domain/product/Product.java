@@ -1,6 +1,7 @@
 package com.loopers.domain.product;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -36,18 +37,29 @@ public class Product extends BaseEntity {
     private ProductStatus status;
     private Long categoryId;
     private Long brandId;
+    private LocalDateTime saleStartDate;
+    private LocalDateTime saleEndDate;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "product_id")
     private List<ProductImage> images;
 
-    public Product(String name, String description, BigDecimal price, ProductStatus status, Long brandId, Long categoryId) {
+    public Product(
+        String name,
+        String description,
+        BigDecimal price,
+        ProductStatus status,
+        Long brandId,
+        Long categoryId,
+        LocalDateTime saleStartDate
+    ) {
         validateName(name);
         validateDescription(description);
         validatePrice(price);
         validateStatus(status);
         validateBrandId(brandId);
         validateCategoryId(categoryId);
+        validateSaleStartDate(saleStartDate);
 
         this.name = name;
         this.description = description;
@@ -56,6 +68,7 @@ public class Product extends BaseEntity {
         this.brandId = brandId;
         this.categoryId = categoryId;
         this.images = new ArrayList<>();
+        this.saleStartDate = saleStartDate;
     }
 
     private void validateName(String name) {
@@ -108,6 +121,22 @@ public class Product extends BaseEntity {
         }
     }
 
+    private void validateSaleStartDate(LocalDateTime saleStartDate) {
+        if (saleStartDate == null) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "판매 시작일은 필수입니다.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (saleStartDate.isBefore(now)) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "판매 시작일은 현재 시간 이후여야 합니다.");
+        }
+
+        LocalDateTime maxFutureDate = now.plusYears(1);
+        if (saleStartDate.isAfter(maxFutureDate)) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "판매 시작일은 1년 이내로 설정해야 합니다.");
+        }
+    }
+
     public void changeStatus(ProductStatus newStatus) {
         validateStatus(newStatus);
         this.status = newStatus;
@@ -146,5 +175,24 @@ public class Product extends BaseEntity {
         return images.stream()
             .sorted(Comparator.comparingInt(ProductImage::getSortOrder))
             .toList();
+    }
+
+    public void endSale(LocalDateTime endDate) {
+        if (this.status != ProductStatus.ON_SALE) {
+            throw new CoreException(ErrorType.BAD_REQUEST,
+                "판매중인 상품만 판매 종료할 수 있습니다. 현재 상태: " + this.status);
+        }
+
+        if (endDate == null) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "판매 종료일은 필수입니다.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (endDate.isBefore(now)) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "판매 종료일은 현재 시간 이후여야 합니다.");
+        }
+
+        this.saleEndDate = endDate;
+        this.status = ProductStatus.DISCONTINUED;
     }
 }
