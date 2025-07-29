@@ -13,12 +13,11 @@ classDiagram
         +ProductStatus status
         +Brand brand
         +Category category
-        +Integer stockQuantity
         +List<ProductImage> images
         
         +changeStatus(ProductStatus status)
-        +updateStock(Integer quantity)
         +isAvailable()
+        +addImage(String url, boolean isMain)
         +calculatePriceWithOption(ProductOption option)
     }
 
@@ -79,15 +78,19 @@ classDiagram
         +updateQuantity(Integer quantity)
     }
 
-    %% 좋아요 도메인
+%% 좋아요 도메인
     class Like {
         +Long id
         +User user
-        +Long targetId
-        +LikeType targetType
+        +LikeTarget target
     }
 
-    class LikeType {
+    class LikeTarget {
+        +Long id
+        +LikeTargetType type
+    }
+
+    class LikeTargetType {
         <<enumeration>>
         PRODUCT
         BRAND
@@ -270,6 +273,7 @@ classDiagram
 ## 도메인별 세부 설명
 
 ### 상품 도메인
+
 - **Product**: 상품 기본 정보 (이름, 가격, 상태 등)
 - **ProductImage**: 상품 사진 (url, 순서, 메인여부)
 - **ProductStatus**: 상품 판매 상태 (판매중, 품절, 판매중단)
@@ -279,25 +283,30 @@ classDiagram
 - **Inventory**: 상품별 재고 정보 (예약 재고 포함)
 
 ### 좋아요 도메인
+
 - **Like**: 사용자별 좋아요 정보 (상품, 브랜드 등 확장 가능)
 - **LikeType**: 좋아요 대상 타입
 
 ### 장바구니 도메인
+
 - **Cart**: 사용자별 장바구니
 - **CartItem**: 장바구니에 담긴 상품 정보
 
 ### 주문 도메인
+
 - **Order**: 주문 기본 정보
 - **OrderStatus**: 주문 상태
 - **OrderItem**: 주문에 포함된 상품 정보
 - **DeliveryAddress**: 배송지 정보
 
 ### 결제 도메인
+
 - **Payment**: 결제 정보
 - **PaymentMethod**: 결제 수단
 - **PaymentStatus**: 결제 상태
 
 ### 포인트 도메인
+
 - **Point**: 사용자 포인트 잔액
 - **PointHistory**: 포인트 변동 이력
 - **PointHistoryType**: 포인트 변동 타입 
