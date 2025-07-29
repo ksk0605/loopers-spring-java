@@ -16,6 +16,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.loopers.domain.inventory.Inventory;
+import com.loopers.domain.inventory.InventoryRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.ProductStatus;
@@ -25,11 +27,13 @@ import com.loopers.support.error.ErrorType;
 public class OrderValidatorTest {
     private OrderValidator validator;
     private ProductRepository productRepository;
+    private InventoryRepository inventoryRepository;
 
     @BeforeEach
     public void setUp() {
         productRepository = mock(ProductRepository.class);
-        validator = new OrderValidator(productRepository);
+        inventoryRepository = mock(InventoryRepository.class);
+        validator = new OrderValidator(productRepository, inventoryRepository);
     }
 
     @DisplayName("주문을 처리할 때")
@@ -80,7 +84,7 @@ public class OrderValidatorTest {
                 1L,
                 LocalDateTime.now().plusDays(1)
             );
-            when(productRepository.find(anyLong())).thenReturn(Optional.of(product));
+            when(productRepository.find(1L)).thenReturn(Optional.of(product));
             Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
     
             // act
@@ -105,6 +109,33 @@ public class OrderValidatorTest {
 
             // assert
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("재고가 부족하면, CONFLICT 예외를 발생시킨다.")
+        @Test
+        void validateOrder_whenInventoryIsNotEnough() {
+            // arrange
+            Product product = new Product(
+                "상품",
+                null,
+                BigDecimal.valueOf(10000),
+                ProductStatus.SOLD_OUT,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(1)
+            );
+            Inventory inventory = new Inventory(1L, 1L, 10);
+            when(productRepository.find(1L)).thenReturn(Optional.of(product));
+            when(inventoryRepository.find(1L, 1L)).thenReturn(Optional.of(inventory));
+            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 11)));
+
+            // act
+            CoreException result = assertThrows(CoreException.class, 
+                () -> validator.validateOrder(order)
+            );
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.CONFLICT);
         }
     }
 }
