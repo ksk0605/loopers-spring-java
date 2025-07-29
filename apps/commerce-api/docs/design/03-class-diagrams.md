@@ -4,7 +4,7 @@
 
 ```mermaid
 classDiagram
-    %% 상품 도메인
+%% 상품 도메인
     class Product {
         +Long id
         +String name
@@ -14,11 +14,13 @@ classDiagram
         +Brand brand
         +Category category
         +List<ProductImage> images
-        
+        +LocalDateTime saleStartDate
+        +LocalDateTime saleEndDate
         +changeStatus(ProductStatus status)
         +isAvailable()
         +addImage(String url, boolean isMain)
         +calculatePriceWithOption(ProductOption option)
+        +endSale(LocalDateTime endDate)
     }
 
     class ProductStatus {
@@ -47,7 +49,6 @@ classDiagram
         +String imageUrl
         +Integer sortOrder
         +Boolean isMain
-        
         +setAsMain()
         +updateSortOrder(Integer order)
     }
@@ -59,7 +60,6 @@ classDiagram
         +String optionValue
         +BigDecimal additionalPrice
         +Integer stockQuantity
-        
         +updateStock(Integer quantity)
         +isAvailable()
         +getTotalPrice()
@@ -71,7 +71,6 @@ classDiagram
         +ProductOption productOption
         +Integer quantity
         +Integer reservedQuantity
-        
         +reserve(Integer quantity)
         +release(Integer quantity)
         +getAvailableQuantity()
@@ -96,12 +95,11 @@ classDiagram
         BRAND
     }
 
-    %% 장바구니 도메인
+%% 장바구니 도메인
     class Cart {
         +Long id
         +User user
         +List<CartItem> items
-        
         +addItem(CartItem item)
         +removeItem(Long itemId)
         +updateQuantity(Long itemId, Integer quantity)
@@ -116,13 +114,12 @@ classDiagram
         +ProductOption productOption
         +Integer quantity
         +BigDecimal unitPrice
-        
         +updateQuantity(Integer quantity)
         +calculateTotal()
         +isValid()
     }
 
-    %% 주문 도메인
+%% 주문 도메인
     class Order {
         +Long id
         +User user
@@ -132,7 +129,6 @@ classDiagram
         +BigDecimal deliveryFee
         +DeliveryAddress deliveryAddress
         +LocalDateTime orderDate
-        
         +place()
         +cancel()
         +changeStatus(OrderStatus status)
@@ -158,12 +154,11 @@ classDiagram
         +Integer quantity
         +BigDecimal unitPrice
         +BigDecimal totalPrice
-        
         +calculateTotal()
         +isValid()
     }
 
-    %% 결제 도메인
+%% 결제 도메인
     class Payment {
         +Long id
         +Order order
@@ -172,7 +167,6 @@ classDiagram
         +BigDecimal amount
         +String transactionId
         +LocalDateTime paymentDate
-        
         +process()
         +refund()
         +changeStatus(PaymentStatus status)
@@ -195,7 +189,7 @@ classDiagram
         CANCELLED
     }
 
-    %% 배송 도메인
+%% 배송 도메인
     class DeliveryAddress {
         +Long id
         +User user
@@ -205,18 +199,16 @@ classDiagram
         +String address1
         +String address2
         +Boolean isDefault
-        
         +setAsDefault()
         +updateAddress(String address1, String address2)
         +isValid()
         +getFullAddress()
     }
 
-    %% 포인트 도메인
+%% 포인트 도메인
     class Point {
         +Long id
         +BigDecimal balance
-        
         +earn(BigDecimal amount)
         +use(BigDecimal amount)
         +getBalance()
@@ -231,7 +223,6 @@ classDiagram
         +BigDecimal balanceAfter
         +String description
         +Long relatedId
-        
         +create(PointHistoryType type, BigDecimal amount, String description)
         +isUse()
     }
@@ -253,17 +244,13 @@ classDiagram
     Product --> "N" OrderItem
     Product --> "N" Like
     Product --> "N" Inventory
-
     Category --> "N" Product
-
     Cart --> "N" CartItem
     Order --> "N" OrderItem
     Order --> "1" DeliveryAddress
-
     ProductOption --> "N" CartItem
     ProductOption --> "N" OrderItem
     ProductOption --> "N" Inventory
-
     Like --> "1" LikeType
     Payment --> "1" PaymentMethod
     Payment --> "1" PaymentStatus

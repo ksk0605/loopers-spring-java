@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,6 +32,7 @@ class ProductTest {
             ProductStatus status = ProductStatus.ON_SALE;
             Long brandId = 1L;
             Long categoryId = 1L;
+            LocalDateTime saleStartDate = LocalDateTime.now().plusDays(3);
 
             // act
             Product product = new Product(
@@ -39,7 +41,8 @@ class ProductTest {
                 price,
                 status,
                 brandId,
-                categoryId
+                categoryId,
+                saleStartDate
             );
 
             // assert
@@ -50,6 +53,7 @@ class ProductTest {
                 () -> assertThat(product.getStatus()).isEqualTo(status),
                 () -> assertThat(product.getBrandId()).isEqualTo(brandId),
                 () -> assertThat(product.getCategoryId()).isEqualTo(categoryId),
+                () -> assertThat(product.getSaleStartDate()).isEqualTo(saleStartDate),
                 () -> assertThat(product.getImages().size()).isEqualTo(0)
             );
         }
@@ -65,7 +69,8 @@ class ProductTest {
                     BigDecimal.valueOf(20000),
                     ProductStatus.ON_SALE,
                     1L,
-                    1L
+                    1L,
+                    LocalDateTime.now().plusDays(3)
                 )
             );
 
@@ -85,7 +90,8 @@ class ProductTest {
                     BigDecimal.valueOf(20000),
                     ProductStatus.ON_SALE,
                     1L,
-                    1L
+                    1L,
+                    LocalDateTime.now().plusDays(3)
                 )
             );
 
@@ -105,7 +111,8 @@ class ProductTest {
                     BigDecimal.valueOf(20000),
                     ProductStatus.ON_SALE,
                     1L,
-                    1L
+                    1L,
+                    LocalDateTime.now().plusDays(3)
                 )
             );
 
@@ -128,7 +135,8 @@ class ProductTest {
                     BigDecimal.valueOf(20000),
                     ProductStatus.ON_SALE,
                     1L,
-                    1L
+                    1L,
+                    LocalDateTime.now().plusDays(3)
                 )
             );
 
@@ -148,7 +156,8 @@ class ProductTest {
                     BigDecimal.valueOf(20000),
                     ProductStatus.ON_SALE,
                     1L,
-                    1L
+                    1L,
+                    LocalDateTime.now().plusDays(3)
                 )
             );
 
@@ -167,7 +176,8 @@ class ProductTest {
                     null,
                     ProductStatus.ON_SALE,
                     1L,
-                    1L
+                    1L,
+                    LocalDateTime.now().plusDays(3)
                 )
             );
 
@@ -186,7 +196,8 @@ class ProductTest {
                     BigDecimal.valueOf(20000),
                     null,
                     1L,
-                    1L
+                    1L,
+                    LocalDateTime.now().plusDays(3)
                 )
             );
 
@@ -205,7 +216,8 @@ class ProductTest {
                     BigDecimal.valueOf(20000),
                     ProductStatus.ON_SALE,
                     null,
-                    1L
+                    1L,
+                    LocalDateTime.now().plusDays(3)
                 )
             );
 
@@ -224,7 +236,68 @@ class ProductTest {
                     BigDecimal.valueOf(20000),
                     ProductStatus.ON_SALE,
                     1L,
+                    null,
+                    LocalDateTime.now().plusDays(3)
+                )
+            );
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("상품 판매 시작 날짜가 null 이면, BAD REQUEST 예외를 발생한다.")
+        @Test
+        void throwsBadRequestException_whenSaleStartDateIsNull() {
+            // act
+            CoreException result = assertThrows(CoreException.class, () ->
+                new Product(
+                    "테스트 상품",
+                    "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
+                    BigDecimal.valueOf(20000),
+                    ProductStatus.ON_SALE,
+                    1L,
+                    1L,
                     null
+                )
+            );
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("상품 판매 시작 날짜가 현재 날짜보다 이전이면, BAD REQUEST 예외를 발생한다.")
+        @Test
+        void throwsBadRequestException_whenSaleStartDateIsBeforeCurrentDate() {
+            // act
+            CoreException result = assertThrows(CoreException.class, () ->
+                new Product(
+                    "테스트 상품",
+                    "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
+                    BigDecimal.valueOf(20000),
+                    ProductStatus.ON_SALE,
+                    1L,
+                    1L,
+                    LocalDateTime.now().minusDays(1)
+                )
+            );
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("상품 판매 시작 날짜가 1년 이내가 아니면, BAD REQUEST 예외를 발생한다.")
+        @Test
+        void throwsBadRequestException_whenSaleStartDateIsNotWithinOneYear() {
+            // act
+            CoreException result = assertThrows(CoreException.class, () ->
+                new Product(
+                    "테스트 상품",
+                    "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
+                    BigDecimal.valueOf(20000),
+                    ProductStatus.ON_SALE,
+                    1L,
+                    1L,
+                    LocalDateTime.now().plusYears(1).plusDays(1)
                 )
             );
 
@@ -246,7 +319,8 @@ class ProductTest {
                 BigDecimal.valueOf(20000),
                 ProductStatus.ON_SALE,
                 1L,
-                1L
+                1L,
+                LocalDateTime.now().plusDays(3)
             );
             ProductStatus newStatus = ProductStatus.DISCONTINUED;
 
@@ -267,7 +341,8 @@ class ProductTest {
                 BigDecimal.valueOf(20000),
                 ProductStatus.ON_SALE,
                 1L,
-                1L
+                1L,
+                LocalDateTime.now().plusDays(3)
             );
 
             // act
@@ -291,7 +366,8 @@ class ProductTest {
                 BigDecimal.valueOf(20000),
                 ProductStatus.ON_SALE,
                 1L,
-                1L
+                1L,
+                LocalDateTime.now().plusDays(3)
             );
 
             // act
@@ -312,7 +388,8 @@ class ProductTest {
                 BigDecimal.valueOf(20000),
                 status,
                 1L,
-                1L
+                1L,
+                LocalDateTime.now().plusDays(3)
             );
 
             // act
@@ -336,7 +413,8 @@ class ProductTest {
                 BigDecimal.valueOf(20000),
                 ProductStatus.ON_SALE,
                 1L,
-                1L
+                1L,
+                LocalDateTime.now().plusDays(3)
             );
             String url = "https://image.url";
 
@@ -360,7 +438,8 @@ class ProductTest {
                 BigDecimal.valueOf(20000),
                 ProductStatus.ON_SALE,
                 1L,
-                1L
+                1L,
+                LocalDateTime.now().plusDays(3)
             );
             String url = "https://image.url";
 
@@ -384,7 +463,8 @@ class ProductTest {
                 BigDecimal.valueOf(20000),
                 ProductStatus.ON_SALE,
                 1L,
-                1L
+                1L,
+                LocalDateTime.now().plusDays(3)
             );
             product.addImage("https://image.url", false);
 
@@ -401,6 +481,54 @@ class ProductTest {
                 () -> assertThat(product.getImages().get(1).getImageUrl()).isEqualTo(newImageUrl),
                 () -> assertThat(product.getImages().get(1).isMain()).isFalse()
             );
+        }
+    }
+
+    @DisplayName("상품 판매를 종료할 때, ")
+    @Nested
+    class EndSale {
+        @DisplayName("상품 판매 시작 날짜가 현재 날짜보다 이전이면, BAD REQUEST 예외를 발생한다.")
+        @Test
+        void throwsBadRequestException_whenSaleStartDateIsAfterCurrentDate() {
+            // arrange
+            Product product = new Product(
+                "테스트 상품",
+                "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
+                BigDecimal.valueOf(20000),
+                ProductStatus.ON_SALE,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(3)
+            );
+
+            // act
+            CoreException result = assertThrows(CoreException.class, () -> {
+                product.endSale(LocalDateTime.now());
+            });
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("상품 판매 시작 날짜가 현재 날짜보다 이후이면, 정상적으로 판매를 종료한다.")
+        @Test
+        void endSale_whenSaleStartDateIsAfterCurrentDate() {
+            // act
+            Product product = new Product(
+                "테스트 상품",
+                "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
+                BigDecimal.valueOf(20000),
+                ProductStatus.ON_SALE,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(1)
+            );
+
+            // act
+            product.endSale(LocalDateTime.now().plusDays(2));
+
+            // assert
+            assertThat(product.getStatus()).isEqualTo(ProductStatus.DISCONTINUED);
         }
     }
 }

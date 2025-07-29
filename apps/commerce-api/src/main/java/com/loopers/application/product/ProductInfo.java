@@ -6,6 +6,7 @@ import com.loopers.application.brand.BrandInfo;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductImage;
+import com.loopers.domain.product.ProductSummary;
 
 public record ProductInfo(
     Long id,
@@ -27,6 +28,25 @@ public record ProductInfo(
             BrandInfo.from(brand),
             product.getImages().stream().map(ProductImage::getImageUrl).toList(),
             likeCount
+        );
+    }
+
+    public static ProductInfo from(ProductSummary summary) {
+        BrandInfo brandInfo = new BrandInfo(
+            summary.getBrandId(),
+            summary.getBrandName(),
+            summary.getBrandDescription(),
+            summary.getBrandLogoUrl()
+        );
+        return new ProductInfo(
+            summary.getId(),
+            summary.getName(),
+            summary.getDescription(),
+            summary.getPrice().longValue(),
+            summary.getStatus().name(),
+            brandInfo,
+            summary.getImages().stream().map(ProductImage::getImageUrl).toList(),
+            summary.getLikeCount()
         );
     }
 }

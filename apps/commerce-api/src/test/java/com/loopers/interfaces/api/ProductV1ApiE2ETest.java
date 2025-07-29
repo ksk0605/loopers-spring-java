@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.AfterEach;
@@ -20,9 +21,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.like.Like;
+import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductStatus;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
+import com.loopers.infrastructure.like.LikeJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.interfaces.api.product.ProductV1Dto;
 import com.loopers.utils.DatabaseCleanUp;
@@ -41,6 +45,9 @@ public class ProductV1ApiE2ETest {
     private BrandJpaRepository brandJpaRepository;
 
     @Autowired
+    private LikeJpaRepository likeJpaRepository;
+
+    @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
@@ -50,10 +57,10 @@ public class ProductV1ApiE2ETest {
 
     @DisplayName("GET /api/v1/products/{productId}")
     @Nested
-    class Get {
+    class GetProduct {
         @DisplayName("존재하는 상품 ID를 주면, 해당 상품 정보를 반환한다.")
         @Test
-        void returnsProductInfos_whenValidProductIdProvided() {
+        void returnsProductInfo_whenValidProductIdProvided() {
             // arrange
             productJpaRepository.save(new Product(
                 "테스트 상품",
@@ -61,7 +68,8 @@ public class ProductV1ApiE2ETest {
                 BigDecimal.valueOf(20000),
                 ProductStatus.ON_SALE,
                 1L,
-                1L
+                1L,
+                LocalDateTime.now().plusDays(3)
             ));
             brandJpaRepository.save(new Brand(
                 "테스트 브랜드",
@@ -85,6 +93,75 @@ public class ProductV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().brand().name()).isEqualTo("테스트 브랜드"),
                 () -> assertThat(response.getBody().data().brand().logoUrl()).isNull(),
                 () -> assertThat(response.getBody().data().likeCount()).isEqualTo(0)
+            );
+        }
+    }
+
+    @DisplayName("GET /api/v1/products")
+    @Nested
+    class GetProducts {
+        @DisplayName("판매중 상태인 상품 정보 목록을 반환한다.")
+        @Test
+        void returnsProductInfos_onSale() {
+            // arrange
+            brandJpaRepository.save(new Brand("브랜드 명", null, null));
+            productJpaRepository.save(
+                new Product(
+                    "상품 1",
+                    null,
+                    BigDecimal.valueOf(20000),
+                    ProductStatus.ON_SALE,
+                    1L,
+                    1L,
+                    LocalDateTime.now().plusDays(1)
+                )
+            );
+            productJpaRepository.save(
+                new Product(
+                    "상품 2",
+                    null,
+                    BigDecimal.valueOf(10000),
+                    ProductStatus.ON_SALE,
+                    1L,
+                    1L,
+                    LocalDateTime.now().plusDays(3)
+                )
+            );
+            productJpaRepository.save(
+                new Product(
+                    "상품 3",
+                    null,
+                    BigDecimal.valueOf(30000),
+                    ProductStatus.DISCONTINUED,
+                    1L,
+                    1L,
+                    LocalDateTime.now().plusDays(5)
+                )
+            );
+
+            // 좋아요 세팅
+            likeJpaRepository.save(new Like(1L, 1L, LikeTargetType.PRODUCT));
+            likeJpaRepository.save(new Like(1L, 2L, LikeTargetType.PRODUCT));
+            likeJpaRepository.save(new Like(1L, 3L, LikeTargetType.PRODUCT));
+            likeJpaRepository.save(new Like(2L, 2L, LikeTargetType.PRODUCT));
+            likeJpaRepository.save(new Like(2L, 3L, LikeTargetType.PRODUCT));
+            likeJpaRepository.save(new Like(3L, 2L, LikeTargetType.PRODUCT));
+
+            String requestUrl = ENDPOINT.apply("?page=0&size=10&sortBy=PRICE");
+
+            // act
+            ParameterizedTypeReference<ApiResponse<ProductV1Dto.ProductsResponse>> responseType = new ParameterizedTypeReference<>() {
+            };
+            ResponseEntity<ApiResponse<ProductV1Dto.ProductsResponse>> response =
+                testRestTemplate.exchange(requestUrl, HttpMethod.GET, new HttpEntity<>(null), responseType);
+
+            // assert
+            assertAll(
+                () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
+                () -> assertThat(response.getBody().data().products()).hasSize(2),
+                () -> assertThat(response.getBody().data().pageInfo().currentPage()).isEqualTo(0),
+                () -> assertThat(response.getBody().data().pageInfo().hasNext()).isFalse(),
+                () -> assertThat(response.getBody().data().pageInfo().totalPages()).isEqualTo(1)
             );
         }
     }
