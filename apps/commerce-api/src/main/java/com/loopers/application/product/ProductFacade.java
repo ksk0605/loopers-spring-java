@@ -35,6 +35,7 @@ public class ProductFacade {
         return ProductInfo.of(product, brand, likeCount);
     }
 
+    @Transactional(readOnly = true)
     public ProductsInfo getProducts(String sortBy, int page, int size) {
         Page<ProductSummary> summaries = productSummaryService.summaries(
             new SummarySearchCondition(SortBy.valueOf(sortBy), page, size, ProductStatus.ON_SALE));
