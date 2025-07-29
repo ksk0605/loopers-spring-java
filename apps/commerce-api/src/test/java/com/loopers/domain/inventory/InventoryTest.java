@@ -44,7 +44,7 @@ public class InventoryTest {
             Integer quantity = 0;
 
             // act
-            CoreException result = assertThrows(CoreException.class, 
+            CoreException result = assertThrows(CoreException.class,
                 () -> new Inventory(productId, productOptionId, quantity)
             );
 

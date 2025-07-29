@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class Inventory {
     private static final int MIN_QUANTITY = 0;
-    
+
     private Long productId;
     private Long productOptionId;
     private Integer quantity;

@@ -1,21 +1,20 @@
 package com.loopers.domain.order;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-
 public class OrderTest {
-    
+
     @DisplayName("주문을 생성할 때, ")
     @Nested
     class Create {
@@ -25,7 +24,7 @@ public class OrderTest {
             // arrange
             Long userId = 1L;
             List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1));
-            
+
             // act
             Order order = new Order(userId, items);
 
@@ -43,7 +42,7 @@ public class OrderTest {
             List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1));
 
             // act
-            CoreException result = assertThrows(CoreException.class, 
+            CoreException result = assertThrows(CoreException.class,
                 () -> new Order(null, items)
             );
 

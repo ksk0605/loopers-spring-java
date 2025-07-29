@@ -44,12 +44,12 @@ public class OrderValidatorTest {
         void validateOrder_whenItemsAreEmpty() {
             // arrange
             Order order = new Order(1L, List.of());
-    
+
             // act
-            CoreException result = assertThrows(CoreException.class, 
+            CoreException result = assertThrows(CoreException.class,
                 () -> validator.validateOrder(order)
             );
-    
+
             // assert
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
@@ -62,14 +62,13 @@ public class OrderValidatorTest {
             Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
 
             // act
-            CoreException result = assertThrows(CoreException.class, 
+            CoreException result = assertThrows(CoreException.class,
                 () -> validator.validateOrder(order)
             );
 
             // assert
             assertThat(result.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
         }
-
 
         @DisplayName("상품이 판매 중이 아니면, CONFLICT 예외를 발생시킨다.")
         @Test
@@ -86,12 +85,12 @@ public class OrderValidatorTest {
             );
             when(productRepository.find(1L)).thenReturn(Optional.of(product));
             Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
-    
+
             // act
-            CoreException result = assertThrows(CoreException.class, 
+            CoreException result = assertThrows(CoreException.class,
                 () -> validator.validateOrder(order)
             );
-    
+
             // assert
             assertThat(result.getErrorType()).isEqualTo(ErrorType.CONFLICT);
         }
@@ -103,7 +102,7 @@ public class OrderValidatorTest {
             Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 0)));
 
             // act
-            CoreException result = assertThrows(CoreException.class, 
+            CoreException result = assertThrows(CoreException.class,
                 () -> validator.validateOrder(order)
             );
 
@@ -130,7 +129,7 @@ public class OrderValidatorTest {
             Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 11)));
 
             // act
-            CoreException result = assertThrows(CoreException.class, 
+            CoreException result = assertThrows(CoreException.class,
                 () -> validator.validateOrder(order)
             );
 
