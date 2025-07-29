@@ -3,6 +3,7 @@ package com.loopers.interfaces.api.product;
 import java.util.List;
 
 import com.loopers.application.brand.BrandInfo;
+import com.loopers.application.common.PageInfo;
 import com.loopers.application.product.ProductInfo;
 
 public class ProductV1Dto {
@@ -31,7 +32,8 @@ public class ProductV1Dto {
     }
 
     public record ProductsResponse(
-        List<ProductResponse> products
+        List<ProductResponse> products,
+        PageInfo pageInfo
     ) {
     }
 }

@@ -12,4 +12,10 @@ public interface ProductV1ApiSpec {
         description = "ID로 상품을 조회합니다."
     )
     ApiResponse<ProductV1Dto.ProductResponse> getProduct(Long productId);
+
+    @Operation(
+        summary = "상품 목록 조회",
+        description = "판매 가능한 상품 목록을 조회합니다."
+    )
+    ApiResponse<ProductV1Dto.ProductsResponse> getProducts();
 }

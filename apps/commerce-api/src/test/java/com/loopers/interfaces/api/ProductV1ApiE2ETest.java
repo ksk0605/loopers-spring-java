@@ -51,10 +51,10 @@ public class ProductV1ApiE2ETest {
 
     @DisplayName("GET /api/v1/products/{productId}")
     @Nested
-    class Get {
+    class GetProduct {
         @DisplayName("존재하는 상품 ID를 주면, 해당 상품 정보를 반환한다.")
         @Test
-        void returnsProductInfos_whenValidProductIdProvided() {
+        void returnsProductInfo_whenValidProductIdProvided() {
             // arrange
             productJpaRepository.save(new Product(
                 "테스트 상품",
@@ -87,6 +87,30 @@ public class ProductV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().brand().name()).isEqualTo("테스트 브랜드"),
                 () -> assertThat(response.getBody().data().brand().logoUrl()).isNull(),
                 () -> assertThat(response.getBody().data().likeCount()).isEqualTo(0)
+            );
+        }
+    }
+
+    @DisplayName("GET /api/v1/products")
+    @Nested
+    class GetProducts {
+        @DisplayName("판매중 상태인 상품 정보 목록을 반환한다.")
+        @Test
+        void returnsProductInfos_onSale() {
+            // arrange
+            String requestUrl = ENDPOINT.apply("");
+
+            // act
+            ParameterizedTypeReference<ApiResponse<ProductV1Dto.ProductsResponse>> responseType = new ParameterizedTypeReference<>() {
+            };
+            ResponseEntity<ApiResponse<ProductV1Dto.ProductsResponse>> response =
+                testRestTemplate.exchange(requestUrl, HttpMethod.GET, new HttpEntity<>(null), responseType);
+
+            // assert
+            assertAll(
+                () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
+                () -> assertThat(response.getBody().data().products()).hasSize(0),
+                () -> assertThat(response.getBody().data().pageInfo().currentPage()).isEqualTo(0)
             );
         }
     }
