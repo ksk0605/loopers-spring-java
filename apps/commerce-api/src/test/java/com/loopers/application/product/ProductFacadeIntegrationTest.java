@@ -25,10 +25,6 @@ import com.loopers.utils.DatabaseCleanUp;
 
 @SpringBootTest
 class ProductFacadeIntegrationTest {
-
-    @Autowired
-    private ProductFacade productService;
-
     @Autowired
     private ProductJpaRepository productJpaRepository;
 
