@@ -70,11 +70,7 @@ classDiagram
         +Product product
         +ProductOption productOption
         +Integer quantity
-        +Integer reservedQuantity
-        +reserve(Integer quantity)
-        +release(Integer quantity)
-        +getAvailableQuantity()
-        +updateQuantity(Integer quantity)
+        +canOrder(Integer quantity)
     }
 
 %% 좋아요 도메인
