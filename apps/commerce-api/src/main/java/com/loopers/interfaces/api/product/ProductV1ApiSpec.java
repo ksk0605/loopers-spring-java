@@ -17,5 +17,9 @@ public interface ProductV1ApiSpec {
         summary = "상품 목록 조회",
         description = "판매 가능한 상품 목록을 조회합니다."
     )
-    ApiResponse<ProductV1Dto.ProductsResponse> getProducts();
+    ApiResponse<ProductV1Dto.ProductsResponse> getProducts(
+        String sortBy,
+        Integer page,
+        Integer size
+    );
 }

@@ -1,10 +1,10 @@
 package com.loopers.domain.product;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@Builder
+@AllArgsConstructor
 public class SummarySearchCondition {
     private SortBy sortBy;
     private int page;

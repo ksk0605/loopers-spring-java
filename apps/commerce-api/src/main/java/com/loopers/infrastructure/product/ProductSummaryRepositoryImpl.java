@@ -76,31 +76,20 @@ public class ProductSummaryRepositoryImpl implements ProductSummaryRepository {
     }
 
     private ProductSummary convert(Object[] result) {
-        ProductSummary productSummary = new ProductSummary();
-        productSummary.setId((Long)result[0]);
-        productSummary.setName((String)result[1]);
-        if (result[2] != null) {
-            productSummary.setDescription((String)result[2]);
-        }
-        productSummary.setPrice((BigDecimal)result[3]);
-        productSummary.setStatus(((ProductStatus)result[4]));
-
-        ProductSummary.Brand brandInfo = new ProductSummary.Brand();
-        brandInfo.setId((Long)result[5]);
-        if (result[6] != null) {
-            brandInfo.setDescription((String)result[6]);
-        }
-        if (result[7] != null) {
-            brandInfo.setLogoUrl((String)result[7]);
-        }
-        productSummary.setBrand(brandInfo);
-
-        productSummary.setSaleStartDate((LocalDateTime)result[9]);
-        if (result[10] != null) {
-            productSummary.setSaleEndDate((LocalDateTime)result[10]);
-        }
-        productSummary.setLikeCount((Long)result[11]);
-        return productSummary;
+        return ProductSummary.builder()
+            .id((Long)result[0])
+            .name((String)result[1])
+            .description((String)result[2])
+            .price((BigDecimal)result[3])
+            .status((ProductStatus)result[4])
+            .brandId((Long)result[5])
+            .brandName((String)result[6])
+            .brandDescription((String)result[7])
+            .brandLogoUrl((String)result[8])
+            .saleStartDate((LocalDateTime)result[9])
+            .saleEndDate((LocalDateTime)result[10])
+            .likeCount((Long)result[11])
+            .build();
     }
 
     private Long getTotalCount(SummarySearchCondition condition) {
@@ -120,14 +109,14 @@ public class ProductSummaryRepositoryImpl implements ProductSummaryRepository {
             .toList();
 
         String sql = """
-            SELECT 
+            SELECT
                 pi.id,
                 pi.image_url,
                 pi.is_main,
                 pi.sort_order,
                 pi.product_id
-            FROM product_image pi 
-            WHERE pi.product_id IN (:productIds) 
+            FROM product_image pi
+            WHERE pi.product_id IN (:productIds)
             ORDER BY pi.product_id, pi.sort_order
             """;
 
@@ -142,7 +131,7 @@ public class ProductSummaryRepositoryImpl implements ProductSummaryRepository {
             Long productId = ((Number)imageResult[4]).longValue();
             String imageUrl = (String)imageResult[1];
             Boolean isMain = (Boolean)imageResult[2];
-            Integer sortOrder = ((Number)imageResult[3]).intValue();
+            int sortOrder = ((Number)imageResult[3]).intValue();
 
             ProductImage productImage = new ProductImage(imageUrl, isMain, sortOrder);
 

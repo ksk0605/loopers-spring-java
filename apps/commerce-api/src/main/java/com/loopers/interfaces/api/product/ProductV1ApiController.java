@@ -1,15 +1,14 @@
 package com.loopers.interfaces.api.product;
 
-import java.util.ArrayList;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.loopers.application.common.PageInfo;
 import com.loopers.application.product.ProductFacade;
 import com.loopers.application.product.ProductInfo;
+import com.loopers.application.product.ProductsInfo;
 import com.loopers.interfaces.api.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -32,12 +31,13 @@ public class ProductV1ApiController implements ProductV1ApiSpec {
 
     @GetMapping
     @Override
-    public ApiResponse<ProductV1Dto.ProductsResponse> getProducts() {
-        return ApiResponse.success(
-            new ProductV1Dto.ProductsResponse(
-                new ArrayList<>(),
-                new PageInfo(0, 0, 0, 0, false)
-            )
-        );
+    public ApiResponse<ProductV1Dto.ProductsResponse> getProducts(
+        @RequestParam String sortBy,
+        @RequestParam Integer page,
+        @RequestParam Integer size
+    ) {
+        ProductsInfo productsInfo = productFacade.getProducts(sortBy, page, size);
+        ProductV1Dto.ProductsResponse response = ProductV1Dto.ProductsResponse.from(productsInfo);
+        return ApiResponse.success(response);
     }
 }

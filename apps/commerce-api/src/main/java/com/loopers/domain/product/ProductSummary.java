@@ -5,12 +5,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class ProductSummary {
     private Long id;
     private String name;
@@ -18,18 +18,11 @@ public class ProductSummary {
     private BigDecimal price;
     private ProductStatus status;
     private Long likeCount;
-    private Brand brand;
+    private Long brandId;
+    private String brandName;
+    private String brandDescription;
+    private String brandLogoUrl;
     private List<ProductImage> images;
     private LocalDateTime saleStartDate;
     private LocalDateTime saleEndDate;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Brand {
-        private Long id;
-        private String name;
-        private String description;
-        private String logoUrl;
-    }
 }
