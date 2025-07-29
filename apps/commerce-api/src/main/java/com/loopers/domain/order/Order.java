@@ -25,10 +25,8 @@ public class Order {
         this.orderDate = LocalDateTime.now();
     }
 
-    public void place() {
-        if (this.items.isEmpty()) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "주문 항목이 비어있습니다.");
-        }
+    public void place(OrderValidator validator) {
+        validator.validateOrder(this);
         this.status = OrderStatus.PENDING_PAYMENT;
     }
 }

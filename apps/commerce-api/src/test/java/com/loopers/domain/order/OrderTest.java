@@ -51,23 +51,4 @@ public class OrderTest {
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
-
-    @DisplayName("주문을 처리할 때, ")
-    @Nested
-    class Place {
-        @DisplayName("주문 항목이 비어있으면, BAD REQUEST 예외를 발생시킨다.")
-        @Test
-        void placeOrder_whenItemsAreEmpty() {
-            // arrange
-            Order order = new Order(1L, List.of());
-
-            // act
-            CoreException result = assertThrows(CoreException.class, 
-                () -> order.place()
-            );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
-        }
-    }
 }

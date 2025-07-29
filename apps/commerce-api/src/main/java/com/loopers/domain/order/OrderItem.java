@@ -1,5 +1,8 @@
 package com.loopers.domain.order;
 
+import lombok.Getter;
+
+@Getter
 public class OrderItem {
     private Long id;
     private Long productId;
