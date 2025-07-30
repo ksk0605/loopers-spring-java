@@ -44,6 +44,10 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "product_id")
     private List<ProductImage> images;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "product_id")
+    private List<ProductOption> options;
+
     public Product(
         String name,
         String description,
@@ -51,8 +55,7 @@ public class Product extends BaseEntity {
         ProductStatus status,
         Long brandId,
         Long categoryId,
-        LocalDateTime saleStartDate
-    ) {
+        LocalDateTime saleStartDate) {
         validateName(name);
         validateDescription(description);
         validatePrice(price);
@@ -69,6 +72,7 @@ public class Product extends BaseEntity {
         this.categoryId = categoryId;
         this.images = new ArrayList<>();
         this.saleStartDate = saleStartDate;
+        this.options = new ArrayList<>();
     }
 
     private void validateName(String name) {
@@ -194,5 +198,17 @@ public class Product extends BaseEntity {
 
         this.saleEndDate = endDate;
         this.status = ProductStatus.DISCONTINUED;
+    }
+
+    public BigDecimal calculatePriceWithOption(Long productOptionId, Integer quantity) {
+        ProductOption productOption = options.stream()
+            .filter(option -> option.getId().equals(productOptionId))
+            .findFirst()
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품 옵션입니다."));
+        return price.add(productOption.getAdditionalPrice()).multiply(BigDecimal.valueOf(quantity));
+    }
+
+    public void addOption(ProductOption productOption) {
+        options.add(productOption);
     }
 }
