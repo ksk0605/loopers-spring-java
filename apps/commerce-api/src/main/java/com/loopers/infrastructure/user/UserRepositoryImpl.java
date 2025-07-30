@@ -25,4 +25,10 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<User> find(String userId) {
         return userJpaRepository.findByUserId(userId);
     }
+
+    @Override
+    public Optional<User> find(Long id) {
+        return userJpaRepository.findById(id);
+    }
+
 }

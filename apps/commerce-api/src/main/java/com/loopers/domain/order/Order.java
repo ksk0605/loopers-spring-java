@@ -22,11 +22,19 @@ public class Order {
         }
         this.userId = userId;
         this.items = items;
-        this.orderDate = LocalDateTime.now();
     }
 
     public void place(OrderValidator validator) {
         validator.validateOrder(this);
+        this.orderDate = LocalDateTime.now();
         this.status = OrderStatus.PENDING_PAYMENT;
+    }
+
+    public void paid() {
+        this.status = OrderStatus.PAYMENT_COMPLETED;
+    }
+
+    public boolean isPaid() {
+        return this.status == OrderStatus.PAYMENT_COMPLETED;
     }
 }

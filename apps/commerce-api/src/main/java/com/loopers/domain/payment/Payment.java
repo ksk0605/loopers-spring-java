@@ -26,4 +26,8 @@ public class Payment {
         this.status = PaymentStatus.COMPLETED;
         this.paymentDate = LocalDateTime.now();
     }
+
+    public boolean isAvailable(BigDecimal paymentAmount) {
+        return this.status == PaymentStatus.PENDING && this.amount.compareTo(paymentAmount) <= 0;
+    }
 }
