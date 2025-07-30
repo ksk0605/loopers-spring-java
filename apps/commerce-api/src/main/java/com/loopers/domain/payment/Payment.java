@@ -3,10 +3,19 @@ package com.loopers.domain.payment;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import lombok.Getter;
+import com.loopers.domain.BaseEntity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "payment")
 @Getter
-public class Payment {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Payment extends BaseEntity {
     private Long orderId;
     private PaymentMethod method;
     private PaymentStatus status;
