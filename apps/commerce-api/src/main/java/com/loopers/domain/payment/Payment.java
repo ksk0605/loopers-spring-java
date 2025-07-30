@@ -30,7 +30,7 @@ public class Payment extends BaseEntity {
         this.paymentDate = LocalDateTime.now();
     }
 
-    public void process(PaymentValidator validator) {
+    public void process(PaymentValidationStrategy validator) {
         validator.validate(this);
         this.status = PaymentStatus.COMPLETED;
         this.paymentDate = LocalDateTime.now();

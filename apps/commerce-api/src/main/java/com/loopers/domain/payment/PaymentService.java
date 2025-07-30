@@ -10,11 +10,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final PaymentValidator paymentValidator;
+    private final PaymentValidatorFactory validatorFactory;
 
     public Payment process(Long orderId, PaymentMethod method, BigDecimal amount) {
         Payment payment = new Payment(orderId, method, PaymentStatus.PENDING, amount);
-        payment.process(paymentValidator);
+        payment.process(validatorFactory.getValidator(method));
         return paymentRepository.save(payment);
     }
 }

@@ -23,8 +23,8 @@ import com.loopers.domain.user.UserRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
-public class PaymentValidatorTest {
-    private PaymentValidator validator;
+public class PointPaymentValidatorTest {
+    private PointPaymentValidator validator;
     private OrderRepository orderRepository;
     private UserRepository userRepository;
 
@@ -32,7 +32,7 @@ public class PaymentValidatorTest {
     void setUp() {
         orderRepository = mock(OrderRepository.class);
         userRepository = mock(UserRepository.class);
-        validator = new PaymentValidator(orderRepository, userRepository);
+        validator = new PointPaymentValidator(orderRepository, userRepository);
     }
 
     @DisplayName("결제 유효성 검사 시, ")
@@ -58,10 +58,10 @@ public class PaymentValidatorTest {
         void validatePayment_whenOrderIsAlreadyPaid() {
             // arrange
             Payment payment = new Payment(1L, PaymentMethod.CREDIT_CARD, PaymentStatus.PENDING,
-                    BigDecimal.valueOf(1000));
+                BigDecimal.valueOf(1000));
             Order order = new Order(
-                    1L,
-                    List.of(new OrderItem(1L, 1L, 1)));
+                1L,
+                List.of(new OrderItem(1L, 1L, 1)));
             order.paid();
             User user = new User("userId", Gender.MALE, "1990-01-01", "test@test.com");
             user.chargePoint(1000);
@@ -82,10 +82,10 @@ public class PaymentValidatorTest {
         void validatePayment_whenPointIsLessThanAmount() {
             // arrange
             Payment payment = new Payment(1L, PaymentMethod.CREDIT_CARD, PaymentStatus.PENDING,
-                    BigDecimal.valueOf(1000));
+                BigDecimal.valueOf(1000));
             Order order = new Order(
-                    1L,
-                    List.of(new OrderItem(1L, 1L, 1)));
+                1L,
+                List.of(new OrderItem(1L, 1L, 1)));
             User user = new User("userId", Gender.MALE, "1990-01-01", "test@test.com");
             when(orderRepository.find(1L)).thenReturn(Optional.of(order));
             when(userRepository.find(1L)).thenReturn(Optional.of(user));

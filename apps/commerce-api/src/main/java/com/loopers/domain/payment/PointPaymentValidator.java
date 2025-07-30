@@ -15,10 +15,11 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class PaymentValidator {
+public class PointPaymentValidator implements PaymentValidationStrategy {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
 
+    @Override
     public void validate(Payment payment) {
         checkNull(payment);
 
@@ -37,6 +38,11 @@ public class PaymentValidator {
         if (!payment.isAvailable(BigDecimal.valueOf(user.getPoint()))) {
             throw new CoreException(ErrorType.BAD_REQUEST, "포인트가 부족합니다.");
         }
+    }
+
+    @Override
+    public boolean supports(PaymentMethod method) {
+        return method == PaymentMethod.POINT;
     }
 
     private void checkNull(Payment payment) {
