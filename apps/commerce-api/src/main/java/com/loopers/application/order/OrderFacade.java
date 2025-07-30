@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderItem;
@@ -22,10 +23,12 @@ public class OrderFacade {
     private final OrderPricingService orderPricingService;
     private final PaymentService paymentService;
 
+    @Transactional
     public OrderInfo placeOrder(Long userId, List<OrderItem> items) {
         Order order = orderService.place(userId, items);
         BigDecimal totalPrice = orderPricingService.calculatePrice(order);
         Payment payment = paymentService.process(order.getId(), PaymentMethod.POINT, totalPrice);
+        order.paid();
         return OrderInfo.of(order, payment, totalPrice);
     }
 }

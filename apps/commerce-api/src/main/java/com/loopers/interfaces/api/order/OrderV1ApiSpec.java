@@ -12,6 +12,7 @@ public interface OrderV1ApiSpec {
         description = "주문을 생성합니다."
     )
     ApiResponse<OrderV1Dto.OrderResponse> createOrder(
+        String userId,
         OrderV1Dto.OrderRequest request
     );
 }
