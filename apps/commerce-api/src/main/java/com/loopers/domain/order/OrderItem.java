@@ -1,10 +1,18 @@
 package com.loopers.domain.order;
 
+import com.loopers.domain.BaseEntity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-public class OrderItem {
-    private Long id;
+@Entity
+@Table(name = "order_items")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class OrderItem extends BaseEntity {
     private Long productId;
     private Long productOptionId;
     private Integer quantity;

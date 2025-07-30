@@ -113,4 +113,8 @@ public class User extends BaseEntity {
     public int getPoint() {
         return point;
     }
+
+    public void chargePoint(int amount) {
+        this.point += amount;
+    }
 }
