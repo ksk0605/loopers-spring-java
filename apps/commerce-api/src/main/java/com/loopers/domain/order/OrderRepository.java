@@ -4,4 +4,6 @@ import java.util.Optional;
 
 public interface OrderRepository {
     Optional<Order> find(Long id);
+
+    Order save(Order order);
 }

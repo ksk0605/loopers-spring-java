@@ -1,0 +1,75 @@
+package com.loopers.domain.order;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import com.loopers.domain.product.Product;
+import com.loopers.domain.product.ProductOption;
+import com.loopers.domain.product.ProductStatus;
+import com.loopers.infrastructure.order.OrderJpaRepository;
+import com.loopers.infrastructure.product.ProductJpaRepository;
+
+@SpringBootTest
+public class OrderPricingServiceTest {
+
+    @Autowired
+    private OrderPricingService orderPricingService;
+
+    @Autowired
+    private ProductJpaRepository productJpaRepository;
+
+    @Autowired
+    private OrderJpaRepository orderJpaRepository;
+
+    @DisplayName("총 가격을 계산할 때, ")
+    @Nested
+    class CalculatePrice {
+        @DisplayName("상품 가격과 옵션 가격을 합산하여 반환한다.")
+        @Test
+        void returnsTotalPrice() {
+            // arrange
+            Product product = new Product(
+                "상품 이름",
+                null,
+                BigDecimal.valueOf(10000),
+                ProductStatus.ON_SALE,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(1));
+            product.addOption(new ProductOption(
+                "SIZE",
+                "M",
+                BigDecimal.valueOf(1000)));
+            product.addOption(new ProductOption(
+                "SIZE",
+                "L",
+                BigDecimal.valueOf(2000)));
+            product.addOption(new ProductOption(
+                "SIZE",
+                "XL",
+                BigDecimal.valueOf(3000)));
+            productJpaRepository.save(product);
+
+            Order order = new Order(1L, List.of(
+                new OrderItem(1L, 1L, 1), // 11000
+                new OrderItem(1L, 2L, 2)) // 24000
+            );
+            orderJpaRepository.save(order);
+
+            // act
+            BigDecimal totalPrice = orderPricingService.calculatePrice(order);
+
+            // assert
+            assertThat(totalPrice).isEqualByComparingTo(BigDecimal.valueOf(35000));
+        }
+    }
+}
