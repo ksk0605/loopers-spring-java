@@ -2,10 +2,10 @@ package com.loopers.interfaces.api.product;
 
 import java.util.List;
 
-import com.loopers.application.brand.BrandInfo;
 import com.loopers.application.common.PageInfo;
 import com.loopers.application.product.ProductInfo;
 import com.loopers.application.product.ProductsInfo;
+import com.loopers.domain.brand.BrandInfo;
 
 public class ProductV1Dto {
     public record ProductResponse(

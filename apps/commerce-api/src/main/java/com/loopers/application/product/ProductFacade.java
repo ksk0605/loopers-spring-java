@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.application.common.PageInfo;
-import com.loopers.domain.brand.Brand;
+import com.loopers.domain.brand.BrandInfo;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.like.LikeService;
 import com.loopers.domain.like.LikeTargetType;
@@ -30,7 +30,7 @@ public class ProductFacade {
     @Transactional(readOnly = true)
     public ProductInfo getProduct(Long productId) {
         Product product = productService.get(productId);
-        Brand brand = brandService.get(product.getBrandId());
+        BrandInfo brand = brandService.get(product.getBrandId());
         Long likeCount = likeService.count(productId, LikeTargetType.PRODUCT);
         return ProductInfo.of(product, brand, likeCount);
     }
