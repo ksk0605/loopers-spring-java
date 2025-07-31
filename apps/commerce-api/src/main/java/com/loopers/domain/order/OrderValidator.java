@@ -18,10 +18,6 @@ public class OrderValidator {
     private final InventoryRepository inventoryRepository;
 
     public void validateOrder(Order order) {
-        if (order.getItems().isEmpty()) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "주문 항목이 비어있습니다.");
-        }
-
         for (OrderItem item : order.getItems()) {
             validateOrderItem(item);
         }

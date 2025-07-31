@@ -39,21 +39,6 @@ public class OrderValidatorTest {
     @DisplayName("주문을 처리할 때")
     @Nested
     class Validate {
-        @DisplayName("주문 항목이 비어있으면, BAD REQUEST 예외를 발생시킨다.")
-        @Test
-        void validateOrder_whenItemsAreEmpty() {
-            // arrange
-            Order order = new Order(1L, List.of());
-
-            // act
-            CoreException result = assertThrows(CoreException.class,
-                () -> validator.validateOrder(order)
-            );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
-        }
-
         @DisplayName("존재하지 않는 상품을 주문하려고 하면, NOT FOUND 예외를 발생시킨다.")
         @Test
         void validateOrder_whenProductIsNotFound() {
