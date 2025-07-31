@@ -49,6 +49,30 @@ public class OrderTest {
             // assert
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
+
+        @DisplayName("주문 아이템이 비어있으면, BAD REQUEST 예외를 발생시킨다.")
+        @Test
+        void createOrder_whenItemsIsEmpty() {
+            // act
+            CoreException result = assertThrows(CoreException.class,
+                () -> new Order(1L, List.of())
+            );
+            
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("주문 아이템이 null이면, BAD REQUEST 예외를 발생시킨다.")
+        @Test
+        void createOrder_whenItemsIsNull() {
+            // act
+            CoreException result = assertThrows(CoreException.class,
+                () -> new Order(1L, null)
+            );
+            
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
     }
 
     @DisplayName("주문을 결제처리할 때, ")
