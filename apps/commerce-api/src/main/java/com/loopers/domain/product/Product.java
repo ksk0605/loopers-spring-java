@@ -143,19 +143,10 @@ public class Product extends BaseEntity {
     }
 
     public void endSale(LocalDateTime endDate) {
-        if (this.status != ProductStatus.ON_SALE) {
-            throw new CoreException(ErrorType.BAD_REQUEST,
-                "판매중인 상품만 판매 종료할 수 있습니다. 현재 상태: " + this.status);
-        }
-
-        if (endDate == null) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "판매 종료일은 필수입니다.");
-        }
-
-        LocalDateTime now = LocalDateTime.now();
-        if (endDate.isBefore(now)) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "판매 종료일은 현재 시간 이후여야 합니다.");
-        }
+        require(this.status == ProductStatus.ON_SALE, "판매중인 상품만 판매 종료할 수 있습니다. 현재 상태: " + this.status);
+        require(endDate != null, "판매 종료일은 필수입니다.");
+        require(endDate.isAfter(LocalDateTime.now()), "판매 종료일은 현재 시간 이후여야 합니다.");
+        require(endDate.isAfter(this.saleStartDate), "판매 종료일은 판매 시작일 이후여야 합니다.");
 
         this.saleEndDate = endDate;
         this.status = ProductStatus.DISCONTINUED;

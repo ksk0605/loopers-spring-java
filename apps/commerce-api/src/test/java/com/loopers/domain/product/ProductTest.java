@@ -487,9 +487,56 @@ class ProductTest {
     @DisplayName("상품 판매를 종료할 때, ")
     @Nested
     class EndSale {
-        @DisplayName("상품 판매 시작 날짜가 현재 날짜보다 이전이면, BAD REQUEST 예외를 발생한다.")
+
+        @DisplayName("상품 판매 종료 날짜가 없으면, BAD REQUEST 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenSaleStartDateIsAfterCurrentDate() {
+        void throwsBadRequestException_whenSaleEndDateIsNull() {
+            // arrange
+            Product product = new Product(
+                "테스트 상품",
+                "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
+                BigDecimal.valueOf(20000),
+                ProductStatus.ON_SALE,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(3)
+            );
+
+            // act
+            CoreException result = assertThrows(CoreException.class, () -> {
+                product.endSale(null);
+            });
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("상품이 판매중 상태가 아니면, BAD REQUEST 예외를 발생한다.")
+        @Test
+        void throwsBadRequestException_whenProductIsNotOnSale() {
+            // arrange
+            Product product = new Product(
+                "테스트 상품",
+                "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
+                BigDecimal.valueOf(20000),
+                ProductStatus.DISCONTINUED,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(3)
+            );
+
+            // act
+            CoreException result = assertThrows(CoreException.class, () -> {
+                product.endSale(LocalDateTime.now().plusDays(1));
+            });
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("상품 판매 종료 날짜가 판매 시작 날짜보다 이전이면, BAD REQUEST 예외를 발생한다.")
+        @Test
+        void throwsBadRequestException_whenSaleEndDateIsBeforeSaleStartDate() {
             // arrange
             Product product = new Product(
                 "테스트 상품",
@@ -510,10 +557,33 @@ class ProductTest {
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 판매 시작 날짜가 현재 날짜보다 이후이면, 정상적으로 판매를 종료한다.")
+        @DisplayName("상품 판매 종료 날짜가 현재 날짜보다 이전이면, BAD REQUEST 예외를 발생한다.")
         @Test
-        void endSale_whenSaleStartDateIsAfterCurrentDate() {
+        void throwsBadRequestException_whenSaleEndDateIsBeforeCurrentDate() {
+            // arrange
+            Product product = new Product(
+                "테스트 상품",
+                "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
+                BigDecimal.valueOf(20000),
+                ProductStatus.ON_SALE,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(1)
+            );
+
             // act
+            CoreException result = assertThrows(CoreException.class, () -> {
+                product.endSale(LocalDateTime.now().minusDays(1));
+            });
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("상품 판매 종료 날짜가 판매 시작 날짜보다 이후이고 현재 판매중이면, 정상적으로 판매를 종료한다.")
+        @Test
+        void endSale_whenSaleEndDateIsAfterSaleStartDateAndProductIsOnSale() {
+            // arrange
             Product product = new Product(
                 "테스트 상품",
                 "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
