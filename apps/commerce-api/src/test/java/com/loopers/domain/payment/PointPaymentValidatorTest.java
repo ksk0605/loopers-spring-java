@@ -62,7 +62,7 @@ public class PointPaymentValidatorTest {
             Order order = new Order(
                 1L,
                 List.of(new OrderItem(1L, 1L, 1)));
-            order.paid();
+            order.pay();
             User user = new User("userId", Gender.MALE, "1990-01-01", "test@test.com");
             user.chargePoint(1000);
             when(orderRepository.find(1L)).thenReturn(Optional.of(order));

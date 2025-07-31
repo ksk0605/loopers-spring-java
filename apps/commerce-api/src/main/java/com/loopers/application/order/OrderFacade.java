@@ -28,7 +28,7 @@ public class OrderFacade {
         Order order = orderService.place(userId, items);
         BigDecimal totalPrice = orderPricingService.calculatePrice(order);
         Payment payment = paymentService.process(order.getId(), PaymentMethod.POINT, totalPrice);
-        order.paid();
+        order.pay();
         return OrderInfo.of(order, payment, totalPrice);
     }
 }

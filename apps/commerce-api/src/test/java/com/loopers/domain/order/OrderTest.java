@@ -50,4 +50,37 @@ public class OrderTest {
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
+
+    @DisplayName("주문을 결제처리할 때, ")
+    @Nested
+    class Pay {
+        @DisplayName("주문이 결제 대기 중이라면, 주문 상태를 결제완료로 변경한다.")
+        @Test
+        void payOrder_whenOrderIsPendingPayment() {
+            // arrange
+            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
+
+            // act
+            order.pay();
+
+            // assert
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
+        }
+
+        @DisplayName("주문이 결제 완료되어 있다면, 예외를 발생시킨다.")
+        @Test
+        void payOrder_whenOrderIsPaid() {
+            // arrange
+            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
+            order.pay();
+
+            // act
+            CoreException result = assertThrows(CoreException.class,
+                () -> order.pay()
+            );
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+    }
 }

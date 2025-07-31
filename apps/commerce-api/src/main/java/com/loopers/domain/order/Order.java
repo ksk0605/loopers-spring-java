@@ -42,7 +42,10 @@ public class Order extends BaseEntity {
         this.status = OrderStatus.PENDING_PAYMENT;
     }
 
-    public void paid() {
+    public void pay() {
+        if (this.status == OrderStatus.PAYMENT_COMPLETED) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "이미 결제된 주문입니다.");
+        }
         this.status = OrderStatus.PAYMENT_COMPLETED;
     }
 
