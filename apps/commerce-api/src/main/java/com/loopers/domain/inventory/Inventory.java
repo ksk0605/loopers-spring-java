@@ -1,5 +1,7 @@
 package com.loopers.domain.inventory;
 
+import static com.loopers.support.util.RequireUtils.requireNotNull;
+
 import com.loopers.domain.BaseEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -22,13 +24,17 @@ public class Inventory extends BaseEntity {
     private Integer quantity;
 
     public Inventory(Long productId, Long productOptionId, Integer quantity) {
-        if (quantity <= MIN_QUANTITY) {
+        validateQuantity(quantity);
+
+        this.productId = requireNotNull(productId);
+        this.productOptionId = requireNotNull(productOptionId);
+        this.quantity = requireNotNull(quantity);
+    }
+
+    private void validateQuantity(Integer quantity) {
+        if (quantity < MIN_QUANTITY) {
             throw new CoreException(ErrorType.BAD_REQUEST, "재고는 0 이상이어야 합니다.");
         }
-
-        this.productId = productId;
-        this.productOptionId = productOptionId;
-        this.quantity = quantity;
     }
 
     public boolean canOrder(Integer orderQuantity) {
