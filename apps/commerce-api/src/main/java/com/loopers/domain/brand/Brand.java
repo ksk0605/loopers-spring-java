@@ -1,5 +1,7 @@
 package com.loopers.domain.brand;
 
+import static com.loopers.support.util.RequireUtils.requireNonEmpty;
+
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
@@ -31,17 +33,10 @@ public class Brand {
     private String logoUrl;
 
     public Brand(String name, String description, String logoUrl) {
-        validateName(name);
         validateDescription(description);
-        this.name = name;
+        this.name = requireNonEmpty(name, "브랜드 이름은 비어있을 수 없습니다.");
         this.description = description;
         this.logoUrl = logoUrl;
-    }
-
-    private void validateName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "브랜드 이름은 비어있을 수 없습니다.");
-        }
     }
 
     private void validateDescription(String description) {
