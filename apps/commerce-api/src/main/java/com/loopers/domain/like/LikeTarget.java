@@ -2,6 +2,8 @@ package com.loopers.domain.like;
 
 import java.util.Objects;
 
+import static com.loopers.support.util.RequireUtils.requireNotNull;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -20,8 +22,8 @@ public class LikeTarget {
     LikeTargetType type;
 
     public LikeTarget(Long id, LikeTargetType type) {
-        this.id = id;
-        this.type = type;
+        this.id = requireNotNull(id, "좋아요 타겟 ID는 필수입니다.");
+        this.type = requireNotNull(type, "좋아요 타겟 타입은 필수입니다.");
     }
 
     public Long id() {
