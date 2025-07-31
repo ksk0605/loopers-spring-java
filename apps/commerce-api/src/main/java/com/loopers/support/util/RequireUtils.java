@@ -8,7 +8,7 @@ import com.loopers.support.error.ErrorType;
 
 /**
  * 코틀린의 require 모방한 유틸리티 클래스
- * 엔티티 생성 시 필수 값 검증을 위해 사용하는 것을 권장합니다.
+ * 엔티티 생성 시, 도메인 행위 시 필요한 파라매터를 검증하는 상황에서 사용을 권장합니다.
  * 예시:
  * <pre>
  * public class User {
