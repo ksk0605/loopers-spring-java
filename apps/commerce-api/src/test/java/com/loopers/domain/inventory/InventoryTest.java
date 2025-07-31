@@ -61,6 +61,18 @@ public class InventoryTest {
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
+        @DisplayName("재고가 없으면, BAD REQUEST 예외를 발생시킨다.")
+        @Test
+        void createInventory_whenQuantityIsEmpty() {
+            // act
+            CoreException result = assertThrows(CoreException.class,
+                () -> new Inventory(1L, 1L, null)
+            );
+
+            // assert
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
         @DisplayName("재고가 0 미만이면, BAD REQUEST 예외를 발생시킨다.")
         @Test
         void createInventory_whenQuantityIsZero() {
