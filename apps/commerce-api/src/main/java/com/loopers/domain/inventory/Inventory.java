@@ -1,8 +1,9 @@
 package com.loopers.domain.inventory;
 
+import static com.loopers.support.util.RequireUtils.require;
+import static com.loopers.support.util.RequireUtils.requireNotNull;
+
 import com.loopers.domain.BaseEntity;
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -22,13 +23,10 @@ public class Inventory extends BaseEntity {
     private Integer quantity;
 
     public Inventory(Long productId, Long productOptionId, Integer quantity) {
-        if (quantity <= MIN_QUANTITY) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "재고는 0 이상이어야 합니다.");
-        }
-
-        this.productId = productId;
-        this.productOptionId = productOptionId;
-        this.quantity = quantity;
+        this.productId = requireNotNull(productId);
+        this.productOptionId = requireNotNull(productOptionId);
+        this.quantity = requireNotNull(quantity);
+        require(quantity >= MIN_QUANTITY, "재고는 0 이상이어야 합니다.");
     }
 
     public boolean canOrder(Integer orderQuantity) {
