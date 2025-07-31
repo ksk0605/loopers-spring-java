@@ -1,9 +1,7 @@
 package com.loopers.domain.brand;
 
+import static com.loopers.support.util.RequireUtils.require;
 import static com.loopers.support.util.RequireUtils.requireNonEmpty;
-
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,24 +31,17 @@ public class Brand {
     private String logoUrl;
 
     public Brand(String name, String description, String logoUrl) {
-        validateDescription(description);
         this.name = requireNonEmpty(name, "브랜드 이름은 비어있을 수 없습니다.");
         this.description = description;
         this.logoUrl = logoUrl;
+
+        if (description != null) 
+            validateDescription(description);
     }
 
     private void validateDescription(String description) {
-        if (description == null) {
-            return;
-        }
-        if (description.isBlank()) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "브랜드 설명은 빈칸으로 작성할 수 없습니다.");
-        }
-        if (description.length() < MINIMUM_DESCRIPTION_SIZE) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "브랜드 설명은 10자 이상이어야 합니다.");
-        }
-        if (description.length() > MAXIMUM_DESCRIPTION_SIZE) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "브랜드 설명은 50자 미만이어야 합니다.");
-        }
+        require(!description.isBlank(), "브랜드 설명은 빈칸으로 작성할 수 없습니다.");
+        require(description.length() >= MINIMUM_DESCRIPTION_SIZE, "브랜드 설명은 10자 이상이어야 합니다.");
+        require(description.length() <= MAXIMUM_DESCRIPTION_SIZE, "브랜드 설명은 50자 미만이어야 합니다.");
     }
 }
