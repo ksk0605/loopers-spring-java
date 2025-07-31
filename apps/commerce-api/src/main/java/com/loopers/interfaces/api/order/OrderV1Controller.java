@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.loopers.application.order.OrderFacade;
 import com.loopers.application.order.OrderResult;
-import com.loopers.application.user.UserFacade;
-import com.loopers.application.user.UserInfo;
 import com.loopers.domain.order.OrderCommand;
+import com.loopers.domain.user.UserInfo;
+import com.loopers.domain.user.UserService;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.interfaces.api.order.OrderV1Dto.OrderRequest;
 import com.loopers.interfaces.api.order.OrderV1Dto.OrderResponse;
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderV1Controller implements OrderV1ApiSpec {
 
     private final OrderFacade orderFacade;
-    private final UserFacade userFacade;
+    private final UserService userService;
 
     @PostMapping
     @Override
@@ -31,7 +31,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
         @RequestHeader(name = "X-USER-ID", required = true) String userId,
         @RequestBody OrderRequest request) {
         var orderOptions = request.toOrderOptions();
-        UserInfo user = userFacade.getUser(userId);
+        UserInfo user = userService.get(userId);
         OrderCommand.Place command = new OrderCommand.Place(user.id(), orderOptions);
         OrderResult result = orderFacade.placeOrder(command);
         return ApiResponse.success(OrderResponse.from(result));
