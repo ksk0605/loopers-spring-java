@@ -1,12 +1,12 @@
 package com.loopers.domain.order;
 
+import static com.loopers.support.util.RequireUtils.requireNonEmpty;
+import static com.loopers.support.util.RequireUtils.requireNotNull;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.loopers.domain.BaseEntity;
-import static com.loopers.support.util.RequireUtils.requireNotNull;
-import static com.loopers.support.util.RequireUtils.requireNonEmpty;
-
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
@@ -25,13 +25,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
     private Long userId;
-    
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")
     private List<OrderItem> items;
-    
+
     private OrderStatus status;
-    
+
     private LocalDateTime orderDate;
 
     public Order(Long userId, List<OrderItem> items) {

@@ -1,18 +1,15 @@
 package com.loopers.application.order;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.loopers.domain.order.Order;
-import com.loopers.domain.order.OrderItem;
-import com.loopers.domain.order.OrderPricingService;
+import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderService;
-import com.loopers.domain.payment.Payment;
+import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentService;
+import com.loopers.domain.product.ProductCommand;
+import com.loopers.domain.product.ProductPricingService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,15 +17,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderFacade {
     private final OrderService orderService;
-    private final OrderPricingService orderPricingService;
+    private final ProductPricingService productPricingService;
     private final PaymentService paymentService;
 
     @Transactional
-    public OrderInfo placeOrder(Long userId, List<OrderItem> items) {
-        Order order = orderService.place(userId, items);
-        BigDecimal totalPrice = orderPricingService.calculatePrice(order);
-        Payment payment = paymentService.process(order.getId(), PaymentMethod.POINT, totalPrice);
-        order.pay();
-        return OrderInfo.of(order, payment, totalPrice);
+    public OrderResult placeOrder(OrderCommand.Place command) {
+        var orderInfo = orderService.place(command);
+
+        var options = orderInfo.items().stream()
+            .map(item -> new ProductCommand.PricingOption(
+                item.productId(),
+                item.productOptionId(),
+                item.quantity()))
+            .toList();
+        var productCommand = new ProductCommand.CalculatePrice(options);
+        var totalPrice = productPricingService.calculatePrice(productCommand);
+
+        var paymentCommand = new PaymentCommand.Process(orderInfo.id(), PaymentMethod.POINT, totalPrice);
+        var paymentInfo = paymentService.process(paymentCommand);
+
+        orderInfo = orderService.pay(orderInfo.id());
+        return OrderResult.of(orderInfo, paymentInfo, totalPrice);
     }
 }

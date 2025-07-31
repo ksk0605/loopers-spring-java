@@ -1,7 +1,5 @@
 package com.loopers.domain.payment;
 
-import java.math.BigDecimal;
-
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +12,9 @@ public class PaymentService {
     private final PaymentValidatorFactory validatorFactory;
 
     @Transactional
-    public Payment process(Long orderId, PaymentMethod method, BigDecimal amount) {
-        Payment payment = new Payment(orderId, method, PaymentStatus.PENDING, amount);
-        payment.process(validatorFactory.getValidator(method));
-        return paymentRepository.save(payment);
+    public PaymentInfo process(PaymentCommand.Process command) {
+        Payment payment = new Payment(command.orderId(), command.method(), PaymentStatus.PENDING, command.amount());
+        payment.process(validatorFactory.getValidator(command.method()));
+        return PaymentInfo.from(paymentRepository.save(payment));
     }
 }

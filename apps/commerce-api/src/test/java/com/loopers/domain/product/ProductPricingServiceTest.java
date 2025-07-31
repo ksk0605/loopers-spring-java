@@ -1,4 +1,4 @@
-package com.loopers.domain.order;
+package com.loopers.domain.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,17 +12,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.loopers.domain.product.Product;
-import com.loopers.domain.product.ProductOption;
-import com.loopers.domain.product.ProductStatus;
+import com.loopers.domain.order.Order;
+import com.loopers.domain.order.OrderItem;
 import com.loopers.infrastructure.order.OrderJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 
 @SpringBootTest
-public class OrderPricingServiceTest {
+public class ProductPricingServiceTest {
 
     @Autowired
-    private OrderPricingService orderPricingService;
+    private ProductPricingService productPricingService;
 
     @Autowired
     private ProductJpaRepository productJpaRepository;
@@ -64,9 +63,13 @@ public class OrderPricingServiceTest {
                 new OrderItem(1L, 2L, 2)) // 24000
             );
             orderJpaRepository.save(order);
+            List<ProductCommand.PricingOption> options = order.getItems().stream()
+                .map(item -> new ProductCommand.PricingOption(item.getProductId(), item.getProductOptionId(), item.getQuantity()))
+                .toList();
+            ProductCommand.CalculatePrice command = new ProductCommand.CalculatePrice(options);
 
             // act
-            BigDecimal totalPrice = orderPricingService.calculatePrice(order);
+            BigDecimal totalPrice = productPricingService.calculatePrice(command);
 
             // assert
             assertThat(totalPrice).isEqualByComparingTo(BigDecimal.valueOf(35000));
