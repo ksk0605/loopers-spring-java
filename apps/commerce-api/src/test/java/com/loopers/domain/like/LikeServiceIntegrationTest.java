@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import com.loopers.infrastructure.like.LikeJpaRepository;
+import com.loopers.infrastructure.like.LikeSummaryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 
 @SpringBootTest
@@ -28,6 +29,9 @@ class LikeServiceIntegrationTest {
 
     @MockitoSpyBean
     private LikeJpaRepository likeJpaRepository;
+
+    @MockitoSpyBean
+    private LikeSummaryJpaRepository likeSummaryJpaRepository;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -50,6 +54,7 @@ class LikeServiceIntegrationTest {
             Optional<Like> like = likeJpaRepository.findById(1L);
             assertAll(
                 () -> verify(likeJpaRepository, times(1)).save(any(Like.class)),
+                () -> verify(likeSummaryJpaRepository, times(1)).save(any(LikeSummary.class)),
                 () -> assertThat(like).isPresent(),
                 () -> assertThat(like.get().getUserId()).isEqualTo(1L),
                 () -> assertThat(like.get().getTarget().id()).isEqualTo(1L),
@@ -69,6 +74,7 @@ class LikeServiceIntegrationTest {
             List<Like> likes = likeJpaRepository.findAll();
             assertAll(
                 () -> verify(likeJpaRepository, times(1)).save(any(Like.class)),
+                () -> verify(likeSummaryJpaRepository, times(0)).save(any(LikeSummary.class)),
                 () -> assertThat(likes).hasSize(1));
         }
     }

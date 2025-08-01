@@ -8,10 +8,12 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Embeddable
 @EqualsAndHashCode(of = {"id", "type"})
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LikeTarget {
     @Column(name = "target_id")
