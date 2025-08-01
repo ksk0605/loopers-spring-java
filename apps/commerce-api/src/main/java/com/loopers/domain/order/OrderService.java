@@ -42,8 +42,8 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderInfo get(Long orderId) {
-        return OrderInfo.from(orderRepository.find(orderId)
+    public OrderInfo get(Long orderId, Long userId) {
+        return OrderInfo.from(orderRepository.find(orderId, userId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 주문입니다.")));
     }
 }

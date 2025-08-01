@@ -23,4 +23,13 @@ public interface OrderV1ApiSpec {
     ApiResponse<OrderV1Dto.OrderResponses> getOrders(
         String userId
     );
+
+    @Operation(
+        summary = "주문 조회",
+        description = "주문을 조회합니다."
+    )
+    ApiResponse<OrderV1Dto.OrderResponse> getOrder(
+        String userId,
+        Long orderId
+    );
 }

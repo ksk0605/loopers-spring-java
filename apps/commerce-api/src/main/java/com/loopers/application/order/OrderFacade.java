@@ -60,8 +60,8 @@ public class OrderFacade {
             .toList();
     }
 
-    public OrderResult getOrder(Long orderId) {
-        var orderInfo = orderService.get(orderId);
+    public OrderResult getOrder(Long orderId, Long userId) {
+        var orderInfo = orderService.get(orderId, userId);
         var options = orderInfo.items().stream()
             .map(item -> new ProductCommand.PricingOption(
                 item.productId(),

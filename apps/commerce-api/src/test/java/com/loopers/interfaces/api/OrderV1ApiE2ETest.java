@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +44,7 @@ import com.loopers.utils.DatabaseCleanUp;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class OrderV1ApiE2ETest {
     private static final String ENDPOINT = "/api/v1/orders";
+    private static final Function<Long, String> GET_ORDER_ENDPOINT = orderId -> "/api/v1/orders/" + orderId;
 
     @Autowired
     private TestRestTemplate testRestTemplate;
@@ -303,7 +305,8 @@ public class OrderV1ApiE2ETest {
             productJpaRepository.save(product);
 
             orderJpaRepository.save(new Order(1L, List.of(new OrderItem(1L, 1L, 2))));
-            paymentJpaRepository.save(new Payment(1L, PaymentMethod.POINT, PaymentStatus.COMPLETED, BigDecimal.valueOf(10000)));
+            paymentJpaRepository
+                .save(new Payment(1L, PaymentMethod.POINT, PaymentStatus.COMPLETED, BigDecimal.valueOf(10000)));
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");
@@ -320,8 +323,10 @@ public class OrderV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().orders()).hasSize(1),
                 () -> assertThat(response.getBody().data().orders().get(0).id()).isEqualTo(1L),
                 () -> assertThat(response.getBody().data().orders().get(0).items()).hasSize(1),
-                () -> assertThat(response.getBody().data().orders().get(0).items().get(0).productId()).isEqualTo(1L),
-                () -> assertThat(response.getBody().data().orders().get(0).items().get(0).productOptionId()).isEqualTo(1L),
+                () -> assertThat(response.getBody().data().orders().get(0).items().get(0).productId())
+                    .isEqualTo(1L),
+                () -> assertThat(response.getBody().data().orders().get(0).items().get(0).productOptionId())
+                    .isEqualTo(1L),
                 () -> assertThat(response.getBody().data().orders().get(0).items().get(0).quantity()).isEqualTo(2),
                 () -> assertThat(response.getBody().data().orders().get(0).userId()).isEqualTo(1L));
         }
@@ -341,8 +346,68 @@ public class OrderV1ApiE2ETest {
 
             // assert
             assertAll(
-                () -> assertTrue(response.getStatusCode().is4xxClientError())
-            );
+                () -> assertTrue(response.getStatusCode().is4xxClientError()));
+        }
+    }
+
+    @DisplayName("GET /api/v1/orders/{orderId}")
+    @Nested
+    class GetOrder {
+        @DisplayName("올바른 주문 ID를 주면, 주문 조회 성공 응답을 반환한다.")
+        @Test
+        void returnsOrderInfo_whenValidOrderId() {
+            // arrange
+            userJpaRepository.save(new User(
+                "testUser",
+                Gender.MALE,
+                "1997-06-05",
+                "test@loopers.com"));
+
+            Product product = new Product(
+                "상품 이름",
+                null,
+                BigDecimal.valueOf(10000),
+                ProductStatus.ON_SALE,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(1));
+            product.addOption(new ProductOption(
+                "SIZE",
+                "M",
+                BigDecimal.valueOf(1000)));
+            product.addOption(new ProductOption(
+                "SIZE",
+                "L",
+                BigDecimal.valueOf(2000)));
+            productJpaRepository.save(product);
+
+            orderJpaRepository.save(new Order(1L, List.of(new OrderItem(1L, 1L, 2))));
+            paymentJpaRepository
+                .save(new Payment(1L, PaymentMethod.POINT, PaymentStatus.COMPLETED, BigDecimal.valueOf(22000)));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-USER-ID", "testUser");
+            String requestUrl = GET_ORDER_ENDPOINT.apply(1L);
+
+            // act
+            ParameterizedTypeReference<ApiResponse<OrderV1Dto.OrderResponse>> responseType = new ParameterizedTypeReference<>() {
+            };
+            ResponseEntity<ApiResponse<OrderV1Dto.OrderResponse>> response = testRestTemplate.exchange(requestUrl,
+                HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+
+            // assert
+            assertAll(
+                () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
+                () -> assertThat(response.getBody().data().id()).isEqualTo(1L),
+                () -> assertThat(response.getBody().data().items()).hasSize(1),
+                () -> assertThat(response.getBody().data().items().get(0).productId()).isEqualTo(1L),
+                () -> assertThat(response.getBody().data().items().get(0).productOptionId()).isEqualTo(1L),
+                () -> assertThat(response.getBody().data().items().get(0).quantity()).isEqualTo(2),
+                () -> assertThat(response.getBody().data().userId()).isEqualTo(1L),
+                () -> assertThat(response.getBody().data().orderStatus()).isEqualTo("PENDING"),
+                () -> assertThat(response.getBody().data().paymentMethod()).isEqualTo("POINT"),
+                () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo("COMPLETED"),
+                () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(22000L));
         }
     }
 }
