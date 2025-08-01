@@ -61,4 +61,14 @@ public class OrderV1Dto {
                 orderInfo.totalPrice().longValue());
         }
     }
+
+    public record OrderResponses(
+        List<OrderResponse> orders) {
+        public static OrderResponses from(List<OrderResult> results) {
+            return new OrderResponses(
+                results.stream()
+                    .map(OrderResponse::from)
+                    .toList());
+        }
+    }
 }

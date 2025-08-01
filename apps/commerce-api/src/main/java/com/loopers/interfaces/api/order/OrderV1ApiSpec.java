@@ -15,4 +15,12 @@ public interface OrderV1ApiSpec {
         String userId,
         OrderV1Dto.OrderRequest request
     );
+
+    @Operation(
+        summary = "주문 목록 조회",
+        description = "주문 목록을 조회합니다."
+    )
+    ApiResponse<OrderV1Dto.OrderResponses> getOrders(
+        String userId
+    );
 }
