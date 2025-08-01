@@ -22,4 +22,10 @@ public class LikeFacade {
         likeService.like(userInfo.id(), productInfo.id(), LikeTargetType.PRODUCT);
         return new LikeResult(userInfo.id(), productInfo.id(), LikeTargetType.PRODUCT);
     }
+
+    public void unlikeProduct(LikeCriteria.UnlikeProduct criteria) {
+        var userInfo = userService.get(criteria.userId());
+        var productInfo = productService.get(criteria.productId());
+        likeService.unlike(userInfo.id(), productInfo.id(), LikeTargetType.PRODUCT);
+    }
 }

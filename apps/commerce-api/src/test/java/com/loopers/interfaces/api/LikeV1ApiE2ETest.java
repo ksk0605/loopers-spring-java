@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import com.loopers.domain.like.Like;
 import com.loopers.domain.like.LikeTarget;
 import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.product.Product;
@@ -36,7 +37,7 @@ import com.loopers.utils.DatabaseCleanUp;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class LikeV1ApiE2ETest {
 
-    private static final Function<Long, String> ENDPOINT_POST = productId -> "/api/v1/like/products/" + productId;
+    private static final Function<Long, String> ENDPOINT = productId -> "/api/v1/like/products/" + productId;
 
     @Autowired
     private TestRestTemplate testRestTemplate;
@@ -60,7 +61,7 @@ public class LikeV1ApiE2ETest {
 
     @DisplayName("POST /api/v1/like/products/{productId}")
     @Nested
-    class Like {
+    class POST {
         @DisplayName("올바른 상품 ID, 유저 ID가 주어지면 상품을 좋아요 할 수 있다.")
         @Test
         void likeProduct() {
@@ -82,7 +83,7 @@ public class LikeV1ApiE2ETest {
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");
-            String requestUrl = ENDPOINT_POST.apply(1L);
+            String requestUrl = ENDPOINT.apply(1L);
 
             // act
             ParameterizedTypeReference<ApiResponse<LikeV1Dto.LikeResponse>> responseType = new ParameterizedTypeReference<>() {
@@ -112,7 +113,7 @@ public class LikeV1ApiE2ETest {
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");
-            String requestUrl = ENDPOINT_POST.apply(1L);
+            String requestUrl = ENDPOINT.apply(1L);
 
             // act
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {
@@ -141,13 +142,112 @@ public class LikeV1ApiE2ETest {
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");
-            String requestUrl = ENDPOINT_POST.apply(1L);
+            String requestUrl = ENDPOINT.apply(1L);
 
             // act
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {
             };
             ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(requestUrl,
                 HttpMethod.POST, new HttpEntity<>(null, headers), responseType);
+
+            // assert
+            assertAll(
+                () -> assertTrue(response.getStatusCode().is4xxClientError()),
+                () -> assertThat(response.getBody().meta().message()).isEqualTo("해당 ID의 유저가 존재하지 않습니다. [userId = testUser]"));
+        }
+    }
+
+    @DisplayName("DELETE /api/v1/like/products/{productId}")
+    @Nested
+    class DELETE {
+        @DisplayName("올바른 상품 ID, 유저 ID가 주어지면 상품 좋아요를 취소할 수 있다.")
+        @Test
+        void cancelLikeProduct() {
+            // arrange
+            productJpaRepository.save(new Product(
+                "테스트 상품",
+                null,
+                BigDecimal.valueOf(10000),
+                ProductStatus.ON_SALE,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(1)));
+
+            userJpaRepository.save(new User(
+                "testUser",
+                Gender.MALE,
+                "1997-06-05",
+                "test@mail.com"));
+
+            likeJpaRepository.save(new Like(
+                1L,
+                1L,
+                LikeTargetType.PRODUCT));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-USER-ID", "testUser");
+            String requestUrl = ENDPOINT.apply(1L);
+
+            // act
+            ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {
+            };
+            ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(requestUrl,
+                HttpMethod.DELETE, new HttpEntity<>(null, headers), responseType);
+
+            // assert
+            assertAll(
+                () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
+                () -> assertThat(likeJpaRepository.existsByTarget(new LikeTarget(1L, LikeTargetType.PRODUCT))).isFalse());
+        }
+
+        @DisplayName("존재하지 않는 상품 ID가 주어지면, 상품 좋아요 취소에 실패한다.")
+        @Test
+        void cancelLikeProduct_whenInvalidProductId() {
+            // arrange
+            userJpaRepository.save(new User(
+                "testUser",
+                Gender.MALE,
+                "1997-06-05",
+                "test@mail.com"));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-USER-ID", "testUser");
+            String requestUrl = ENDPOINT.apply(1L);
+
+            // act
+            ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {
+            };
+            ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(requestUrl,
+                HttpMethod.DELETE, new HttpEntity<>(null, headers), responseType);
+
+            // assert
+            assertAll(
+                () -> assertTrue(response.getStatusCode().is4xxClientError()),
+                () -> assertThat(response.getBody().meta().message()).isEqualTo("상품을 찾을 수 없습니다. 상품 ID: 1"));
+        }
+
+        @DisplayName("존재하지 않는 유저 ID가 주어지면, 상품 좋아요 취소에 실패한다.")
+        @Test
+        void cancelLikeProduct_whenInvalidUserId() {
+            // arrange
+            productJpaRepository.save(new Product(
+                "테스트 상품",
+                null,
+                BigDecimal.valueOf(10000),
+                ProductStatus.ON_SALE,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(1)));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-USER-ID", "testUser");
+            String requestUrl = ENDPOINT.apply(1L);
+
+            // act
+            ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {
+            };
+            ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(requestUrl,
+                HttpMethod.DELETE, new HttpEntity<>(null, headers), responseType);
 
             // assert
             assertAll(

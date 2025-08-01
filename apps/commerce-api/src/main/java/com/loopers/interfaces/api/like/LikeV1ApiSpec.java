@@ -18,4 +18,15 @@ public interface LikeV1ApiSpec {
         @Schema(name = "상품 ID", description = "조회할 상품의 ID")
         Long productId
     );
+
+    @Operation(
+        summary = "상품 좋아요 취소",
+        description = "상품 ID로 좋아요를 취소합니다."
+    )
+    ApiResponse<Void> unlikeProduct(
+        @Schema(name = "사용자 ID", description = "좋아요를 취소할 사용자의 ID")
+        String userId,
+        @Schema(name = "상품 ID", description = "좋아요를 취소할 상품의 ID")
+        Long productId
+    );
 }
