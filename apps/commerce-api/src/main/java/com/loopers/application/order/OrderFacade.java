@@ -42,7 +42,7 @@ public class OrderFacade {
         return OrderResult.of(orderInfo, paymentInfo, totalPrice);
     }
 
-    public List<OrderResult> getMyOrders(Long userId) {
+    public List<OrderResult> getOrders(Long userId) {
         var orderInfos = orderService.getAll(userId);
         return orderInfos.stream()
             .map(orderInfo -> {
@@ -58,5 +58,19 @@ public class OrderFacade {
                 return OrderResult.of(orderInfo, paymentInfo, totalPrice);
             })
             .toList();
+    }
+
+    public OrderResult getOrder(Long orderId) {
+        var orderInfo = orderService.get(orderId);
+        var options = orderInfo.items().stream()
+            .map(item -> new ProductCommand.PricingOption(
+                item.productId(),
+                item.productOptionId(),
+                item.quantity()))
+            .toList();
+        var productCommand = new ProductCommand.CalculatePrice(options);
+        var totalPrice = productPricingService.calculatePrice(productCommand);
+        var paymentInfo = paymentService.get(orderInfo.id());
+        return OrderResult.of(orderInfo, paymentInfo, totalPrice);
     }
 }

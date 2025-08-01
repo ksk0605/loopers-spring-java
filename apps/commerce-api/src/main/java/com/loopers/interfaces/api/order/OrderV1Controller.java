@@ -44,7 +44,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     public ApiResponse<OrderResponses> getOrders(
         @RequestHeader(name = "X-USER-ID", required = true) String userId) {
         UserInfo user = userService.get(userId);
-        var results = orderFacade.getMyOrders(user.id());
+        var results = orderFacade.getOrders(user.id());
         return ApiResponse.success(OrderResponses.from(results));
     }
 }
