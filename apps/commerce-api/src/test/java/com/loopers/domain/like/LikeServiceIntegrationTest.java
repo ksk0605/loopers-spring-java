@@ -53,8 +53,7 @@ class LikeServiceIntegrationTest {
                 () -> assertThat(like).isPresent(),
                 () -> assertThat(like.get().getUserId()).isEqualTo(1L),
                 () -> assertThat(like.get().getTarget().id()).isEqualTo(1L),
-                () -> assertThat(like.get().getTarget().type()).isEqualTo(LikeTargetType.PRODUCT)
-            );
+                () -> assertThat(like.get().getTarget().type()).isEqualTo(LikeTargetType.PRODUCT));
         }
 
         @DisplayName("이미 유저의 타겟에 대한 좋아요가 있으면, 아무것도 하지 않는다.")
@@ -70,8 +69,7 @@ class LikeServiceIntegrationTest {
             List<Like> likes = likeJpaRepository.findAll();
             assertAll(
                 () -> verify(likeJpaRepository, times(1)).save(any(Like.class)),
-                () -> assertThat(likes).hasSize(1)
-            );
+                () -> assertThat(likes).hasSize(1));
         }
     }
 
@@ -90,9 +88,9 @@ class LikeServiceIntegrationTest {
             // assert
             Optional<Like> like = likeJpaRepository.findById(1L);
             assertAll(
-                () -> verify(likeJpaRepository, times(1)).deleteByUserIdAndTarget(any(Long.class), any(LikeTarget.class)),
-                () -> assertThat(like).isEmpty()
-            );
+                () -> verify(likeJpaRepository, times(1)).deleteByUserIdAndTarget(any(Long.class),
+                    any(LikeTarget.class)),
+                () -> assertThat(like).isEmpty());
         }
 
         @DisplayName("이미 유저의 타겟에 대한 좋아요가 없으면, 아무것도 하지 않는다.")
@@ -104,9 +102,9 @@ class LikeServiceIntegrationTest {
             // assert
             List<Like> likes = likeJpaRepository.findAll();
             assertAll(
-                () -> verify(likeJpaRepository, times(0)).deleteByUserIdAndTarget(any(Long.class), any(LikeTarget.class)),
-                () -> assertThat(likes).hasSize(0)
-            );
+                () -> verify(likeJpaRepository, times(0)).deleteByUserIdAndTarget(any(Long.class),
+                    any(LikeTarget.class)),
+                () -> assertThat(likes).hasSize(0));
         }
     }
 
@@ -124,6 +122,31 @@ class LikeServiceIntegrationTest {
 
             // assert
             assertThat(likeCount).isEqualTo(1);
+        }
+    }
+
+    @DisplayName("내가 좋아요 한 타겟 목록을 조회할 때, ")
+    @Nested
+    class GetAll {
+        @DisplayName("타겟 ID와 타겟 타입이 주어지면, 해당 타입의 좋아요 목록을 반환한다.")
+        @Test
+        void returnsLikeCount_whenTargetIdAndTargetTypeProvided() {
+            // arrange
+            likeJpaRepository.save(new Like(1L, 1L, LikeTargetType.PRODUCT));
+            likeJpaRepository.save(new Like(1L, 2L, LikeTargetType.BRAND));
+            likeJpaRepository.save(new Like(1L, 3L, LikeTargetType.PRODUCT));
+
+            // act
+            List<LikeInfo> likeInfos = likeService.getAll(1L, LikeTargetType.PRODUCT);
+
+            // assert
+            assertAll(
+                () -> assertThat(likeInfos).hasSize(2),
+                () -> assertThat(likeInfos.get(0).targetId()).isEqualTo(1L),
+                () -> assertThat(likeInfos.get(0).targetType()).isEqualTo(LikeTargetType.PRODUCT),
+                () -> assertThat(likeInfos.get(1).targetId()).isEqualTo(3L),
+                () -> assertThat(likeInfos.get(1).targetType()).isEqualTo(LikeTargetType.PRODUCT)
+            );
         }
     }
 }

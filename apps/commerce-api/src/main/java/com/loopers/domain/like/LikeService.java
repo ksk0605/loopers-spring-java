@@ -1,5 +1,7 @@
 package com.loopers.domain.like;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,5 +32,13 @@ public class LikeService {
     @Transactional(readOnly = true)
     public Long count(Long targetId, LikeTargetType targetType) {
         return likeRepository.count(new LikeTarget(targetId, targetType));
+    }
+
+    @Transactional(readOnly = true)
+    public List<LikeInfo> getAll(Long userId, LikeTargetType targetType) {
+        return likeRepository.findAll(userId, targetType)
+            .stream()
+            .map(LikeInfo::from)
+            .toList();
     }
 }
