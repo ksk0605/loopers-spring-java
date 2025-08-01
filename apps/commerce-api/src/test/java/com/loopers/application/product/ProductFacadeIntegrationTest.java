@@ -78,14 +78,14 @@ class ProductFacadeIntegrationTest {
             );
 
             // act
-            ProductInfo productInfo = productFacade.getProduct(1L);
+            ProductResult productResult = productFacade.getProduct(1L);
 
             // assert
             assertAll(
-                () -> assertThat(productInfo.id()).isEqualTo(1L),
-                () -> assertThat(productInfo.brand().name()).isEqualTo("테스트 브랜드"),
-                () -> assertThat(productInfo.brand().id()).isEqualTo(1L),
-                () -> assertThat(productInfo.likeCount()).isEqualTo(1L)
+                () -> assertThat(productResult.id()).isEqualTo(1L),
+                () -> assertThat(productResult.brand().name()).isEqualTo("테스트 브랜드"),
+                () -> assertThat(productResult.brand().id()).isEqualTo(1L),
+                () -> assertThat(productResult.likeCount()).isEqualTo(1L)
             );
 
         }

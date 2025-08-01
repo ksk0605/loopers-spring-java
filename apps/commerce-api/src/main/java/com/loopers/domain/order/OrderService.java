@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -14,9 +17,20 @@ public class OrderService {
     private final OrderValidator orderValidator;
 
     @Transactional
-    public Order place(Long userId, List<OrderItem> items) {
-        Order order = new Order(userId, items);
+    public OrderInfo place(OrderCommand.Place command) {
+        List<OrderItem> orderItems = command.options().stream()
+            .map(OrderCommand.OrderOption::toOrderItem)
+            .toList();
+        Order order = new Order(command.userId(), orderItems);
         order.place(orderValidator);
-        return orderRepository.save(order);
+        return OrderInfo.from(orderRepository.save(order));
+    }
+
+    @Transactional
+    public OrderInfo pay(Long orderId) {
+        Order order = orderRepository.find(orderId)
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 주문입니다."));
+        order.pay();
+        return OrderInfo.from(orderRepository.save(order));
     }
 }

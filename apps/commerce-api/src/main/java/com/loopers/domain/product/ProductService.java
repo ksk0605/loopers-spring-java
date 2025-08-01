@@ -14,8 +14,9 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public Product get(Long id) {
-        return productRepository.find(id)
+    public ProductInfo get(Long id) {
+        Product product = productRepository.find(id)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+        return ProductInfo.from(product);
     }
 }

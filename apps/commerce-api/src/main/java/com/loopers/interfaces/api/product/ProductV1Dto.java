@@ -2,10 +2,10 @@ package com.loopers.interfaces.api.product;
 
 import java.util.List;
 
-import com.loopers.application.brand.BrandInfo;
 import com.loopers.application.common.PageInfo;
-import com.loopers.application.product.ProductInfo;
+import com.loopers.application.product.ProductResult;
 import com.loopers.application.product.ProductsInfo;
+import com.loopers.domain.brand.BrandInfo;
 
 public class ProductV1Dto {
     public record ProductResponse(
@@ -18,16 +18,16 @@ public class ProductV1Dto {
         List<String> imageUrls,
         Long likeCount
     ) {
-        public static ProductResponse from(ProductInfo productInfo) {
+        public static ProductResponse from(ProductResult productResult) {
             return new ProductResponse(
-                productInfo.id(),
-                productInfo.name(),
-                productInfo.description(),
-                productInfo.price(),
-                productInfo.status(),
-                productInfo.brand(),
-                productInfo.imagesUrls(),
-                productInfo.likeCount()
+                productResult.id(),
+                productResult.name(),
+                productResult.description(),
+                productResult.price(),
+                productResult.status(),
+                productResult.brand(),
+                productResult.imagesUrls(),
+                productResult.likeCount()
             );
         }
     }

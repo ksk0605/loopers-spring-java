@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.loopers.application.product.ProductFacade;
-import com.loopers.application.product.ProductInfo;
+import com.loopers.application.product.ProductResult;
 import com.loopers.application.product.ProductsInfo;
 import com.loopers.interfaces.api.ApiResponse;
 
@@ -24,8 +24,8 @@ public class ProductV1ApiController implements ProductV1ApiSpec {
     public ApiResponse<ProductV1Dto.ProductResponse> getProduct(
         @PathVariable Long productId
     ) {
-        ProductInfo productInfo = productFacade.getProduct(productId);
-        var response = ProductV1Dto.ProductResponse.from(productInfo);
+        ProductResult productResult = productFacade.getProduct(productId);
+        var response = ProductV1Dto.ProductResponse.from(productResult);
         return ApiResponse.success(response);
     }
 

@@ -14,8 +14,9 @@ public class BrandService {
     private final BrandRepository brandRepository;
 
     @Transactional(readOnly = true)
-    public Brand get(Long id) {
-        return brandRepository.find(id)
+    public BrandInfo get(Long id) {
+        Brand brand = brandRepository.find(id)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "[id = " + id + "] 브랜드를 찾을 수 없습니다."));
+        return BrandInfo.from(brand);
     }
 }
