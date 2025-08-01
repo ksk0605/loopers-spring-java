@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.loopers.application.common.PageInfo;
 import com.loopers.application.product.ProductResult;
-import com.loopers.application.product.ProductsInfo;
+import com.loopers.application.product.ProductResults;
 import com.loopers.domain.brand.BrandInfo;
 
 public class ProductV1Dto {
@@ -36,12 +36,12 @@ public class ProductV1Dto {
         List<ProductResponse> products,
         PageInfo pageInfo
     ) {
-        public static ProductsResponse from(ProductsInfo productsInfo) {
+        public static ProductsResponse from(ProductResults result) {
             return new ProductsResponse(
-                productsInfo.products().stream()
+                result.products().stream()
                     .map(ProductResponse::from)
                     .toList(),
-                productsInfo.pageInfo()
+                result.pageInfo()
             );
         }
     }

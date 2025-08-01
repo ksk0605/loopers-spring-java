@@ -2,6 +2,7 @@ package com.loopers.domain.product;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,5 +29,11 @@ public class ProductService {
             .stream()
             .map(ProductInfo::from)
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductInfo> getAll(ProductCommand.Search command) {
+        Page<Product> products = productRepository.findAll(command);
+        return products.map(ProductInfo::from);
     }
 }

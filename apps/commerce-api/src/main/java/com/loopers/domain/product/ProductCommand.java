@@ -12,4 +12,12 @@ public class ProductCommand {
         Long productId, Long productOptionId, Integer quantity
     ) {
     }
+
+    public record Search(
+        SortBy sortBy,
+        int page,
+        int size,
+        ProductStatus status
+    ) {
+    }
 }
