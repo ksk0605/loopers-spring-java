@@ -36,8 +36,9 @@ public class LikeFacade {
         likeService.unlike(userInfo.id(), productInfo.id(), LikeTargetType.PRODUCT);
     }
 
-    public List<ProductResult> getLikedProducts(Long userId, LikeTargetType targetType) {
-        var likeInfos = likeService.getAll(userId, targetType);
+    public List<ProductResult> getLikedProducts(LikeCriteria.GetLiked criteria) {
+        var userInfo = userService.get(criteria.userId());
+        var likeInfos = likeService.getAll(userInfo.id(), criteria.targetType());
         var productInfos = productService.getAll(likeInfos.stream()
             .map(LikeInfo::targetId)
             .toList());

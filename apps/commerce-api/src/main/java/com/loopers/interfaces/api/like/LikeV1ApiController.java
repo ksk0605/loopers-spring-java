@@ -1,5 +1,6 @@
 package com.loopers.interfaces.api.like;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,5 +39,14 @@ public class LikeV1ApiController implements LikeV1ApiSpec {
         var criteria = new LikeCriteria.UnlikeProduct(userId, productId, LikeTargetType.PRODUCT);
         likeFacade.unlikeProduct(criteria);
         return ApiResponse.success(null);
+    }
+
+    @GetMapping("/products")
+    @Override
+    public ApiResponse<LikeV1Dto.LikedProductsResponse> getLikedProducts(
+        @RequestHeader(name = "X-USER-ID") String userId) {
+        var criteria = new LikeCriteria.GetLiked(userId, LikeTargetType.PRODUCT);
+        var result = likeFacade.getLikedProducts(criteria);
+        return ApiResponse.success(LikeV1Dto.LikedProductsResponse.from(result));
     }
 }

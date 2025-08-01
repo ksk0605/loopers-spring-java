@@ -29,4 +29,13 @@ public interface LikeV1ApiSpec {
         @Schema(name = "상품 ID", description = "좋아요를 취소할 상품의 ID")
         Long productId
     );
+
+    @Operation(
+        summary = "좋아요한 상품 목록 조회",
+        description = "좋아요한 상품 목록을 조회합니다."
+    )
+    ApiResponse<LikeV1Dto.LikedProductsResponse> getLikedProducts(
+        @Schema(name = "사용자 ID", description = "좋아요한 상품 목록을 조회할 사용자의 ID")
+        String userId
+    );
 }

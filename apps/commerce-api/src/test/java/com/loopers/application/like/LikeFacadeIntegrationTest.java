@@ -20,9 +20,12 @@ import com.loopers.domain.like.Like;
 import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductStatus;
+import com.loopers.domain.user.Gender;
+import com.loopers.domain.user.User;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.infrastructure.like.LikeJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
+import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 
 @SpringBootTest
@@ -40,6 +43,9 @@ class LikeFacadeIntegrationTest {
     private LikeJpaRepository likeJpaRepository;
 
     @Autowired
+    private UserJpaRepository userJpaRepository;
+
+    @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
@@ -54,6 +60,8 @@ class LikeFacadeIntegrationTest {
         @Test
         void returnsProductResult_whenTargetTypeProvided() {
             // arrange
+            userJpaRepository.save(new User("testUser", Gender.MALE, "1997-06-05", "loopers@loopers.com"));
+
             brandJpaRepository.save(new Brand("브랜드1", null, null));
 
             productJpaRepository.save(new Product("상품1", null, BigDecimal.valueOf(10000), ProductStatus.ON_SALE, 1L, 1L, LocalDateTime.now().plusDays(1)));
@@ -67,7 +75,8 @@ class LikeFacadeIntegrationTest {
             likeJpaRepository.save(new Like(1L, 4L, LikeTargetType.PRODUCT));
 
             // act
-            List<ProductResult> results = likeFacade.getLikedProducts(1L, LikeTargetType.PRODUCT);
+            var criteria = new LikeCriteria.GetLiked("testUser", LikeTargetType.PRODUCT);
+            List<ProductResult> results = likeFacade.getLikedProducts(criteria);
 
             // assert
             assertAll(

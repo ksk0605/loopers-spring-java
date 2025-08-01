@@ -9,4 +9,7 @@ public class LikeCriteria {
 
     public record UnlikeProduct(String userId, Long productId, LikeTargetType targetType) {
     }
+
+    public record GetLiked(String userId, LikeTargetType targetType) {
+    }
 }
