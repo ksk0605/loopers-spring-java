@@ -2,7 +2,7 @@ package com.loopers.interfaces.api.user;
 
 import java.time.LocalDate;
 
-import com.loopers.application.user.UserInfo;
+import com.loopers.domain.user.UserInfo;
 
 import jakarta.validation.constraints.NotNull;
 

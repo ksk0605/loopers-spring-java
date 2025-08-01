@@ -8,7 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,17 +50,18 @@ public class UserServiceIntegrationTest {
             Gender gender = Gender.MALE;
             String birthDate = "1997-06-05";
             String email = "test@loopers.com";
+            UserCommand.Create command = new UserCommand.Create(userId, gender.name(), birthDate, email);
 
             // act
-            User user = userService.createUser(userId, gender, birthDate, email);
+            UserInfo userInfo = userService.createUser(command);
 
             // assert
             assertAll(
                 () -> verify(userJpaRepository, times(1)).save(any(User.class)),
-                () -> assertThat(user.getUserId()).isEqualTo(userId),
-                () -> assertThat(user.getGender()).isEqualTo(gender),
-                () -> assertThat(user.getBirthDate()).isEqualTo(LocalDate.parse(birthDate)),
-                () -> assertThat(user.getEmail()).isEqualTo(email)
+                () -> assertThat(userInfo.userId()).isEqualTo(userId),
+                () -> assertThat(userInfo.gender()).isEqualTo(gender),
+                () -> assertThat(userInfo.birthDate()).isEqualTo(LocalDate.parse(birthDate)),
+                () -> assertThat(userInfo.email()).isEqualTo(email)
             );
         }
 
@@ -75,7 +75,7 @@ public class UserServiceIntegrationTest {
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
-                userService.createUser("testUser", Gender.FEMALE, "1998-06-05", "test2@loopers.com");
+                userService.createUser(new UserCommand.Create("testUser", "FEMALE", "1998-06-05", "test2@loopers.com"));
             });
 
             // assert
@@ -96,14 +96,13 @@ public class UserServiceIntegrationTest {
             );
 
             // act
-            Optional<User> user = userService.findUser(userId);
+            UserInfo userInfo = userService.get(userId);
 
             // assert
-            assertThat(user.isPresent()).isTrue();
-            assertThat(user.get().getUserId()).isEqualTo(userId);
+            assertThat(userInfo.userId()).isEqualTo(userId);
         }
 
-        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, Null을 반환한다.")
+        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, NOT FOUND 예외를 발생한다.")
         @Test
         void throwsException_whenInvalidIdIsProvided() {
             // arrange
@@ -113,10 +112,12 @@ public class UserServiceIntegrationTest {
             String invalidUserId = "useruser";
 
             // act
-            Optional<User> user = userService.findUser(invalidUserId);
+            CoreException result = assertThrows(CoreException.class, () -> {
+                userService.get(invalidUserId);
+            });
 
             // assert
-            assertThat(user).isEmpty();
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 }
