@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.brand;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -17,5 +18,10 @@ public class BrandRepositoryImpl implements BrandRepository {
     @Override
     public Optional<Brand> find(Long id) {
         return brandJpaRepository.findById(id);
+    }
+
+    @Override
+    public List<Brand> findAll(List<Long> ids) {
+        return brandJpaRepository.findAllById(ids);
     }
 }

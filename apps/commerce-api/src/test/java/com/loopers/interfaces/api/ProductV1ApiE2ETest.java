@@ -147,7 +147,7 @@ public class ProductV1ApiE2ETest {
             likeJpaRepository.save(new Like(2L, 3L, LikeTargetType.PRODUCT));
             likeJpaRepository.save(new Like(3L, 2L, LikeTargetType.PRODUCT));
 
-            String requestUrl = ENDPOINT.apply("?page=0&size=10&sortBy=PRICE");
+            String requestUrl = ENDPOINT.apply("?page=0&size=10&sort=price_asc");
 
             // act
             ParameterizedTypeReference<ApiResponse<ProductV1Dto.ProductsResponse>> responseType = new ParameterizedTypeReference<>() {
