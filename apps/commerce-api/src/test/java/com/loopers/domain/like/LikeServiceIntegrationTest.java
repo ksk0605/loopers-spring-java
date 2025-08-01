@@ -90,7 +90,7 @@ class LikeServiceIntegrationTest {
             // assert
             Optional<Like> like = likeJpaRepository.findById(1L);
             assertAll(
-                () -> verify(likeJpaRepository, times(1)).deleteByTarget(any(LikeTarget.class)),
+                () -> verify(likeJpaRepository, times(1)).deleteByUserIdAndTarget(any(Long.class), any(LikeTarget.class)),
                 () -> assertThat(like).isEmpty()
             );
         }
@@ -104,7 +104,7 @@ class LikeServiceIntegrationTest {
             // assert
             List<Like> likes = likeJpaRepository.findAll();
             assertAll(
-                () -> verify(likeJpaRepository, times(0)).deleteByTarget(any(LikeTarget.class)),
+                () -> verify(likeJpaRepository, times(0)).deleteByUserIdAndTarget(any(Long.class), any(LikeTarget.class)),
                 () -> assertThat(likes).hasSize(0)
             );
         }

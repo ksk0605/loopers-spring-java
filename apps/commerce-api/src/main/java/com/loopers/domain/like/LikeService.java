@@ -12,7 +12,7 @@ public class LikeService {
 
     @Transactional
     public void like(Long userId, Long targetId, LikeTargetType targetType) {
-        if (likeRepository.existsByTarget(new LikeTarget(targetId, targetType))) {
+        if (likeRepository.exists(userId, new LikeTarget(targetId, targetType))) {
             return;
         }
         Like like = new Like(userId, targetId, targetType);
@@ -21,10 +21,10 @@ public class LikeService {
 
     @Transactional
     public void unlike(Long userId, Long targetId, LikeTargetType targetType) {
-        if (!likeRepository.existsByTarget(new LikeTarget(targetId, targetType))) {
+        if (!likeRepository.exists(userId, new LikeTarget(targetId, targetType))) {
             return;
         }
-        likeRepository.deleteByTarget(new LikeTarget(targetId, targetType));
+        likeRepository.delete(userId, new LikeTarget(targetId, targetType));
     }
 
     @Transactional(readOnly = true)

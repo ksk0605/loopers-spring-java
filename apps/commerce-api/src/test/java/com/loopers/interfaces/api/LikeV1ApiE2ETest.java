@@ -94,7 +94,7 @@ public class LikeV1ApiE2ETest {
             // assert
             assertAll(
                 () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
-                () -> assertTrue(likeJpaRepository.existsByTarget(new LikeTarget(1L, LikeTargetType.PRODUCT))),
+                () -> assertTrue(likeJpaRepository.existsByUserIdAndTarget(1L, new LikeTarget(1L, LikeTargetType.PRODUCT))),
                 () -> assertThat(response.getBody().data().userId()).isEqualTo(1L),
                 () -> assertThat(response.getBody().data().targetId()).isEqualTo(1L),
                 () -> assertThat(response.getBody().data().targetType()).isEqualTo("PRODUCT")
@@ -197,7 +197,7 @@ public class LikeV1ApiE2ETest {
             // assert
             assertAll(
                 () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
-                () -> assertThat(likeJpaRepository.existsByTarget(new LikeTarget(1L, LikeTargetType.PRODUCT))).isFalse());
+                () -> assertThat(likeJpaRepository.existsByUserIdAndTarget(1L, new LikeTarget(1L, LikeTargetType.PRODUCT))).isFalse());
         }
 
         @DisplayName("존재하지 않는 상품 ID가 주어지면, 상품 좋아요 취소에 실패한다.")

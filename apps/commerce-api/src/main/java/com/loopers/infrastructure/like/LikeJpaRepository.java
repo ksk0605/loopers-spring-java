@@ -6,9 +6,9 @@ import com.loopers.domain.like.Like;
 import com.loopers.domain.like.LikeTarget;
 
 public interface LikeJpaRepository extends JpaRepository<Like, Long> {
-    boolean existsByTarget(LikeTarget target);
+    boolean existsByUserIdAndTarget(Long userId, LikeTarget target);
 
-    void deleteByTarget(LikeTarget target);
+    void deleteByUserIdAndTarget(Long userId, LikeTarget target);
 
     Long countByTarget(LikeTarget likeTarget);
 }

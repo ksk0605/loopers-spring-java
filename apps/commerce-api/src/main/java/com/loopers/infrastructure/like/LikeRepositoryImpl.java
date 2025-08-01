@@ -19,13 +19,13 @@ public class LikeRepositoryImpl implements LikeRepository {
     }
 
     @Override
-    public boolean existsByTarget(LikeTarget target) {
-        return likeJpaRepository.existsByTarget(target);
+    public boolean exists(Long userId, LikeTarget target) {
+        return likeJpaRepository.existsByUserIdAndTarget(userId, target);
     }
 
     @Override
-    public void deleteByTarget(LikeTarget target) {
-        likeJpaRepository.deleteByTarget(target);
+    public void delete(Long userId, LikeTarget target) {
+        likeJpaRepository.deleteByUserIdAndTarget(userId, target);
     }
 
     @Override
