@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.loopers.domain.inventory.InventoryValidationService;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.PaymentCommand;
@@ -12,18 +13,26 @@ import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductPricingService;
+import com.loopers.domain.product.ProductValidationService;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class OrderFacade {
+    private final ProductValidationService productValidationService;
+    private final InventoryValidationService inventoryValidationService;
     private final OrderService orderService;
     private final ProductPricingService productPricingService;
     private final PaymentService paymentService;
 
     @Transactional
     public OrderResult placeOrder(OrderCommand.Place command) {
+        command.options().forEach(option -> {
+            productValidationService.validate(option.productId());
+            inventoryValidationService.validate(option.productId(), option.productOptionId(), option.quantity());
+        });
+
         var orderInfo = orderService.place(command);
 
         var options = orderInfo.items().stream()

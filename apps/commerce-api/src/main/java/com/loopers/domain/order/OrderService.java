@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final OrderValidator orderValidator;
 
     @Transactional
     public OrderInfo place(OrderCommand.Place command) {
@@ -22,7 +21,7 @@ public class OrderService {
             .map(OrderCommand.OrderOption::toOrderItem)
             .toList();
         Order order = new Order(command.userId(), orderItems);
-        order.place(orderValidator);
+        order.place();
         return OrderInfo.from(orderRepository.save(order));
     }
 
