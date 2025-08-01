@@ -16,7 +16,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductInfo get(Long id) {
         Product product = productRepository.find(id)
-            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다. 상품 ID: " + id));
         return ProductInfo.from(product);
     }
 }
