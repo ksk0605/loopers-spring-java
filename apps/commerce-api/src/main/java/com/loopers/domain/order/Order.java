@@ -37,6 +37,7 @@ public class Order extends BaseEntity {
     public Order(Long userId, List<OrderItem> items) {
         this.userId = requireNotNull(userId, "주문 생성은 유저 ID가 필수입니다.");
         this.items = requireNonEmpty(items, "주문 생성은 주문 아이템이 필수입니다.");
+        this.status = OrderStatus.PENDING;
     }
 
     public void place(OrderValidator validator) {

@@ -33,4 +33,11 @@ public class OrderService {
         order.pay();
         return OrderInfo.from(orderRepository.save(order));
     }
+
+    @Transactional(readOnly = true)
+    public List<OrderInfo> getAll(Long userId) {
+        return orderRepository.findAll(userId).stream()
+            .map(OrderInfo::from)
+            .toList();
+    }
 }

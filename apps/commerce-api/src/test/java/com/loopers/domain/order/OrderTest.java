@@ -31,7 +31,8 @@ public class OrderTest {
             // assert
             assertAll(
                 () -> assertThat(order.getUserId()).isEqualTo(userId),
-                () -> assertThat(order.getItems()).isEqualTo(items)
+                () -> assertThat(order.getItems()).isEqualTo(items),
+                () -> assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING)
             );
         }
 
@@ -57,7 +58,7 @@ public class OrderTest {
             CoreException result = assertThrows(CoreException.class,
                 () -> new Order(1L, List.of())
             );
-            
+
             // assert
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
@@ -69,7 +70,7 @@ public class OrderTest {
             CoreException result = assertThrows(CoreException.class,
                 () -> new Order(1L, null)
             );
-            
+
             // assert
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
@@ -80,7 +81,7 @@ public class OrderTest {
             // act
             CoreException result = assertThrows(CoreException.class,
                 () -> new OrderItem(null, 1L, 1)
-            );  
+            );
 
             // assert
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
