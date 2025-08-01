@@ -33,4 +33,17 @@ public class OrderService {
         order.pay();
         return OrderInfo.from(orderRepository.save(order));
     }
+
+    @Transactional(readOnly = true)
+    public List<OrderInfo> getAll(Long userId) {
+        return orderRepository.findAll(userId).stream()
+            .map(OrderInfo::from)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public OrderInfo get(Long orderId, Long userId) {
+        return OrderInfo.from(orderRepository.find(orderId, userId)
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 주문입니다.")));
+    }
 }

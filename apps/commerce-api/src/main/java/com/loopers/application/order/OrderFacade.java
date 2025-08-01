@@ -1,5 +1,7 @@
 package com.loopers.application.order;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,38 @@ public class OrderFacade {
         var paymentInfo = paymentService.process(paymentCommand);
 
         orderInfo = orderService.pay(orderInfo.id());
+        return OrderResult.of(orderInfo, paymentInfo, totalPrice);
+    }
+
+    public List<OrderResult> getOrders(Long userId) {
+        var orderInfos = orderService.getAll(userId);
+        return orderInfos.stream()
+            .map(orderInfo -> {
+                var options = orderInfo.items().stream()
+                    .map(item -> new ProductCommand.PricingOption(
+                        item.productId(),
+                        item.productOptionId(),
+                        item.quantity()))
+                    .toList();
+                var productCommand = new ProductCommand.CalculatePrice(options);
+                var totalPrice = productPricingService.calculatePrice(productCommand);
+                var paymentInfo = paymentService.get(orderInfo.id());
+                return OrderResult.of(orderInfo, paymentInfo, totalPrice);
+            })
+            .toList();
+    }
+
+    public OrderResult getOrder(Long orderId, Long userId) {
+        var orderInfo = orderService.get(orderId, userId);
+        var options = orderInfo.items().stream()
+            .map(item -> new ProductCommand.PricingOption(
+                item.productId(),
+                item.productOptionId(),
+                item.quantity()))
+            .toList();
+        var productCommand = new ProductCommand.CalculatePrice(options);
+        var totalPrice = productPricingService.calculatePrice(productCommand);
+        var paymentInfo = paymentService.get(orderInfo.id());
         return OrderResult.of(orderInfo, paymentInfo, totalPrice);
     }
 }

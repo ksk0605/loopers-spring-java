@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.order;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -20,7 +21,17 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
+    public Optional<Order> find(Long id, Long userId) {
+        return jpaRepository.findByIdAndUserId(id, userId);
+    }
+
+    @Override
     public Order save(Order order) {
         return jpaRepository.save(order);
+    }
+
+    @Override
+    public List<Order> findAll(Long userId) {
+        return jpaRepository.findAllByUserId(userId);
     }
 }
