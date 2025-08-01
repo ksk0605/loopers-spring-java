@@ -3,11 +3,12 @@ package com.loopers.application.product;
 import java.util.List;
 
 import com.loopers.domain.brand.BrandInfo;
-import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductImage;
+import com.loopers.domain.product.ProductImageInfo;
+import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductSummary;
 
-public record ProductInfo(
+public record ProductResult(
     Long id,
     String name,
     String description,
@@ -17,27 +18,27 @@ public record ProductInfo(
     List<String> imagesUrls,
     Long likeCount
 ) {
-    public static ProductInfo of(Product product, BrandInfo brand, Long likeCount) {
-        return new ProductInfo(
-            product.getId(),
-            product.getName(),
-            product.getDescription(),
-            product.getPrice().longValue(),
-            product.getStatus().name(),
+    public static ProductResult of(ProductInfo productInfo, BrandInfo brand, Long likeCount) {
+        return new ProductResult(
+            productInfo.id(),
+            productInfo.name(),
+            productInfo.description(),
+            productInfo.price().longValue(),
+            productInfo.status().name(),
             brand,
-            product.getImages().stream().map(ProductImage::getImageUrl).toList(),
+            productInfo.images().stream().map(ProductImageInfo::imageUrl).toList(),
             likeCount
         );
     }
 
-    public static ProductInfo from(ProductSummary summary) {
+    public static ProductResult from(ProductSummary summary) {
         BrandInfo brandInfo = new BrandInfo(
             summary.getBrandId(),
             summary.getBrandName(),
             summary.getBrandDescription(),
             summary.getBrandLogoUrl()
         );
-        return new ProductInfo(
+        return new ProductResult(
             summary.getId(),
             summary.getName(),
             summary.getDescription(),
