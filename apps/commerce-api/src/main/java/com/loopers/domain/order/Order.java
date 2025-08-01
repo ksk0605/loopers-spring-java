@@ -40,8 +40,7 @@ public class Order extends BaseEntity {
         this.status = OrderStatus.PENDING;
     }
 
-    public void place(OrderValidator validator) {
-        validator.validateOrder(this);
+    public void place() {
         this.orderDate = LocalDateTime.now();
         this.status = OrderStatus.PENDING_PAYMENT;
     }
