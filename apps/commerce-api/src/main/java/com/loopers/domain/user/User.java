@@ -10,14 +10,14 @@ import com.loopers.domain.BaseEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.Getter;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "user")
@@ -41,6 +41,9 @@ public class User extends BaseEntity {
     private String email;
 
     private int point;
+
+    @Version
+    private Long version;
 
     public User(String userId, Gender gender, String birthDate, String email) {
         validateUserId(userId);
@@ -84,6 +87,10 @@ public class User extends BaseEntity {
 
     public void updatePoint(int balance) {
         this.point = balance;
+    }
+
+    public void usePoint(int amount) {
+        this.point -= amount;
     }
 
     public void chargePoint(int amount) {

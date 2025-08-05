@@ -6,12 +6,19 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "like_summary")
+@Table(
+    name = "like_summary",
+    uniqueConstraints = @UniqueConstraint(
+        columnNames = {"target_id", "target_type"}
+    )
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LikeSummary {
@@ -23,6 +30,9 @@ public class LikeSummary {
 
     @Embedded
     private LikeTarget target;
+
+    @Version
+    private Long version;
 
     public LikeSummary(Long targetId, LikeTargetType targetType) {
         this.target = new LikeTarget(targetId, targetType);

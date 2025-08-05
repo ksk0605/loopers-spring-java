@@ -3,7 +3,7 @@ package com.loopers.domain.order;
 import java.util.List;
 
 public class OrderCommand {
-    public record Place(
+    public record Order(
         Long userId,
         List<OrderOption> options
     ) {

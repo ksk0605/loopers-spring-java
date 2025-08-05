@@ -2,10 +2,13 @@ package com.loopers.infrastructure.user;
 
 import java.util.Optional;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Repository;
 
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
@@ -23,12 +26,20 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> find(String userId) {
-        return userJpaRepository.findByUserId(userId);
+        try {
+            return userJpaRepository.findByUserId(userId);
+        } catch (OptimisticLockingFailureException exception) {
+            throw new CoreException(ErrorType.CONFLICT);
+        }
     }
 
     @Override
     public Optional<User> find(Long id) {
-        return userJpaRepository.findById(id);
+        try {
+            return userJpaRepository.findById(id);
+        } catch (OptimisticLockingFailureException exception) {
+            throw new CoreException(ErrorType.CONFLICT);
+        }
     }
 
 }

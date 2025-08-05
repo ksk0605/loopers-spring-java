@@ -35,7 +35,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
         @RequestBody OrderRequest request) {
         var orderOptions = request.toOrderOptions();
         UserInfo user = userService.get(userId);
-        OrderCommand.Place command = new OrderCommand.Place(user.id(), orderOptions);
+        OrderCommand.Order command = new OrderCommand.Order(user.id(), orderOptions);
         OrderResult result = orderFacade.placeOrder(command);
         return ApiResponse.success(OrderResponse.from(result));
     }

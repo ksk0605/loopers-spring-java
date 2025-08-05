@@ -32,4 +32,12 @@ public class Inventory extends BaseEntity {
     public boolean canOrder(Integer orderQuantity) {
         return this.quantity >= orderQuantity;
     }
+
+    public boolean isOptionOf(Long productId, Long productOptionId) {
+        return this.productId.equals(productId) && this.productOptionId.equals(productOptionId);
+    }
+
+    public void deduct(Integer quantity) {
+        this.quantity -= quantity;
+    }
 }

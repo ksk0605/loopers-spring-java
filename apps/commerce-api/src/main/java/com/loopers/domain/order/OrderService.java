@@ -17,7 +17,7 @@ public class OrderService {
     private final OrderValidator orderValidator;
 
     @Transactional
-    public OrderInfo place(OrderCommand.Place command) {
+    public OrderInfo order(OrderCommand.Order command) {
         List<OrderItem> orderItems = command.options().stream()
             .map(OrderCommand.OrderOption::toOrderItem)
             .toList();
