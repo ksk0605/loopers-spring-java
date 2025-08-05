@@ -3,6 +3,9 @@ package com.loopers.domain.coupon;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class PercentageDiscountStrategy implements CouponDiscountStrategy {
     @Override
     public boolean support(CouponType couponType) {

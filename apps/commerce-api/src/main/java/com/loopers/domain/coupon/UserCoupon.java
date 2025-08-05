@@ -2,10 +2,22 @@ package com.loopers.domain.coupon;
 
 import java.math.BigDecimal;
 
-import lombok.Getter;
+import com.loopers.domain.BaseEntity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
 @Getter
-public class UserCoupon {
+@Table(name = "user_coupon")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserCoupon extends BaseEntity {
+    @ManyToOne(fetch = FetchType.LAZY)
     private Coupon coupon;
     private Long userId;
     private BigDecimal discountAmount;

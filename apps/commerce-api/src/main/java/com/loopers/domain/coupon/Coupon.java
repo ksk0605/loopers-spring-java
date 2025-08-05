@@ -5,12 +5,22 @@ import java.math.BigDecimal;
 import com.loopers.domain.BaseEntity;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Entity
 @Getter
+@Table(name = "coupon")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Coupon extends BaseEntity {
     private String name;
     private String description;
+    @Enumerated(EnumType.STRING)
     private CouponType couponType;
     private Long discountRate;
     private Long discountAmount;

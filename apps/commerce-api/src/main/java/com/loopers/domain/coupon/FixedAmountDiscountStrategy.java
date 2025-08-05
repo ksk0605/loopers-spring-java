@@ -2,8 +2,10 @@ package com.loopers.domain.coupon;
 
 import java.math.BigDecimal;
 
-public class FixedAmountDiscountStrategy implements CouponDiscountStrategy {
+import org.springframework.stereotype.Component;
 
+@Component
+public class FixedAmountDiscountStrategy implements CouponDiscountStrategy {
     @Override
     public boolean support(CouponType couponType) {
         return couponType == CouponType.FIXED_AMOUNT;
