@@ -66,5 +66,20 @@ class CouponServiceIntegrationTest {
             // assert
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
         }
+
+        @DisplayName("이미 사용된 쿠폰 ID를 주면, BAD REQUEST 예외를 발생한다.")
+        @Test
+        void throwsBadRequestException_whenAlreadyUsedCouponIdIsProvided() {
+            // arrange
+            Coupon coupon = couponJpaRepository.save(Coupon.fixedAmount("새로운 쿠폰", "쿠폰의 설명입니다.", 5000L, 30000L, null));
+            couponService.apply(1L, coupon.getId(), BigDecimal.valueOf(30000));
+
+            // act
+            var exception = assertThrows(CoreException.class, () ->
+                couponService.apply(1L, coupon.getId(), BigDecimal.valueOf(30000)));
+
+            // assert
+            assertThat(exception.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        }
     }
 }

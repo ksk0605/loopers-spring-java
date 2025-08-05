@@ -16,4 +16,9 @@ public class UserCouponCoreRepository implements UserCouponRepository {
     public UserCoupon save(UserCoupon userCoupon) {
         return userCouponJpaRepository.save(userCoupon);
     }
+
+    @Override
+    public boolean exists(Long userId, Long couponId) {
+        return userCouponJpaRepository.existsByUserIdAndCouponId(userId, couponId);
+    }
 }
