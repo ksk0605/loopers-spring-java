@@ -14,6 +14,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,9 @@ public class User extends BaseEntity {
     private String email;
 
     private int point;
+
+    @Version
+    private Long version;
 
     public User(String userId, Gender gender, String birthDate, String email) {
         validateUserId(userId);

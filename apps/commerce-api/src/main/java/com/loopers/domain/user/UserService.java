@@ -48,8 +48,8 @@ public class UserService {
     }
 
     @Transactional
-    public void pay(Long aLong, BigDecimal totalPrice) {
-        User user = userRepository.find(aLong).orElseThrow();
+    public void pay(Long id, BigDecimal totalPrice) {
+        User user = userRepository.find(id).orElseThrow();
         user.usePoint(totalPrice.intValue());
         userRepository.save(user);
     }

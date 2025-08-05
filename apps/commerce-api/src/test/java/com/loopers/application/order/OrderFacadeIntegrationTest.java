@@ -276,4 +276,80 @@ class OrderFacadeIntegrationTest {
             );
         }
     }
+
+    @DisplayName("동일한 유저가 여러 기기에서 동시에 주문할 때, ")
+    @Nested
+    class DuplicatedOrderFromSameUser {
+        @DisplayName("포인트는 중복차감 되지 않고, 재고는 한번만 차감 처리된다.")
+        @Test
+        void preventDuplicateOrder_whenSameUserOrdered() throws InterruptedException {
+            User user = new User("testUser1", Gender.MALE, "1997-06-05", "testUser@mail.com");
+            user.updatePoint(6000000);
+            userJpaRepository.save(user);
+
+            Product product = new Product(
+                "상품1",
+                null,
+                BigDecimal.valueOf(20000),
+                ProductStatus.ON_SALE,
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(3)
+            );
+            ProductOption productOption = new ProductOption("SIZE", "M", BigDecimal.ZERO);
+            product.addOption(productOption);
+            int initialStock = 10;
+            Inventory inventory = new Inventory(1L, 1L, initialStock);
+            productJpaRepository.save(product);
+            inventoryJpaRepository.save(inventory);
+
+            ExecutorService executorService = Executors.newFixedThreadPool(2);
+            CountDownLatch countDownLatch = new CountDownLatch(2);
+
+            // act
+            List<Future<OrderResult>> futures = new ArrayList<>();
+
+            // 첫 번째 주문 (4개)
+            futures.add(executorService.submit(() -> {
+                try {
+                    return orderFacade.placeOrder(new OrderCommand.Order(1L, List.of(new OrderCommand.OrderOption(1L, 1L, 4))));
+                } finally {
+                    countDownLatch.countDown();
+                }
+            }));
+
+            // 두 번째 주문 (3개)
+            futures.add(executorService.submit(() -> {
+                try {
+                    return orderFacade.placeOrder(new OrderCommand.Order(1L, List.of(new OrderCommand.OrderOption(1L, 1L, 4))));
+                } finally {
+                    countDownLatch.countDown();
+                }
+            }));
+
+            countDownLatch.await();
+
+            // assert
+            long successfulOrders = futures.stream()
+                .map(future -> {
+                    try {
+                        return future.get();
+                    } catch (Exception e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .count();
+
+            Optional<Inventory> savedInv = inventoryJpaRepository.findById(1L);
+            Optional<User> savedUser = userJpaRepository.findById(1L);
+            assertThat(savedInv.isPresent()).isTrue();
+            assertThat(savedUser.isPresent()).isTrue();
+            assertAll(
+                () -> assertThat(savedUser.get().getVersion()).isEqualTo(1L),
+                () -> assertThat(successfulOrders).isEqualTo(1),
+                () -> assertThat(savedInv.get().getQuantity()).isEqualTo(6)
+            );
+        }
+    }
 }
