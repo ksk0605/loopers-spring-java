@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.loopers.domain.inventory.InventoryCommand;
+import com.loopers.domain.inventory.InventoryService;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.PaymentCommand;
@@ -12,19 +14,22 @@ import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductPricingService;
+import com.loopers.domain.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class OrderFacade {
+    private final UserService userService;
     private final OrderService orderService;
     private final ProductPricingService productPricingService;
     private final PaymentService paymentService;
+    private final InventoryService inventoryService;
 
     @Transactional
-    public OrderResult placeOrder(OrderCommand.Place command) {
-        var orderInfo = orderService.place(command);
+    public OrderResult placeOrder(OrderCommand.Order command) {
+        var orderInfo = orderService.order(command);
 
         var options = orderInfo.items().stream()
             .map(item -> new ProductCommand.PricingOption(
@@ -39,6 +44,17 @@ public class OrderFacade {
         var paymentInfo = paymentService.process(paymentCommand);
 
         orderInfo = orderService.pay(orderInfo.id());
+
+        var inventoryOptions = orderInfo.items().stream()
+            .map(item -> new InventoryCommand.Option(
+                item.productId(),
+                item.productOptionId(),
+                item.quantity()))
+            .toList();
+
+        InventoryCommand.Deduct invCommand = new InventoryCommand.Deduct(inventoryOptions);
+        inventoryService.deduct(invCommand);
+        userService.pay(command.userId(), totalPrice);
         return OrderResult.of(orderInfo, paymentInfo, totalPrice);
     }
 
