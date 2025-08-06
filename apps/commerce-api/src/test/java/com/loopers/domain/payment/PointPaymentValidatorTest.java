@@ -1,12 +1,12 @@
 package com.loopers.domain.payment;
 
+import static com.loopers.support.fixture.OrderFixture.anOrder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.loopers.domain.order.Order;
-import com.loopers.domain.order.OrderItem;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.user.Gender;
 import com.loopers.domain.user.User;
@@ -59,9 +58,8 @@ public class PointPaymentValidatorTest {
             // arrange
             Payment payment = new Payment(1L, PaymentMethod.CREDIT_CARD, PaymentStatus.PENDING,
                 BigDecimal.valueOf(1000));
-            Order order = new Order(
-                1L,
-                List.of(new OrderItem(1L, 1L, 1)));
+
+            Order order = anOrder().build();
             order.pay();
             User user = new User("userId", Gender.MALE, "1990-01-01", "test@test.com");
             user.chargePoint(1000);
@@ -83,9 +81,7 @@ public class PointPaymentValidatorTest {
             // arrange
             Payment payment = new Payment(1L, PaymentMethod.CREDIT_CARD, PaymentStatus.PENDING,
                 BigDecimal.valueOf(1000));
-            Order order = new Order(
-                1L,
-                List.of(new OrderItem(1L, 1L, 1)));
+            Order order = anOrder().build();
             User user = new User("userId", Gender.MALE, "1990-01-01", "test@test.com");
             when(orderRepository.find(1L)).thenReturn(Optional.of(order));
             when(userRepository.find(1L)).thenReturn(Optional.of(user));

@@ -1,5 +1,7 @@
 package com.loopers.domain.product;
 
+import static com.loopers.support.fixture.OrderFixture.anOrder;
+import static com.loopers.support.fixture.OrderItemFixture.anOrderItem;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -14,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.loopers.domain.order.Order;
-import com.loopers.domain.order.OrderItem;
 import com.loopers.infrastructure.order.OrderJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
@@ -68,10 +69,11 @@ public class ProductPricingServiceTest {
                 BigDecimal.valueOf(3000)));
             productJpaRepository.save(product);
 
-            Order order = new Order(1L, List.of(
-                new OrderItem(1L, 1L, 1), // 11000
-                new OrderItem(1L, 2L, 2)) // 24000
-            );
+            Order order = anOrder()
+                .orderItems(
+                    List.of(anOrderItem().productOptionId(1L).quantity(1).build(),
+                        anOrderItem().productOptionId(2L).quantity(1).build()))
+                .build();
             orderJpaRepository.save(order);
             List<ProductCommand.PricingOption> options = order.getItems().stream()
                 .map(item -> new ProductCommand.PricingOption(item.getProductId(), item.getProductOptionId(), item.getQuantity()))

@@ -1,5 +1,6 @@
 package com.loopers.domain.order;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class OrderCommand {
@@ -12,10 +13,12 @@ public class OrderCommand {
     public record OrderOption(
         Long productId,
         Long productOptionId,
-        Integer quantity
+        Integer quantity,
+        BigDecimal basePrice,
+        BigDecimal optionPrice
     ) {
         public OrderItem toOrderItem() {
-            return new OrderItem(productId, productOptionId, quantity);
+            return new OrderItem(productId, productOptionId, quantity, basePrice, optionPrice);
         }
     }
 }

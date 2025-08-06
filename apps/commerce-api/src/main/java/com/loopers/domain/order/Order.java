@@ -40,6 +40,13 @@ public class Order extends BaseEntity {
         this.status = OrderStatus.PENDING;
     }
 
+    public static Order from(OrderCommand.Order command) {
+        List<OrderItem> orderItems = command.options().stream()
+            .map(OrderCommand.OrderOption::toOrderItem)
+            .toList();
+        return new Order(command.userId(), orderItems);
+    }
+
     public void place(OrderValidator validator) {
         validator.validateOrder(this);
         this.orderDate = LocalDateTime.now();

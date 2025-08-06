@@ -1,5 +1,6 @@
 package com.loopers.interfaces.api;
 
+import static com.loopers.support.fixture.OrderFixture.anOrder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -23,8 +24,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import com.loopers.domain.inventory.Inventory;
-import com.loopers.domain.order.Order;
-import com.loopers.domain.order.OrderItem;
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
@@ -304,7 +303,7 @@ public class OrderV1ApiE2ETest {
                 BigDecimal.valueOf(2000)));
             productJpaRepository.save(product);
 
-            orderJpaRepository.save(new Order(1L, List.of(new OrderItem(1L, 1L, 2))));
+            orderJpaRepository.save(anOrder().build());
             paymentJpaRepository
                 .save(new Payment(1L, PaymentMethod.POINT, PaymentStatus.COMPLETED, BigDecimal.valueOf(10000)));
 
@@ -327,7 +326,7 @@ public class OrderV1ApiE2ETest {
                     .isEqualTo(1L),
                 () -> assertThat(response.getBody().data().orders().get(0).items().get(0).productOptionId())
                     .isEqualTo(1L),
-                () -> assertThat(response.getBody().data().orders().get(0).items().get(0).quantity()).isEqualTo(2),
+                () -> assertThat(response.getBody().data().orders().get(0).items().get(0).quantity()).isEqualTo(1),
                 () -> assertThat(response.getBody().data().orders().get(0).userId()).isEqualTo(1L));
         }
 
@@ -381,7 +380,7 @@ public class OrderV1ApiE2ETest {
                 BigDecimal.valueOf(2000)));
             productJpaRepository.save(product);
 
-            orderJpaRepository.save(new Order(1L, List.of(new OrderItem(1L, 1L, 2))));
+            orderJpaRepository.save(anOrder().build());
             paymentJpaRepository
                 .save(new Payment(1L, PaymentMethod.POINT, PaymentStatus.COMPLETED, BigDecimal.valueOf(22000)));
 
@@ -402,7 +401,7 @@ public class OrderV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().items()).hasSize(1),
                 () -> assertThat(response.getBody().data().items().get(0).productId()).isEqualTo(1L),
                 () -> assertThat(response.getBody().data().items().get(0).productOptionId()).isEqualTo(1L),
-                () -> assertThat(response.getBody().data().items().get(0).quantity()).isEqualTo(2),
+                () -> assertThat(response.getBody().data().items().get(0).quantity()).isEqualTo(1),
                 () -> assertThat(response.getBody().data().userId()).isEqualTo(1L),
                 () -> assertThat(response.getBody().data().orderStatus()).isEqualTo("PENDING"),
                 () -> assertThat(response.getBody().data().paymentMethod()).isEqualTo("POINT"),

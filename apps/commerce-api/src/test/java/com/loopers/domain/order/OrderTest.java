@@ -1,9 +1,11 @@
 package com.loopers.domain.order;
 
+import static com.loopers.support.fixture.OrderFixture.anOrder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +25,7 @@ public class OrderTest {
         void createOrder_whenValidInfoProvided() {
             // arrange
             Long userId = 1L;
-            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1));
+            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000)));
 
             // act
             Order order = new Order(userId, items);
@@ -40,7 +42,7 @@ public class OrderTest {
         @Test
         void createOrder_whenUserIdIsNull() {
             // arrange
-            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1));
+            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000)));
 
             // act
             CoreException result = assertThrows(CoreException.class,
@@ -80,7 +82,7 @@ public class OrderTest {
         void createOrder_whenProductIdIsNull() {
             // act
             CoreException result = assertThrows(CoreException.class,
-                () -> new OrderItem(null, 1L, 1)
+                () -> new OrderItem(null, 1L, 1, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000))
             );
 
             // assert
@@ -92,7 +94,7 @@ public class OrderTest {
         void createOrder_whenProductOptionIdIsNull() {
             // act
             CoreException result = assertThrows(CoreException.class,
-                () -> new OrderItem(1L, null, 1)
+                () -> new OrderItem(1L, null, 1, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000))
             );
 
             // assert
@@ -104,7 +106,7 @@ public class OrderTest {
         void createOrder_whenQuantityIsNull() {
             // act
             CoreException result = assertThrows(CoreException.class,
-                () -> new OrderItem(1L, 1L, null)
+                () -> new OrderItem(1L, 1L, null, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000))
             );
 
             // assert
@@ -119,7 +121,7 @@ public class OrderTest {
         @Test
         void payOrder_whenOrderIsPendingPayment() {
             // arrange
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
+            Order order = anOrder().build();
 
             // act
             order.pay();
@@ -132,7 +134,7 @@ public class OrderTest {
         @Test
         void payOrder_whenOrderIsPaid() {
             // arrange
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
+            Order order = anOrder().build();
             order.pay();
 
             // act
