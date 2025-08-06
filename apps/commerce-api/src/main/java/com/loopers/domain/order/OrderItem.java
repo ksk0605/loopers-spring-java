@@ -30,4 +30,8 @@ public class OrderItem extends BaseEntity {
         this.basePrice = requireNotNull(basePrice);
         this.optionPrice = requireNotNull(optionPrice);
     }
+
+    public BigDecimal calculatePrice() {
+        return basePrice.add(optionPrice).multiply(new BigDecimal(quantity));
+    }
 }

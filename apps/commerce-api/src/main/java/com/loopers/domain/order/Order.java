@@ -3,6 +3,7 @@ package com.loopers.domain.order;
 import static com.loopers.support.util.RequireUtils.requireNonEmpty;
 import static com.loopers.support.util.RequireUtils.requireNotNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -62,5 +63,11 @@ public class Order extends BaseEntity {
 
     public boolean isPaid() {
         return this.status == OrderStatus.PAYMENT_COMPLETED;
+    }
+
+    public BigDecimal getTotalPrice() {
+        return items.stream()
+            .map(item -> item.calculatePrice())
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

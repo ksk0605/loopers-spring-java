@@ -146,4 +146,17 @@ public class OrderTest {
             assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
+
+    @DisplayName("주문의 총 가격을 계산할 수 있다.")
+    @Test
+    void getTotalPrice() {
+        // arrange
+        Order order = anOrder().build();
+
+        // act
+        BigDecimal price = order.getTotalPrice();
+
+        // assert
+        assertThat(price).isEqualTo(BigDecimal.valueOf(11000));
+    }
 }
