@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.inventory.Inventory;
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentMethod;
@@ -32,6 +33,7 @@ import com.loopers.domain.product.ProductOption;
 import com.loopers.domain.product.ProductStatus;
 import com.loopers.domain.user.Gender;
 import com.loopers.domain.user.User;
+import com.loopers.infrastructure.coupon.CouponJpaRepository;
 import com.loopers.infrastructure.inventory.InventoryJpaRepository;
 import com.loopers.infrastructure.order.OrderJpaRepository;
 import com.loopers.infrastructure.payment.PaymentJpaRepository;
@@ -65,6 +67,9 @@ public class OrderV1ApiE2ETest {
 
     @Autowired
     private PaymentJpaRepository paymentJpaRepository;
+
+    @Autowired
+    private CouponJpaRepository couponJpaRepository;
 
     @AfterEach
     void tearDown() {
@@ -107,11 +112,14 @@ public class OrderV1ApiE2ETest {
 
             inventoryJpaRepository.save(new Inventory(1L, 2L, 10));
 
+            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
+            couponJpaRepository.save(coupon);
+
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");
 
             OrderV1Dto.OrderRequest request = new OrderV1Dto.OrderRequest(
-                List.of(new OrderV1Dto.OrderItemRequest(1L, 2L, 1)));
+                List.of(new OrderV1Dto.OrderItemRequest(1L, 2L, 1)), 1L);
 
             // act
             ParameterizedTypeReference<ApiResponse<OrderV1Dto.OrderResponse>> responseType = new ParameterizedTypeReference<>() {
@@ -132,7 +140,7 @@ public class OrderV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().paymentMethod()).isEqualTo("POINT"),
                 () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo("COMPLETED"),
                 () -> assertThat(response.getBody().data().orderDate()).isAfter(LocalDateTime.now().minusDays(1)),
-                () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(12000L));
+                () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(7000L));
         }
 
         @DisplayName("재고가 부족할 경우, 주문 생성 실패 응답을 반환한다.")
@@ -175,7 +183,8 @@ public class OrderV1ApiE2ETest {
             OrderV1Dto.OrderRequest request = new OrderV1Dto.OrderRequest(
                 List.of(
                     new OrderV1Dto.OrderItemRequest(1L, 1L, 6),
-                    new OrderV1Dto.OrderItemRequest(1L, 2L, 5)));
+                    new OrderV1Dto.OrderItemRequest(1L, 2L, 5)),
+                1L);
 
             // act
             ParameterizedTypeReference<ApiResponse<OrderV1Dto.OrderResponse>> responseType = new ParameterizedTypeReference<>() {
@@ -205,7 +214,7 @@ public class OrderV1ApiE2ETest {
             headers.add("X-USER-ID", "testUser");
 
             OrderV1Dto.OrderRequest request = new OrderV1Dto.OrderRequest(
-                List.of(new OrderV1Dto.OrderItemRequest(1L, 2L, 1)));
+                List.of(new OrderV1Dto.OrderItemRequest(1L, 2L, 1)), 1L);
 
             // act
             ParameterizedTypeReference<ApiResponse<OrderV1Dto.OrderResponse>> responseType = new ParameterizedTypeReference<>() {
@@ -228,7 +237,7 @@ public class OrderV1ApiE2ETest {
                 Gender.MALE,
                 "1997-06-05",
                 "test@loopers.com");
-            user.chargePoint(22999);
+            user.chargePoint(16999);
             userJpaRepository.save(user);
 
             Product product = new Product(
@@ -251,13 +260,18 @@ public class OrderV1ApiE2ETest {
 
             inventoryJpaRepository.save(new Inventory(1L, 1L, 10));
             inventoryJpaRepository.save(new Inventory(1L, 2L, 10));
+
+            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
+            couponJpaRepository.save(coupon);
+
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");
 
             OrderV1Dto.OrderRequest request = new OrderV1Dto.OrderRequest(
                 List.of(
                     new OrderV1Dto.OrderItemRequest(1L, 1L, 1),
-                    new OrderV1Dto.OrderItemRequest(1L, 2L, 1)));
+                    new OrderV1Dto.OrderItemRequest(1L, 2L, 1)),
+                1L);
 
             // act
             ParameterizedTypeReference<ApiResponse<OrderV1Dto.OrderResponse>> responseType = new ParameterizedTypeReference<>() {

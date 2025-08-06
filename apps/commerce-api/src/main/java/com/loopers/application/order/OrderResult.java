@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.loopers.domain.coupon.UserCoupon;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderItem;
 import com.loopers.domain.order.OrderStatus;
@@ -31,6 +32,19 @@ public record OrderResult(
             payment.getMethod(),
             payment.getStatus(),
             order.getTotalPrice()
+        );
+    }
+
+    public static OrderResult of(Order order, Payment payment, UserCoupon userCoupon) {
+        return new OrderResult(
+            order.getId(),
+            order.getUserId(),
+            order.getStatus(),
+            order.getOrderDate(),
+            order.getItems().stream().map(OrderItemResult::from).toList(),
+            payment.getMethod(),
+            payment.getStatus(),
+            order.getTotalPrice().subtract(userCoupon.getDiscountAmount())
         );
     }
 
