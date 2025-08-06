@@ -33,10 +33,10 @@ import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.support.IntegrationTest;
 
-class OrderUseCaseTest extends IntegrationTest {
+class OrderFacadeTest extends IntegrationTest {
 
     @Autowired
-    private OrderUseCase orderUseCase;
+    private OrderFacade orderFacade;
 
     @Autowired
     private ProductJpaRepository productJpaRepository;
@@ -65,7 +65,7 @@ class OrderUseCaseTest extends IntegrationTest {
 
         // act
         OrderCriteria.Order cri = new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 10)));
-        OrderResult result = orderUseCase.order(cri);
+        OrderResult result = orderFacade.order(cri);
 
         // assert
         assertAll(
@@ -108,7 +108,7 @@ class OrderUseCaseTest extends IntegrationTest {
             // 첫 번째 주문 (4개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderUseCase.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4))));
+                    return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4))));
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -117,7 +117,7 @@ class OrderUseCaseTest extends IntegrationTest {
             // 두 번째 주문 (3개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderUseCase.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 4))));
+                    return orderFacade.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 4))));
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -180,7 +180,7 @@ class OrderUseCaseTest extends IntegrationTest {
             // 첫 번째 주문 (4개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderUseCase.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4))));
+                    return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4))));
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -189,7 +189,7 @@ class OrderUseCaseTest extends IntegrationTest {
             // 두 번째 주문 (3개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderUseCase.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 3))));
+                    return orderFacade.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 3))));
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -198,7 +198,7 @@ class OrderUseCaseTest extends IntegrationTest {
             // 세 번째 주문 (3개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderUseCase.order(new OrderCriteria.Order(3L, List.of(new OrderCriteria.Item(1L, 1L, 3))));
+                    return orderFacade.order(new OrderCriteria.Order(3L, List.of(new OrderCriteria.Item(1L, 1L, 3))));
                 } finally {
                     countDownLatch.countDown();
                 }

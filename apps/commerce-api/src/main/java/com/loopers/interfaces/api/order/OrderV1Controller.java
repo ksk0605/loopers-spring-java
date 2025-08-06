@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.loopers.application.order.OrderFacade;
 import com.loopers.application.order.OrderResult;
-import com.loopers.application.order.OrderUseCase;
 import com.loopers.domain.user.UserInfo;
 import com.loopers.domain.user.UserService;
 import com.loopers.interfaces.api.ApiResponse;
@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderV1Controller implements OrderV1ApiSpec {
 
-    private final OrderUseCase orderUseCase;
+    private final OrderFacade orderFacade;
     private final UserService userService;
 
     @PostMapping
@@ -34,7 +34,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
         @RequestBody OrderRequest request) {
         UserInfo user = userService.get(userId);
         var criteria = request.toOrderCriteria(user.id());
-        OrderResult result = orderUseCase.order(criteria);
+        OrderResult result = orderFacade.order(criteria);
         return ApiResponse.success(OrderResponse.from(result));
     }
 
@@ -43,7 +43,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     public ApiResponse<OrderResponses> getOrders(
         @RequestHeader(name = "X-USER-ID", required = true) String userId) {
         UserInfo user = userService.get(userId);
-        var results = orderUseCase.getOrders(user.id());
+        var results = orderFacade.getOrders(user.id());
         return ApiResponse.success(OrderResponses.from(results));
     }
 
@@ -53,7 +53,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
         @RequestHeader(name = "X-USER-ID", required = true) String userId,
         @PathVariable Long orderId) {
         UserInfo user = userService.get(userId);
-        var result = orderUseCase.getOrder(orderId, user.id());
+        var result = orderFacade.getOrder(orderId, user.id());
         return ApiResponse.success(OrderResponse.from(result));
     }
 }

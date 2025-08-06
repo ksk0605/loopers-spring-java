@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class OrderUseCase {
+public class OrderFacade {
     private final OrderService orderService;
     private final PaymentService paymentService;
     private final ProductService productService;
