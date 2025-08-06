@@ -195,7 +195,9 @@ public class LikeV1ApiE2ETest {
                 1L,
                 LikeTargetType.PRODUCT));
 
-            likeSummaryJpaRepository.save(new LikeSummary(1L, LikeTargetType.PRODUCT));
+            LikeSummary likeSummary = new LikeSummary(1L, LikeTargetType.PRODUCT);
+            likeSummary.incrementLikeCount();
+            likeSummaryJpaRepository.save(likeSummary);
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");
