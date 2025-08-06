@@ -1,6 +1,5 @@
 package com.loopers.application.product;
 
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.application.common.PageInfo;
@@ -11,10 +10,11 @@ import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductService;
+import com.loopers.support.annotation.UseCase;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@UseCase
 @RequiredArgsConstructor
 public class ProductFacade {
     private final ProductService productService;
