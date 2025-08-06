@@ -16,7 +16,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentValidatorFactory validatorFactory;
 
-    public Payment pay(PaymentCommand.Pay command) {
+    public Payment create(PaymentCommand.Pay command) {
         Payment payment = new Payment(command.orderId(), command.method(), PaymentStatus.PENDING, command.amount());
         payment.process(validatorFactory.getValidator(command.method()));
         return paymentRepository.save(payment);

@@ -31,12 +31,13 @@ public class OrderFacade {
     @Transactional
     public OrderResult order(OrderCriteria.Order criteria) {
         User user = userService.get(criteria.userId());
+
         List<ProductPrice> productPrices = productService.getAvailableProductPrices(criteria.toProductCommand());
 
-        Order order = orderService.order(criteria.toOrderCommandWithProductPrices(productPrices));
+        Order order = orderService.create(criteria.toOrderCommandWithProductPrices(productPrices));
 
         PaymentCommand.Pay command = new PaymentCommand.Pay(order.getId(), PaymentMethod.POINT, order.getTotalPrice());
-        Payment payment = paymentService.pay(command);
+        Payment payment = paymentService.create(command);
         order.pay();
 
         inventoryService.deduct(criteria.toInventoryCommand());
