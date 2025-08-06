@@ -7,8 +7,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 import com.loopers.domain.BaseEntity;
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -59,10 +57,10 @@ public class User extends BaseEntity {
 
     private void validateUserId(String userId) {
         if (!userId.matches(USER_ID_PATTERN)) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "ID는 영문자와 숫자만 허용됩니다.");
+            throw new IllegalArgumentException("ID는 영문자와 숫자만 허용됩니다.");
         }
         if (userId.length() > MAX_USER_ID_LENGTH) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "ID는 10자 이내여야 합니다.");
+            throw new IllegalArgumentException("ID는 10자 이내여야 합니다.");
         }
     }
 
@@ -70,18 +68,18 @@ public class User extends BaseEntity {
         requireNonEmpty(birthDate, "생년월일은 비어있을 수 없습니다.");
 
         if (!birthDate.matches(BIRTH_DATE_PATTERN)) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "생년월일은 yyyy-MM-dd 형식이어야 합니다.");
+            throw new IllegalArgumentException("생년월일은 yyyy-MM-dd 형식이어야 합니다.");
         }
         try {
             LocalDate.parse(birthDate);
         } catch (DateTimeParseException e) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "유효하지 않은 날짜입니다.");
+            throw new IllegalArgumentException("유효하지 않은 날짜입니다.");
         }
     }
 
     private void validateEmail(String email) {
         if (!email.matches(EMAIL_PATTERN)) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "이메일 형식이 올바르지 않습니다.");
+            throw new IllegalArgumentException("이메일 형식이 올바르지 않습니다.");
         }
     }
 

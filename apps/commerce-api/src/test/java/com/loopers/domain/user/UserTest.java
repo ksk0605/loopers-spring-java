@@ -12,9 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
-
 public class UserTest {
     @DisplayName("유저를 생성할 때, ")
     @Nested
@@ -47,13 +44,10 @@ public class UserTest {
             // arrange
             String userId = "    ";
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User(userId, Gender.MALE, "1990-01-01", "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("ID에 영문 및 숫자 외의 문자가 들어오면, BAD_REQUEST 예외가 발생한다.")
@@ -63,13 +57,10 @@ public class UserTest {
             // arrange
             String userId = "testId" + source;
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User(userId, Gender.MALE, "1990-01-01", "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("ID가 10자를 넘어가면, BAD_REQUEST 예외가 발생한다.")
@@ -78,13 +69,10 @@ public class UserTest {
             // arrange
             String userId = "12overTenId";
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User(userId, Gender.MALE, "1990-01-01", "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("이메일이 빈칸으로만 이루어져 있으면, BAD_REQUEST 예외가 발생한다.")
@@ -93,13 +81,10 @@ public class UserTest {
             // arrange
             String email = "  ";
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser66", Gender.MALE, "1990-01-01", email);
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("이메일이 xx@yy.zz 형식에 맞지 않으면, BAD_REQUEST 예외가 발생한다.")
@@ -113,13 +98,10 @@ public class UserTest {
             // arrange
             String email = value;
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser66", Gender.MALE, "1990-01-01", email);
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("생년월일이 빈칸으로만 이루어져 있으면, BAD_REQUEST 예외가 발생한다.")
@@ -128,13 +110,10 @@ public class UserTest {
             // arrange
             String birthDate = "  ";
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser", Gender.MALE, birthDate, "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("생년월일이 yyyy-MM-dd 형식에 맞지 않으면, BAD_REQUEST 예외가 발생한다.")
@@ -151,13 +130,10 @@ public class UserTest {
             // arrange
             String birthDate = value;
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser", Gender.MALE, birthDate, "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("생년월일이 존재하지 않는 날짜라면, BAD_REQUEST 예외가 발생한다.")
@@ -171,13 +147,10 @@ public class UserTest {
             // arrange
             String birthDate = value;
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser", Gender.MALE, birthDate, "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 }
