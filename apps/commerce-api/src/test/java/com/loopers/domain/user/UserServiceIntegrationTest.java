@@ -53,15 +53,15 @@ public class UserServiceIntegrationTest {
             UserCommand.Create command = new UserCommand.Create(userId, gender.name(), birthDate, email);
 
             // act
-            UserInfo userInfo = userService.createUser(command);
+            User user = userService.createUser(command);
 
             // assert
             assertAll(
                 () -> verify(userJpaRepository, times(1)).save(any(User.class)),
-                () -> assertThat(userInfo.userId()).isEqualTo(userId),
-                () -> assertThat(userInfo.gender()).isEqualTo(gender),
-                () -> assertThat(userInfo.birthDate()).isEqualTo(LocalDate.parse(birthDate)),
-                () -> assertThat(userInfo.email()).isEqualTo(email)
+                () -> assertThat(user.getUserId()).isEqualTo(userId),
+                () -> assertThat(user.getGender()).isEqualTo(gender),
+                () -> assertThat(user.getBirthDate()).isEqualTo(LocalDate.parse(birthDate)),
+                () -> assertThat(user.getEmail()).isEqualTo(email)
             );
         }
 
@@ -96,10 +96,10 @@ public class UserServiceIntegrationTest {
             );
 
             // act
-            UserInfo userInfo = userService.get(userId);
+            User user = userService.get(userId);
 
             // assert
-            assertThat(userInfo.userId()).isEqualTo(userId);
+            assertThat(user.getUserId()).isEqualTo(userId);
         }
 
         @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, NOT FOUND 예외를 발생한다.")

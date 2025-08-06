@@ -86,6 +86,7 @@ class LikeServiceIntegrationTest {
         @Test
         void cancelLike_whenValidLikeInfoProvided() {
             // arrange
+            likeSummaryJpaRepository.save(new LikeSummary(1L, LikeTargetType.PRODUCT));
             likeJpaRepository.save(new Like(1L, 1L, LikeTargetType.PRODUCT));
 
             // act
@@ -143,15 +144,15 @@ class LikeServiceIntegrationTest {
             likeJpaRepository.save(new Like(1L, 3L, LikeTargetType.PRODUCT));
 
             // act
-            List<LikeInfo> likeInfos = likeService.getAll(1L, LikeTargetType.PRODUCT);
+            List<Like> likes = likeService.getAll(1L, LikeTargetType.PRODUCT);
 
             // assert
             assertAll(
-                () -> assertThat(likeInfos).hasSize(2),
-                () -> assertThat(likeInfos.get(0).targetId()).isEqualTo(1L),
-                () -> assertThat(likeInfos.get(0).targetType()).isEqualTo(LikeTargetType.PRODUCT),
-                () -> assertThat(likeInfos.get(1).targetId()).isEqualTo(3L),
-                () -> assertThat(likeInfos.get(1).targetType()).isEqualTo(LikeTargetType.PRODUCT)
+                () -> assertThat(likes).hasSize(2),
+                () -> assertThat(likes.get(0).getTarget().id()).isEqualTo(1L),
+                () -> assertThat(likes.get(0).getTarget().type()).isEqualTo(LikeTargetType.PRODUCT),
+                () -> assertThat(likes.get(1).getTarget().id()).isEqualTo(3L),
+                () -> assertThat(likes.get(1).getTarget().type()).isEqualTo(LikeTargetType.PRODUCT)
             );
         }
     }

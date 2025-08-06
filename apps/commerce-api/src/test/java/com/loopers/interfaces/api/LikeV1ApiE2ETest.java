@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.like.Like;
+import com.loopers.domain.like.LikeSummary;
 import com.loopers.domain.like.LikeTarget;
 import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.product.Product;
@@ -31,6 +32,7 @@ import com.loopers.domain.user.Gender;
 import com.loopers.domain.user.User;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.infrastructure.like.LikeJpaRepository;
+import com.loopers.infrastructure.like.LikeSummaryJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.interfaces.api.like.LikeV1Dto;
@@ -59,6 +61,9 @@ public class LikeV1ApiE2ETest {
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
+
+    @Autowired
+    private LikeSummaryJpaRepository likeSummaryJpaRepository;
 
     @AfterEach
     void tearDown() {
@@ -189,6 +194,8 @@ public class LikeV1ApiE2ETest {
                 1L,
                 1L,
                 LikeTargetType.PRODUCT));
+
+            likeSummaryJpaRepository.save(new LikeSummary(1L, LikeTargetType.PRODUCT));
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");

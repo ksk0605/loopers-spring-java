@@ -20,26 +20,22 @@ public class ProductService {
     private final ProductMapper productMapper;
 
     @Transactional(readOnly = true)
-    public ProductInfo get(Long id) {
-        Product product = productRepository.find(id)
+    public Product get(Long id) {
+        return productRepository.find(id)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다. 상품 ID: " + id));
-        return ProductInfo.from(product);
     }
 
     @Transactional(readOnly = true)
-    public List<ProductInfo> getAll(List<Long> ids) {
-        return productRepository.findAll(ids)
-            .stream()
-            .map(ProductInfo::from)
-            .toList();
+    public List<Product> getAll(List<Long> ids) {
+        return productRepository.findAll(ids);
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductInfo> getAll(ProductCommand.Search command) {
-        Page<Product> products = productRepository.findAll(command);
-        return products.map(ProductInfo::from);
+    public Page<Product> getAll(ProductCommand.Search command) {
+        return productRepository.findAll(command);
     }
 
+    @Transactional(readOnly = true)
     public List<ProductPrice> getAvailableProductPrices(ProductCommand.GetAvailable command) {
         List<Long> productIds = command.options().stream()
             .map(option -> option.productId())

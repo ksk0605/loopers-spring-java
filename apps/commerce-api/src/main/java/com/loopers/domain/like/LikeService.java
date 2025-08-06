@@ -39,10 +39,7 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public List<LikeInfo> getAll(Long userId, LikeTargetType targetType) {
-        return likeRepository.findAll(userId, targetType)
-            .stream()
-            .map(LikeInfo::from)
-            .toList();
+    public List<Like> getAll(Long userId, LikeTargetType targetType) {
+        return likeRepository.findAll(userId, targetType);
     }
 }

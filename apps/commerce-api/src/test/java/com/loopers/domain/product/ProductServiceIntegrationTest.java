@@ -119,7 +119,7 @@ public class ProductServiceIntegrationTest {
     class GetAll {
         @DisplayName("검색 조건을 가격 오름차순으로 가져올 수 있다.")
         @Test
-        void getProducts_orderByPrice() {
+        void getProducts_orderBygetPrice() {
             // arrange
             var command = new ProductCommand.Search(
                 SortBy.PRICE_ASC,
@@ -135,12 +135,12 @@ public class ProductServiceIntegrationTest {
             assertAll(
                 () -> assertThat(products.getContent()).hasSize(3),
                 // 2 -> 1 -> 3번 순서
-                () -> assertThat(products.getContent().get(0).price()).isEqualByComparingTo(BigDecimal.valueOf(10000)),
-                () -> assertThat(products.getContent().get(0).id()).isEqualByComparingTo(2L),
-                () -> assertThat(products.getContent().get(1).price()).isEqualByComparingTo(BigDecimal.valueOf(20000)),
-                () -> assertThat(products.getContent().get(1).id()).isEqualByComparingTo(1L),
-                () -> assertThat(products.getContent().get(2).price()).isEqualByComparingTo(BigDecimal.valueOf(30000)),
-                () -> assertThat(products.getContent().get(2).id()).isEqualByComparingTo(3L)
+                () -> assertThat(products.getContent().get(0).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(10000)),
+                () -> assertThat(products.getContent().get(0).getId()).isEqualByComparingTo(2L),
+                () -> assertThat(products.getContent().get(1).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(20000)),
+                () -> assertThat(products.getContent().get(1).getId()).isEqualByComparingTo(1L),
+                () -> assertThat(products.getContent().get(2).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(30000)),
+                () -> assertThat(products.getContent().get(2).getId()).isEqualByComparingTo(3L)
             );
         }
 
@@ -162,12 +162,12 @@ public class ProductServiceIntegrationTest {
             assertAll(
                 () -> assertThat(products.getContent()).hasSize(3),
                 // 2 -> 3 -> 1번 순서
-                () -> assertThat(products.getContent().get(0).price()).isEqualByComparingTo(BigDecimal.valueOf(10000)),
-                () -> assertThat(products.getContent().get(0).id()).isEqualByComparingTo(2L),
-                () -> assertThat(products.getContent().get(1).price()).isEqualByComparingTo(BigDecimal.valueOf(30000)),
-                () -> assertThat(products.getContent().get(1).id()).isEqualByComparingTo(3L),
-                () -> assertThat(products.getContent().get(2).price()).isEqualByComparingTo(BigDecimal.valueOf(20000)),
-                () -> assertThat(products.getContent().get(2).id()).isEqualByComparingTo(1L)
+                () -> assertThat(products.getContent().get(0).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(10000)),
+                () -> assertThat(products.getContent().get(0).getId()).isEqualByComparingTo(2L),
+                () -> assertThat(products.getContent().get(1).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(30000)),
+                () -> assertThat(products.getContent().get(1).getId()).isEqualByComparingTo(3L),
+                () -> assertThat(products.getContent().get(2).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(20000)),
+                () -> assertThat(products.getContent().get(2).getId()).isEqualByComparingTo(1L)
             );
         }
 
@@ -189,12 +189,12 @@ public class ProductServiceIntegrationTest {
             assertAll(
                 () -> assertThat(products.getContent()).hasSize(3),
                 // 3 -> 2 -> 1번 순서
-                () -> assertThat(products.getContent().get(0).price()).isEqualByComparingTo(BigDecimal.valueOf(30000)),
-                () -> assertThat(products.getContent().get(0).id()).isEqualByComparingTo(3L),
-                () -> assertThat(products.getContent().get(1).price()).isEqualByComparingTo(BigDecimal.valueOf(10000)),
-                () -> assertThat(products.getContent().get(1).id()).isEqualByComparingTo(2L),
-                () -> assertThat(products.getContent().get(2).price()).isEqualByComparingTo(BigDecimal.valueOf(20000)),
-                () -> assertThat(products.getContent().get(2).id()).isEqualByComparingTo(1L)
+                () -> assertThat(products.getContent().get(0).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(30000)),
+                () -> assertThat(products.getContent().get(0).getId()).isEqualByComparingTo(3L),
+                () -> assertThat(products.getContent().get(1).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(10000)),
+                () -> assertThat(products.getContent().get(1).getId()).isEqualByComparingTo(2L),
+                () -> assertThat(products.getContent().get(2).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(20000)),
+                () -> assertThat(products.getContent().get(2).getId()).isEqualByComparingTo(1L)
             );
         }
     }

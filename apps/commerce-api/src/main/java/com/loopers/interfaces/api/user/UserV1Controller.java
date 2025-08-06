@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.loopers.application.user.UserFacade;
+import com.loopers.application.user.UserResult;
 import com.loopers.domain.user.UserCommand;
-import com.loopers.domain.user.UserInfo;
-import com.loopers.domain.user.UserService;
 import com.loopers.interfaces.api.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserV1Controller implements UserV1ApiSpec {
-    private final UserService userService;
+    private final UserFacade userFacade;
 
     @PostMapping
     @Override
@@ -32,8 +32,8 @@ public class UserV1Controller implements UserV1ApiSpec {
             request.birthDate(),
             request.email()
         );
-        UserInfo info = userService.createUser(command);
-        UserV1Dto.UserResponse response = UserV1Dto.UserResponse.from(info);
+        UserResult result = userFacade.createUser(command);
+        UserV1Dto.UserResponse response = UserV1Dto.UserResponse.from(result);
         return ApiResponse.success(response);
     }
 
@@ -41,7 +41,7 @@ public class UserV1Controller implements UserV1ApiSpec {
     public ApiResponse<UserV1Dto.UserResponse> getMe(
         @RequestHeader("X-USER-ID") String userId
     ) {
-        UserInfo userInfo = userService.get(userId);
-        return ApiResponse.success(UserV1Dto.UserResponse.from(userInfo));
+        UserResult result = userFacade.getUser(userId);
+        return ApiResponse.success(UserV1Dto.UserResponse.from(result));
     }
 }

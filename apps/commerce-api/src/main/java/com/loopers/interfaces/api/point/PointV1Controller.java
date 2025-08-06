@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.loopers.application.point.PointFacade;
-import com.loopers.application.point.PointInfo;
+import com.loopers.application.point.PointResult;
 import com.loopers.interfaces.api.ApiResponse;
 
 @RestController
@@ -26,8 +26,8 @@ public class PointV1Controller implements PointV1ApiSpec {
     public ApiResponse<PointV1Dto.PointResponse> getPoint(
         @RequestHeader("X-USER-ID") String userId
     ) {
-        PointInfo pointInfo = pointFacade.getMyPoint(userId);
-        return ApiResponse.success(PointV1Dto.PointResponse.from(pointInfo));
+        PointResult result = pointFacade.getMyPoint(userId);
+        return ApiResponse.success(PointV1Dto.PointResponse.from(result));
     }
 
     @PostMapping("/charge")
@@ -36,7 +36,7 @@ public class PointV1Controller implements PointV1ApiSpec {
         @RequestHeader("X-USER-ID") String userId,
         @RequestBody PointV1Dto.ChargePointRequest request
     ) {
-        PointInfo pointInfo = pointFacade.chargePoint(userId, request.amount());
-        return ApiResponse.success(PointV1Dto.PointResponse.from(pointInfo));
+        PointResult result = pointFacade.chargePoint(userId, request.amount());
+        return ApiResponse.success(PointV1Dto.PointResponse.from(result));
     }
 }

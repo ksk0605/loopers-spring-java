@@ -49,10 +49,10 @@ class PointFacadeIntegrationTest {
             );
 
             // act
-            PointInfo pointInfo = pointFacade.getMyPoint("testUser");
+            PointResult result = pointFacade.getMyPoint("testUser");
 
             // assert
-            assertThat(pointInfo.point()).isEqualTo(0);
+            assertThat(result.point()).isEqualTo(0);
         }
 
         @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, NOT_FOUND 예외가 발생한다.")
@@ -86,10 +86,10 @@ class PointFacadeIntegrationTest {
             );
 
             // act
-            PointInfo pointInfo = pointFacade.chargePoint("testUser", amount);
+            PointResult result = pointFacade.chargePoint("testUser", amount);
 
             // assert
-            assertThat(pointInfo.point()).isEqualTo(amount);
+            assertThat(result.point()).isEqualTo(amount);
         }
 
         @DisplayName("존재하지 않는 유저 ID 로 충전할 경우, NOT_FOUND 예외가 발생한다.")

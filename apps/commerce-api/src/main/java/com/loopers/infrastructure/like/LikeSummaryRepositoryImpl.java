@@ -17,7 +17,7 @@ public class LikeSummaryRepositoryImpl implements LikeSummaryRepository {
 
     @Override
     public Optional<LikeSummary> findByTarget(LikeTarget target) {
-        return likeSummaryJpaRepository.findByTarget(target);
+        return likeSummaryJpaRepository.findByTargetForUpdate(target);
     }
 
     @Override

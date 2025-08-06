@@ -23,7 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.loopers.application.product.ProductResult;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.like.Like;
-import com.loopers.domain.like.LikeTarget;
+import com.loopers.domain.like.LikeSummary;
 import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductStatus;
@@ -102,7 +102,7 @@ class LikeFacadeIntegrationTest {
     @DisplayName("동일 상품에 대해 여러명이 좋아요를 요청할 때, ")
     @Nested
     class ConcurrencyLike {
-        @DisplayName("여러명이 좋아요를 한번에 요청하면 한명의 사용자만 성공한다.")
+        @DisplayName("여러명이 좋아요를 한번에 요청하면 모든 사용자의 좋아요가 정상적으로 기록된다.")
         @Test
         void addLikeCount_whenConcurrencyLikeRequest() throws InterruptedException {
             // arrange
@@ -111,6 +111,7 @@ class LikeFacadeIntegrationTest {
             userJpaRepository.save(new User("testUser1", Gender.MALE, "1997-06-05", "loopers@loopers.com"));
             userJpaRepository.save(new User("testUser2", Gender.MALE, "1997-06-05", "loopers@loopers.com"));
             userJpaRepository.save(new User("testUser3", Gender.MALE, "1997-06-05", "loopers@loopers.com"));
+            likeSummaryJpaRepository.save(new LikeSummary(1L, LikeTargetType.PRODUCT));
 
             LikeCriteria.LikeProduct cri1 = new LikeCriteria.LikeProduct("testUser1", 1L, LikeTargetType.PRODUCT);
             LikeCriteria.LikeProduct cri2 = new LikeCriteria.LikeProduct("testUser2", 1L, LikeTargetType.PRODUCT);
@@ -164,11 +165,11 @@ class LikeFacadeIntegrationTest {
                 .count();
 
             assertAll(
-                () -> assertThat(successfulOrders).isEqualTo(1),
-                () -> assertThat(likeJpaRepository.count()).isEqualTo(1),
+                () -> assertThat(successfulOrders).isEqualTo(3),
+                () -> assertThat(likeJpaRepository.count()).isEqualTo(3),
                 () -> assertThat(likeSummaryJpaRepository.count()).isEqualTo(1),
-                () -> assertThat(likeSummaryJpaRepository.findByTarget(new LikeTarget(1L, LikeTargetType.PRODUCT))).isPresent(),
-                () -> assertThat(likeSummaryJpaRepository.findByTarget(new LikeTarget(1L, LikeTargetType.PRODUCT)).get().getLikeCount()).isEqualTo(1L)
+                () -> assertThat(likeSummaryJpaRepository.findById(1L)).isPresent(),
+                () -> assertThat(likeSummaryJpaRepository.findById(1L).get().getLikeCount()).isEqualTo(3L)
             );
         }
     }

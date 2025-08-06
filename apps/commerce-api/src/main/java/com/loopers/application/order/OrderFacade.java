@@ -13,6 +13,7 @@ import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.product.ProductPrice;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
 import com.loopers.support.annotation.UseCase;
 
@@ -29,6 +30,7 @@ public class OrderFacade {
 
     @Transactional
     public OrderResult order(OrderCriteria.Order criteria) {
+        User user = userService.get(criteria.userId());
         List<ProductPrice> productPrices = productService.getAvailableProductPrices(criteria.toProductCommand());
 
         Order order = orderService.order(criteria.toOrderCommandWithProductPrices(productPrices));
@@ -39,7 +41,7 @@ public class OrderFacade {
 
         inventoryService.deduct(criteria.toInventoryCommand());
 
-        userService.pay(criteria.userId(), order.getTotalPrice());
+        user.usePoint(order.getTotalPrice().intValue());
 
         return OrderResult.of(order, payment);
     }

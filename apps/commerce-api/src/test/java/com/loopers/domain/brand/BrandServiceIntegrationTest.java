@@ -47,14 +47,14 @@ class BrandServiceIntegrationTest {
             );
 
             // act
-            BrandInfo result = brandService.get(brand.getId());
+            Brand result = brandService.get(brand.getId());
 
             // assert
             assertAll(
                 () -> assertThat(result).isNotNull(),
-                () -> assertThat(result.id()).isEqualTo(brand.getId()),
-                () -> assertThat(result.name()).isEqualTo(brand.getName()),
-                () -> assertThat(result.description()).isEqualTo(brand.getDescription())
+                () -> assertThat(result.getId()).isEqualTo(brand.getId()),
+                () -> assertThat(result.getName()).isEqualTo(brand.getName()),
+                () -> assertThat(result.getDescription()).isEqualTo(brand.getDescription())
             );
         }
 
