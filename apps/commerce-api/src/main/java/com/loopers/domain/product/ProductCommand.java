@@ -3,12 +3,12 @@ package com.loopers.domain.product;
 import java.util.List;
 
 public class ProductCommand {
-    public record CalculatePrice(
-        List<PricingOption> options
+    public record GetAvailable(
+        List<OrderOption> options
     ) {
     }
 
-    public record PricingOption(
+    public record OrderOption(
         Long productId, Long productOptionId, Integer quantity
     ) {
     }

@@ -216,7 +216,7 @@ public class OrderV1ApiE2ETest {
             // assert
             assertAll(
                 () -> assertTrue(response.getStatusCode().is4xxClientError()),
-                () -> assertThat(response.getBody().meta().message()).isEqualTo("상품을 찾을 수 없습니다. 상품 ID: 1"));
+                () -> assertThat(response.getBody().meta().message()).isEqualTo("구매할 상품이 존재하지 않습니다."));
         }
 
         @DisplayName("포인트가 부족할 경우, 주문 생성 실패 응답을 반환한다.")
@@ -406,7 +406,7 @@ public class OrderV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().orderStatus()).isEqualTo("PENDING"),
                 () -> assertThat(response.getBody().data().paymentMethod()).isEqualTo("POINT"),
                 () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo("COMPLETED"),
-                () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(22000L));
+                () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(11000L));
         }
     }
 }

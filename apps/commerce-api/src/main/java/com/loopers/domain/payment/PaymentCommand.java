@@ -7,4 +7,9 @@ public class PaymentCommand {
         Long orderId, PaymentMethod method, BigDecimal amount
     ) {
     }
+
+    public record Pay(
+        Long orderId, PaymentMethod method, BigDecimal amount
+    ) {
+    }
 }
