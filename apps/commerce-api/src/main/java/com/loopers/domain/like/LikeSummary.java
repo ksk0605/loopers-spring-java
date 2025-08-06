@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +21,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LikeSummary {
+    private static final int MINIMUM_LIKE_THRESHOLD = 0;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,9 +31,6 @@ public class LikeSummary {
 
     @Embedded
     private LikeTarget target;
-
-    @Version
-    private Long version;
 
     public LikeSummary(Long targetId, LikeTargetType targetType) {
         this.target = new LikeTarget(targetId, targetType);
@@ -44,6 +42,9 @@ public class LikeSummary {
     }
 
     public void decrementLikeCount() {
+        if (this.likeCount <= MINIMUM_LIKE_THRESHOLD) {
+            throw new IllegalArgumentException("좋아요 카운트는 0 이상이어야 합니다.");
+        }
         this.likeCount--;
     }
 }
