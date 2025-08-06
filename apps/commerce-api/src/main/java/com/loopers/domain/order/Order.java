@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.loopers.domain.BaseEntity;
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -56,7 +54,7 @@ public class Order extends BaseEntity {
 
     public void pay() {
         if (this.status == OrderStatus.PAYMENT_COMPLETED) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "이미 결제된 주문입니다.");
+            throw new IllegalStateException("이미 결제된 주문입니다.");
         }
         this.status = OrderStatus.PAYMENT_COMPLETED;
     }

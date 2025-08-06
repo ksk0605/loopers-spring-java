@@ -8,9 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
-
 class LikeTest {
 
     @DisplayName("좋아요를 생성할 때, ")
@@ -39,52 +36,43 @@ class LikeTest {
             );
         }
 
-        @DisplayName("유저 ID가 null 이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("유저 ID가 null 이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenUserIdIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+        void throwsException_whenUserIdIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new Like(
                     null,
                     1L,
                     LikeTargetType.PRODUCT
                 );
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("타겟 ID가 null 이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("타겟 ID가 null 이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenTargetIdIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+        void throwsException_whenTargetIdIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new Like(
                     1L,
                     null,
                     LikeTargetType.PRODUCT
                 );
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("타겟 타입이 null 이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("타겟 타입이 null 이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenTypeIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+        void throwsException_whenTypeIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new Like(
                     1L,
                     1L,
                     null
                 );
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 }

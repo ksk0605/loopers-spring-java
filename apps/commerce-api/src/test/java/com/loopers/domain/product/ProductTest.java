@@ -14,9 +14,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
-
 class ProductTest {
 
     @DisplayName("상품을 생성할 때, ")
@@ -58,11 +55,11 @@ class ProductTest {
             );
         }
 
-        @DisplayName("상품 이름이 null 이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 이름이 null 이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenNameIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenNameIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     null,
                     "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
@@ -73,17 +70,14 @@ class ProductTest {
                     LocalDateTime.now().plusDays(3)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 이름이 빈칸으로만 이루어져있으면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 이름이 빈칸으로만 이루어져있으면, 예외를 발생한다.")
         @ParameterizedTest
         @ValueSource(strings = {"", "   "})
-        void throwsBadRequestException_whenNameIsBlank(String name) {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenNameIsBlank(String name) {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     name,
                     "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
@@ -94,17 +88,14 @@ class ProductTest {
                     LocalDateTime.now().plusDays(3)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 설명이 빈칸으로만 이루어져있으면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 설명이 빈칸으로만 이루어져있으면, 예외를 발생한다.")
         @ParameterizedTest
         @ValueSource(strings = {"", "   "})
-        void throwsBadRequestException_whenDescriptionIsBlank(String description) {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenDescriptionIsBlank(String description) {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     description,
@@ -115,20 +106,17 @@ class ProductTest {
                     LocalDateTime.now().plusDays(3)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 설명이 최소 길이보다 작으면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 설명이 최소 길이보다 작으면, 예외를 발생한다.")
         @ParameterizedTest
         @ValueSource(strings = {
             "해당 문자열은 49자 길이 입니다. 상품 설명 최소 길이를 테스트하기 위해 작성했습니다.",
             "매우 짧은 설명"
         })
-        void throwsBadRequestException_whenDescriptionIsLessThanMinLength(String description) {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenDescriptionIsLessThanMinLength(String description) {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     description,
@@ -139,16 +127,13 @@ class ProductTest {
                     LocalDateTime.now().plusDays(3)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 설명이 최대 길이보다 길면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 설명이 최대 길이보다 길면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenDescriptionExceedsMaxLength() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenDescriptionExceedsMaxLength() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     // 256자
@@ -160,16 +145,13 @@ class ProductTest {
                     LocalDateTime.now().plusDays(3)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 가격이 null 이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 가격이 null 이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenPriceIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenPriceIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
@@ -180,16 +162,13 @@ class ProductTest {
                     LocalDateTime.now().plusDays(3)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 가격이 null 이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 가격이 null 이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenStatusIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenStatusIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
@@ -200,16 +179,13 @@ class ProductTest {
                     LocalDateTime.now().plusDays(3)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("브랜드 ID 가 null 이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("브랜드 ID 가 null 이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenBrandIdIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenBrandIdIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
@@ -220,16 +196,13 @@ class ProductTest {
                     LocalDateTime.now().plusDays(3)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("카테고리 ID 가 null 이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("카테고리 ID 가 null 이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenCategoryIdIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenCategoryIdIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
@@ -240,16 +213,13 @@ class ProductTest {
                     LocalDateTime.now().plusDays(3)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 판매 시작 날짜가 null 이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 판매 시작 날짜가 null 이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenSaleStartDateIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenSaleStartDateIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
@@ -260,16 +230,13 @@ class ProductTest {
                     null
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 판매 시작 날짜가 현재 날짜보다 이전이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 판매 시작 날짜가 현재 날짜보다 이전이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenSaleStartDateIsBeforeCurrentDate() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenSaleStartDateIsBeforeCurrentDate() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
@@ -280,16 +247,13 @@ class ProductTest {
                     LocalDateTime.now().minusDays(1)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 판매 시작 날짜가 1년 이내가 아니면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 판매 시작 날짜가 1년 이내가 아니면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenSaleStartDateIsNotWithinOneYear() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () ->
+        void throwsException_whenSaleStartDateIsNotWithinOneYear() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () ->
                 new Product(
                     "테스트 상품",
                     "테스트 상품 설명입니다. 이 상품은 매우 멋지고 매력적입니다. 지금 바로 구매하셔야 합니다.",
@@ -300,9 +264,6 @@ class ProductTest {
                     LocalDateTime.now().plusYears(1).plusDays(1)
                 )
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 
@@ -331,7 +292,7 @@ class ProductTest {
             assertThat(product.getStatus()).isEqualTo(newStatus);
         }
 
-        @DisplayName("변경할 상태가 주어지지 않으면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("변경할 상태가 주어지지 않으면, 예외를 발생한다.")
         @Test
         void changeStatus_whenStatusIsInvalid() {
             // arrange
@@ -345,11 +306,8 @@ class ProductTest {
                 LocalDateTime.now().plusDays(3)
             );
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> product.changeStatus(null));
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> product.changeStatus(null));
         }
     }
 
@@ -473,7 +431,6 @@ class ProductTest {
             product.addImage(newImageUrl, false);
 
             // assert
-
             assertAll(() -> assertThat(product.getImages()).hasSize(2),
                 () -> assertThat(product.getImages().get(0).getSortOrder()).isEqualTo(0),
                 () -> assertThat(product.getImages().get(0).isMain()).isTrue(),
@@ -488,9 +445,9 @@ class ProductTest {
     @Nested
     class EndSale {
 
-        @DisplayName("상품 판매 종료 날짜가 없으면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 판매 종료 날짜가 없으면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenSaleEndDateIsNull() {
+        void throwsException_whenSaleEndDateIsNull() {
             // arrange
             Product product = new Product(
                 "테스트 상품",
@@ -502,18 +459,15 @@ class ProductTest {
                 LocalDateTime.now().plusDays(3)
             );
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 product.endSale(null);
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품이 판매중 상태가 아니면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품이 판매중 상태가 아니면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenProductIsNotOnSale() {
+        void throwsException_whenProductIsNotOnSale() {
             // arrange
             Product product = new Product(
                 "테스트 상품",
@@ -525,18 +479,15 @@ class ProductTest {
                 LocalDateTime.now().plusDays(3)
             );
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 product.endSale(LocalDateTime.now().plusDays(1));
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 판매 종료 날짜가 판매 시작 날짜보다 이전이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 판매 종료 날짜가 판매 시작 날짜보다 이전이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenSaleEndDateIsBeforeSaleStartDate() {
+        void throwsException_whenSaleEndDateIsBeforeSaleStartDate() {
             // arrange
             Product product = new Product(
                 "테스트 상품",
@@ -548,18 +499,15 @@ class ProductTest {
                 LocalDateTime.now().plusDays(3)
             );
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 product.endSale(LocalDateTime.now());
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 판매 종료 날짜가 현재 날짜보다 이전이면, BAD REQUEST 예외를 발생한다.")
+        @DisplayName("상품 판매 종료 날짜가 현재 날짜보다 이전이면, 예외를 발생한다.")
         @Test
-        void throwsBadRequestException_whenSaleEndDateIsBeforeCurrentDate() {
+        void throwsException_whenSaleEndDateIsBeforeCurrentDate() {
             // arrange
             Product product = new Product(
                 "테스트 상품",
@@ -571,13 +519,10 @@ class ProductTest {
                 LocalDateTime.now().plusDays(1)
             );
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 product.endSale(LocalDateTime.now().minusDays(1));
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("상품 판매 종료 날짜가 판매 시작 날짜보다 이후이고 현재 판매중이면, 정상적으로 판매를 종료한다.")
