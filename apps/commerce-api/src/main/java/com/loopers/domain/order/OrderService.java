@@ -16,6 +16,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderValidator orderValidator;
 
+    @Transactional
     public Order create(OrderCommand.Order command) {
         Order order = Order.from(command);
         order.place(orderValidator);

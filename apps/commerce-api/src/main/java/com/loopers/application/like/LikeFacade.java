@@ -41,6 +41,7 @@ public class LikeFacade {
         likeService.unlike(user.getId(), product.getId(), LikeTargetType.PRODUCT);
     }
 
+    @Transactional(readOnly = true)
     public List<ProductResult> getLikedProducts(LikeCriteria.GetLiked criteria) {
         User user = userService.get(criteria.userId());
         List<Like> likes = likeService.getAll(user.getId(), criteria.targetType());
