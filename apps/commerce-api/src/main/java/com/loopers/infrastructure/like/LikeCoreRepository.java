@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class LikeRepositoryImpl implements LikeRepository {
+public class LikeCoreRepository implements LikeRepository {
     private final LikeJpaRepository likeJpaRepository;
 
     @Override

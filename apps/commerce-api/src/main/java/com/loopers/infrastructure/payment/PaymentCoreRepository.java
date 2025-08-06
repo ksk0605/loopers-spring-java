@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class PaymentRepositoryImpl implements PaymentRepository {
+public class PaymentCoreRepository implements PaymentRepository {
     private final PaymentJpaRepository paymentJpaRepository;
 
     @Override
