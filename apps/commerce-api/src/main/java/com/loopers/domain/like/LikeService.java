@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LikeService {
     private final LikeRepository likeRepository;
-    private final LikeSummaryRepository likeSummaryRepository;
+    private final LikeSummaryModifier likeSummaryModifier;
 
     @Transactional
     public void like(Long userId, Long targetId, LikeTargetType targetType) {
@@ -20,32 +20,17 @@ public class LikeService {
         }
         Like like = new Like(userId, targetId, targetType);
         likeRepository.save(like);
-
-        likeSummaryRepository.findByTarget(new LikeTarget(targetId, targetType))
-            .ifPresentOrElse(
-                LikeSummary::incrementLikeCount,
-                () -> {
-                    LikeSummary likeSummary = new LikeSummary(targetId, targetType);
-                    likeSummary.incrementLikeCount();
-                    likeSummaryRepository.save(likeSummary);
-                });
+        likeSummaryModifier.increment(like.getTarget());
     }
 
     @Transactional
     public void unlike(Long userId, Long targetId, LikeTargetType targetType) {
-        if (!likeRepository.exists(userId, new LikeTarget(targetId, targetType))) {
+        LikeTarget target = new LikeTarget(targetId, targetType);
+        if (!likeRepository.exists(userId, target)) {
             return;
         }
-        likeRepository.delete(userId, new LikeTarget(targetId, targetType));
-
-        likeSummaryRepository.findByTarget(new LikeTarget(targetId, targetType))
-            .ifPresentOrElse(
-                LikeSummary::decrementLikeCount,
-                () -> {
-                    LikeSummary likeSummary = new LikeSummary(targetId, targetType);
-                    likeSummary.decrementLikeCount();
-                    likeSummaryRepository.save(likeSummary);
-                });
+        likeRepository.delete(userId, target);
+        likeSummaryModifier.decrement(target);
     }
 
     @Transactional(readOnly = true)
