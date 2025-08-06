@@ -22,12 +22,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.inventory.Inventory;
 import com.loopers.domain.order.OrderStatus;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductOption;
 import com.loopers.domain.user.User;
+import com.loopers.infrastructure.coupon.CouponJpaRepository;
 import com.loopers.infrastructure.inventory.InventoryJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserJpaRepository;
@@ -43,6 +45,9 @@ class OrderFacadeTest extends IntegrationTest {
 
     @Autowired
     private InventoryJpaRepository inventoryJpaRepository;
+
+    @Autowired
+    private CouponJpaRepository couponJpaRepository;
 
     @Autowired
     private UserJpaRepository userJpaRepository;
@@ -63,14 +68,17 @@ class OrderFacadeTest extends IntegrationTest {
         Inventory inventory = anInventory().build();
         inventoryJpaRepository.save(inventory);
 
+        Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
+        couponJpaRepository.save(coupon);
+
         // act
-        OrderCriteria.Order cri = new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 10)));
+        OrderCriteria.Order cri = new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 10)), 1L);
         OrderResult result = orderFacade.order(cri);
 
         // assert
         assertAll(
             () -> assertThat(result.userId()).isEqualTo(1L),
-            () -> assertThat(result.totalPrice()).isEqualByComparingTo(BigDecimal.valueOf(210000)), // (기본20000원 + 옵션 추가1000원) * 10개
+            () -> assertThat(result.totalPrice()).isEqualByComparingTo(BigDecimal.valueOf(205000)), // (기본20000원 + 옵션 추가1000원) * 10개 - 5000
             () -> assertThat(result.status()).isEqualTo(OrderStatus.PAYMENT_COMPLETED),
             () -> assertThat(result.id()).isEqualTo(1L),
             () -> assertThat(result.paymentStatus()).isEqualTo(PaymentStatus.COMPLETED)
@@ -99,6 +107,9 @@ class OrderFacadeTest extends IntegrationTest {
             int initialStock = 5;
             inventoryJpaRepository.save(anInventory().quantity(initialStock).build());
 
+            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
+            couponJpaRepository.save(coupon);
+
             ExecutorService executorService = Executors.newFixedThreadPool(2);
             CountDownLatch countDownLatch = new CountDownLatch(2);
 
@@ -108,7 +119,7 @@ class OrderFacadeTest extends IntegrationTest {
             // 첫 번째 주문 (4개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4))));
+                    return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4)), 1L));
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -117,7 +128,7 @@ class OrderFacadeTest extends IntegrationTest {
             // 두 번째 주문 (3개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderFacade.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 4))));
+                    return orderFacade.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 4)), 1L));
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -171,6 +182,9 @@ class OrderFacadeTest extends IntegrationTest {
             Inventory inventory = new Inventory(1L, 1L, initialStock);
             inventoryJpaRepository.save(inventory);
 
+            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
+            couponJpaRepository.save(coupon);
+
             ExecutorService executorService = Executors.newFixedThreadPool(2);
             CountDownLatch countDownLatch = new CountDownLatch(2);
 
@@ -180,7 +194,7 @@ class OrderFacadeTest extends IntegrationTest {
             // 첫 번째 주문 (4개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4))));
+                    return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4)), 1L));
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -189,7 +203,7 @@ class OrderFacadeTest extends IntegrationTest {
             // 두 번째 주문 (3개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderFacade.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 3))));
+                    return orderFacade.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 3)), 1L));
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -198,7 +212,7 @@ class OrderFacadeTest extends IntegrationTest {
             // 세 번째 주문 (3개)
             futures.add(executorService.submit(() -> {
                 try {
-                    return orderFacade.order(new OrderCriteria.Order(3L, List.of(new OrderCriteria.Item(1L, 1L, 3))));
+                    return orderFacade.order(new OrderCriteria.Order(3L, List.of(new OrderCriteria.Item(1L, 1L, 3)), 1L));
                 } finally {
                     countDownLatch.countDown();
                 }

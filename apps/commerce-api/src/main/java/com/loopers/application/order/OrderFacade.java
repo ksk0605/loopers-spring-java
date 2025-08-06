@@ -1,9 +1,12 @@
 package com.loopers.application.order;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.loopers.domain.coupon.CouponService;
+import com.loopers.domain.coupon.UserCoupon;
 import com.loopers.domain.inventory.InventoryService;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderService;
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderFacade {
     private final OrderService orderService;
+    private final CouponService couponService;
     private final PaymentService paymentService;
     private final ProductService productService;
     private final InventoryService inventoryService;
@@ -36,7 +40,10 @@ public class OrderFacade {
 
         Order order = orderService.create(criteria.toOrderCommandWithProductPrices(productPrices));
 
-        PaymentCommand.Pay command = new PaymentCommand.Pay(order.getId(), PaymentMethod.POINT, order.getTotalPrice());
+        UserCoupon userCoupon = couponService.apply(criteria.userId(), criteria.couponId(), order.getTotalPrice());
+        BigDecimal discountPrice = order.getTotalPrice().subtract(userCoupon.getDiscountAmount());
+
+        PaymentCommand.Pay command = new PaymentCommand.Pay(order.getId(), PaymentMethod.POINT, discountPrice);
         Payment payment = paymentService.create(command);
         order.pay();
 
@@ -44,7 +51,7 @@ public class OrderFacade {
 
         user.usePoint(order.getTotalPrice().intValue());
 
-        return OrderResult.of(order, payment);
+        return OrderResult.of(order, payment, userCoupon);
     }
 
     @Transactional(readOnly = true)

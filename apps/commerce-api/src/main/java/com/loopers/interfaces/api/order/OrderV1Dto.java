@@ -16,14 +16,17 @@ public class OrderV1Dto {
     }
 
     public record OrderRequest(
-        List<OrderItemRequest> items) {
+        List<OrderItemRequest> items,
+        Long couponId
+    ) {
         public OrderCriteria.Order toOrderCriteria(Long userId) {
             return new OrderCriteria.Order(
                 userId,
                 items.stream()
                     .map(item ->
                         new OrderCriteria.Item(item.productId(), item.productOptionId(), item.quantity()))
-                    .toList()
+                    .toList(),
+                couponId
             );
         }
     }

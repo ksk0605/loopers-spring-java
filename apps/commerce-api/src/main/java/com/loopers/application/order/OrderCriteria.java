@@ -12,7 +12,8 @@ import com.loopers.domain.product.ProductPrice;
 public class OrderCriteria {
     public record Order(
         Long userId,
-        List<Item> items
+        List<Item> items,
+        Long couponId
     ) {
         public ProductCommand.GetAvailable toProductCommand() {
             return new ProductCommand.GetAvailable(
