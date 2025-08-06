@@ -1,5 +1,6 @@
 package com.loopers.domain.user;
 
+import static com.loopers.support.fixture.UserFixture.anUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,7 +10,6 @@ import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,26 +18,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import com.loopers.infrastructure.user.UserJpaRepository;
+import com.loopers.support.IntegrationTest;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
-import com.loopers.utils.DatabaseCleanUp;
 
 @SpringBootTest
-public class UserServiceIntegrationTest {
+public class UserServiceIntegrationTest extends IntegrationTest {
 
     @Autowired
     private UserService userService;
 
     @MockitoSpyBean
     private UserJpaRepository userJpaRepository;
-
-    @Autowired
-    private DatabaseCleanUp databaseCleanUp;
-
-    @AfterEach
-    void tearDown() {
-        databaseCleanUp.truncateAllTables();
-    }
 
     @DisplayName("회원 가입시, ")
     @Nested
@@ -69,9 +61,7 @@ public class UserServiceIntegrationTest {
         @Test
         void throwsException_whenDuplicateIdIsProvided() {
             // arrange
-            userJpaRepository.save(
-                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().build());
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
@@ -91,9 +81,7 @@ public class UserServiceIntegrationTest {
         void returnsExampleInfo_whenValidIdIsProvided() {
             // arrange
             String userId = "testUser";
-            userJpaRepository.save(
-                new User(userId, Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().userId(userId).build());
 
             // act
             User user = userService.get(userId);
@@ -106,9 +94,7 @@ public class UserServiceIntegrationTest {
         @Test
         void throwsException_whenInvalidIdIsProvided() {
             // arrange
-            userJpaRepository.save(
-                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().userId("testUser").build());
             String invalidUserId = "useruser";
 
             // act

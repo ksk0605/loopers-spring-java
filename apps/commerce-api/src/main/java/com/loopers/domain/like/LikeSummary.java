@@ -38,13 +38,13 @@ public class LikeSummary {
     }
 
     public void incrementLikeCount() {
-        this.likeCount++;
+        likeCount++;
     }
 
     public void decrementLikeCount() {
-        if (this.likeCount <= MINIMUM_LIKE_THRESHOLD) {
+        if (likeCount == MINIMUM_LIKE_THRESHOLD) {
             throw new IllegalArgumentException("좋아요 카운트는 0 이상이어야 합니다.");
         }
-        this.likeCount--;
+        likeCount--;
     }
 }

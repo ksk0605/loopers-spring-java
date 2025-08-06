@@ -1,9 +1,9 @@
 package com.loopers.application.point;
 
+import static com.loopers.support.fixture.UserFixture.anUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,29 +12,19 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.loopers.domain.user.Gender;
-import com.loopers.domain.user.User;
 import com.loopers.infrastructure.user.UserJpaRepository;
+import com.loopers.support.IntegrationTest;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
-import com.loopers.utils.DatabaseCleanUp;
 
 @SpringBootTest
-class PointFacadeIntegrationTest {
+class PointFacadeIntegrationTest extends IntegrationTest {
 
     @Autowired
     private PointFacade pointFacade;
 
     @Autowired
     private UserJpaRepository userJpaRepository;
-
-    @Autowired
-    private DatabaseCleanUp databaseCleanUp;
-
-    @AfterEach
-    void tearDown() {
-        databaseCleanUp.truncateAllTables();
-    }
 
     @DisplayName("포인트 조회를 시도할 때, ")
     @Nested
@@ -44,9 +34,7 @@ class PointFacadeIntegrationTest {
         @Test
         void returnsMyPoints_whenValidUserIdIsProvided() {
             // arrange
-            userJpaRepository.save(
-                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().build());
 
             // act
             PointResult result = pointFacade.getMyPoint("testUser");
@@ -59,9 +47,7 @@ class PointFacadeIntegrationTest {
         @Test
         void throwsException_whenInvalidUserIdIsProvided() {
             // arrange
-            userJpaRepository.save(
-                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().build());
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
@@ -81,9 +67,7 @@ class PointFacadeIntegrationTest {
         @ValueSource(ints = {1, 1000})
         void createPointHistory_whenValidAmountIsProvided(int amount) {
             // arrange
-            userJpaRepository.save(
-                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().build());
 
             // act
             PointResult result = pointFacade.chargePoint("testUser", amount);
@@ -96,9 +80,7 @@ class PointFacadeIntegrationTest {
         @Test
         void throwsException_whenInvalidUserIdIsProvided() {
             // arrange
-            userJpaRepository.save(
-                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().build());
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {

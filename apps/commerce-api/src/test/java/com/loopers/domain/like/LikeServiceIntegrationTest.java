@@ -1,5 +1,7 @@
 package com.loopers.domain.like;
 
+import static com.loopers.support.fixture.LikeFixture.aLike;
+import static com.loopers.support.fixture.LikeSummaryFixture.aLikeSummary;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,10 +20,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import com.loopers.infrastructure.like.LikeJpaRepository;
 import com.loopers.infrastructure.like.LikeSummaryJpaRepository;
-import com.loopers.utils.DatabaseCleanUp;
+import com.loopers.support.IntegrationTest;
 
 @SpringBootTest
-class LikeServiceIntegrationTest {
+class LikeServiceIntegrationTest extends IntegrationTest {
 
     @Autowired
     private LikeService likeService;
@@ -32,14 +33,6 @@ class LikeServiceIntegrationTest {
 
     @MockitoSpyBean
     private LikeSummaryJpaRepository likeSummaryJpaRepository;
-
-    @Autowired
-    private DatabaseCleanUp databaseCleanUp;
-
-    @AfterEach
-    void tearDown() {
-        databaseCleanUp.truncateAllTables();
-    }
 
     @DisplayName("좋아요를 추가 할 때, ")
     @Nested
@@ -65,7 +58,7 @@ class LikeServiceIntegrationTest {
         @Test
         void doesNothing_whenLikeAlreadyExists() {
             // arrange
-            likeJpaRepository.save(new Like(1L, 1L, LikeTargetType.PRODUCT));
+            likeJpaRepository.save(aLike().build());
 
             // act
             likeService.like(1L, 1L, LikeTargetType.PRODUCT);
@@ -86,8 +79,10 @@ class LikeServiceIntegrationTest {
         @Test
         void cancelLike_whenValidLikeInfoProvided() {
             // arrange
-            likeSummaryJpaRepository.save(new LikeSummary(1L, LikeTargetType.PRODUCT));
-            likeJpaRepository.save(new Like(1L, 1L, LikeTargetType.PRODUCT));
+            LikeSummary likeSummary = aLikeSummary().build();
+            likeSummary.incrementLikeCount();
+            likeSummaryJpaRepository.save(likeSummary);
+            likeJpaRepository.save(aLike().build());
 
             // act
             likeService.unlike(1L, 1L, LikeTargetType.PRODUCT);
@@ -122,7 +117,7 @@ class LikeServiceIntegrationTest {
         @Test
         void returnsLikeCount_whenTargetIdAndTargetTypeProvided() {
             // arrange
-            likeJpaRepository.save(new Like(1L, 1L, LikeTargetType.PRODUCT));
+            likeJpaRepository.save(aLike().build());
 
             // act
             Long likeCount = likeService.count(1L, LikeTargetType.PRODUCT);
@@ -139,9 +134,9 @@ class LikeServiceIntegrationTest {
         @Test
         void returnsLikeCount_whenTargetIdAndTargetTypeProvided() {
             // arrange
-            likeJpaRepository.save(new Like(1L, 1L, LikeTargetType.PRODUCT));
-            likeJpaRepository.save(new Like(1L, 2L, LikeTargetType.BRAND));
-            likeJpaRepository.save(new Like(1L, 3L, LikeTargetType.PRODUCT));
+            likeJpaRepository.save(aLike().targetId(1L).build());
+            likeJpaRepository.save(aLike().targetId(2L).targetType(LikeTargetType.BRAND).build());
+            likeJpaRepository.save(aLike().targetId(3L).build());
 
             // act
             List<Like> likes = likeService.getAll(1L, LikeTargetType.PRODUCT);

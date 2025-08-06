@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,12 +21,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.loopers.infrastructure.coupon.CouponJpaRepository;
 import com.loopers.infrastructure.coupon.UserCouponJpaRepository;
+import com.loopers.support.IntegrationTest;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
-import com.loopers.utils.DatabaseCleanUp;
 
 @SpringBootTest
-class CouponServiceIntegrationTest {
+class CouponServiceIntegrationTest extends IntegrationTest {
 
     @Autowired
     private CouponService couponService;
@@ -37,14 +36,6 @@ class CouponServiceIntegrationTest {
 
     @Autowired
     private UserCouponJpaRepository userCouponJpaRepository;
-
-    @Autowired
-    private DatabaseCleanUp databaseCleanUp;
-
-    @AfterEach
-    void tearDown() {
-        databaseCleanUp.truncateAllTables();
-    }
 
     @DisplayName("쿠폰을 사용할 때,")
     @Nested
