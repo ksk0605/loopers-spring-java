@@ -12,12 +12,12 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class LikeSummaryRepositoryImpl implements LikeSummaryRepository {
+public class LikeSummaryCoreRepository implements LikeSummaryRepository {
     private final LikeSummaryJpaRepository likeSummaryJpaRepository;
 
     @Override
     public Optional<LikeSummary> findByTarget(LikeTarget target) {
-        return likeSummaryJpaRepository.findByTarget(target);
+        return likeSummaryJpaRepository.findByTargetForUpdate(target);
     }
 
     @Override

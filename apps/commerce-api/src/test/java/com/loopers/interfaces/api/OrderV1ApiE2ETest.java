@@ -1,5 +1,6 @@
 package com.loopers.interfaces.api;
 
+import static com.loopers.support.fixture.OrderFixture.anOrder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -23,8 +24,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import com.loopers.domain.inventory.Inventory;
-import com.loopers.domain.order.Order;
-import com.loopers.domain.order.OrderItem;
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
@@ -217,7 +216,7 @@ public class OrderV1ApiE2ETest {
             // assert
             assertAll(
                 () -> assertTrue(response.getStatusCode().is4xxClientError()),
-                () -> assertThat(response.getBody().meta().message()).isEqualTo("상품을 찾을 수 없습니다. 상품 ID: 1"));
+                () -> assertThat(response.getBody().meta().message()).isEqualTo("구매할 상품이 존재하지 않습니다."));
         }
 
         @DisplayName("포인트가 부족할 경우, 주문 생성 실패 응답을 반환한다.")
@@ -304,7 +303,7 @@ public class OrderV1ApiE2ETest {
                 BigDecimal.valueOf(2000)));
             productJpaRepository.save(product);
 
-            orderJpaRepository.save(new Order(1L, List.of(new OrderItem(1L, 1L, 2))));
+            orderJpaRepository.save(anOrder().build());
             paymentJpaRepository
                 .save(new Payment(1L, PaymentMethod.POINT, PaymentStatus.COMPLETED, BigDecimal.valueOf(10000)));
 
@@ -327,7 +326,7 @@ public class OrderV1ApiE2ETest {
                     .isEqualTo(1L),
                 () -> assertThat(response.getBody().data().orders().get(0).items().get(0).productOptionId())
                     .isEqualTo(1L),
-                () -> assertThat(response.getBody().data().orders().get(0).items().get(0).quantity()).isEqualTo(2),
+                () -> assertThat(response.getBody().data().orders().get(0).items().get(0).quantity()).isEqualTo(1),
                 () -> assertThat(response.getBody().data().orders().get(0).userId()).isEqualTo(1L));
         }
 
@@ -381,7 +380,7 @@ public class OrderV1ApiE2ETest {
                 BigDecimal.valueOf(2000)));
             productJpaRepository.save(product);
 
-            orderJpaRepository.save(new Order(1L, List.of(new OrderItem(1L, 1L, 2))));
+            orderJpaRepository.save(anOrder().build());
             paymentJpaRepository
                 .save(new Payment(1L, PaymentMethod.POINT, PaymentStatus.COMPLETED, BigDecimal.valueOf(22000)));
 
@@ -402,12 +401,12 @@ public class OrderV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().items()).hasSize(1),
                 () -> assertThat(response.getBody().data().items().get(0).productId()).isEqualTo(1L),
                 () -> assertThat(response.getBody().data().items().get(0).productOptionId()).isEqualTo(1L),
-                () -> assertThat(response.getBody().data().items().get(0).quantity()).isEqualTo(2),
+                () -> assertThat(response.getBody().data().items().get(0).quantity()).isEqualTo(1),
                 () -> assertThat(response.getBody().data().userId()).isEqualTo(1L),
                 () -> assertThat(response.getBody().data().orderStatus()).isEqualTo("PENDING"),
                 () -> assertThat(response.getBody().data().paymentMethod()).isEqualTo("POINT"),
                 () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo("COMPLETED"),
-                () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(22000L));
+                () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(11000L));
         }
     }
 }

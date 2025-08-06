@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class BrandRepositoryImpl implements BrandRepository {
+public class BrandCoreRepository implements BrandRepository {
     private final BrandJpaRepository brandJpaRepository;
 
     @Override

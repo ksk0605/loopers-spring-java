@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class ProductRepositoryImpl implements ProductRepository {
+public class ProductCoreRepository implements ProductRepository {
     private final ProductJpaRepository productJpaRepository;
 
     @Override

@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class OrderRepositoryImpl implements OrderRepository {
+public class OrderCoreRepository implements OrderRepository {
     private final OrderJpaRepository jpaRepository;
 
     @Override

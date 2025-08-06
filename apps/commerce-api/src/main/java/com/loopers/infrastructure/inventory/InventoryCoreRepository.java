@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class InventoryRepositoryImpl implements InventoryRepository {
+public class InventoryCoreRepository implements InventoryRepository {
     private final InventoryJpaRepository inventoryJpaRepository;
 
     @Override

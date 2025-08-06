@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 
 /**
  * 코틀린의 require 모방한 유틸리티 클래스
@@ -14,9 +13,9 @@ import com.loopers.support.error.ErrorType;
  * public class User {
  *     private final String name;
  *     private final int age;
- * 
+ *
  *     private final String email;
- * 
+ *
  *     public User(String name, int age) {
  *         this.name = requireNotNull(name, "이름은 필수입니다.");
  *         this.age = requireNotNull(age, "나이는 필수입니다.");
@@ -40,7 +39,7 @@ public final class RequireUtils {
      */
     public static void require(boolean condition, String message) {
         if (!condition) {
-            throw new CoreException(ErrorType.BAD_REQUEST, message);
+            throw new IllegalArgumentException(message);
         }
     }
 
@@ -90,7 +89,7 @@ public final class RequireUtils {
      */
     public static void require(boolean condition, java.util.function.Supplier<String> messageSupplier) {
         if (!condition) {
-            throw new CoreException(ErrorType.BAD_REQUEST, messageSupplier.get());
+            throw new IllegalArgumentException(messageSupplier.get());
         }
     }
 

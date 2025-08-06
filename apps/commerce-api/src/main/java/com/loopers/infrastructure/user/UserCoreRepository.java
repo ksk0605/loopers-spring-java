@@ -11,11 +11,11 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
 @Repository
-public class UserRepositoryImpl implements UserRepository {
+public class UserCoreRepository implements UserRepository {
 
     private final UserJpaRepository userJpaRepository;
 
-    public UserRepositoryImpl(UserJpaRepository userJpaRepository) {
+    public UserCoreRepository(UserJpaRepository userJpaRepository) {
         this.userJpaRepository = userJpaRepository;
     }
 

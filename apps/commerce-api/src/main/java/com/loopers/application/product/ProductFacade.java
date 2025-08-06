@@ -1,19 +1,20 @@
 package com.loopers.application.product;
 
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.application.common.PageInfo;
+import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.like.LikeService;
 import com.loopers.domain.like.LikeTargetType;
+import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductCommand;
-import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductService;
+import com.loopers.support.annotation.UseCase;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@UseCase
 @RequiredArgsConstructor
 public class ProductFacade {
     private final ProductService productService;
@@ -22,35 +23,35 @@ public class ProductFacade {
 
     @Transactional(readOnly = true)
     public ProductResult getProduct(Long productId) {
-        var productInfo = productService.get(productId);
-        var brandInfo = brandService.get(productInfo.brandId());
+        Product product = productService.get(productId);
+        Brand brand = brandService.get(product.getBrandId());
         var likeCount = likeService.count(productId, LikeTargetType.PRODUCT);
-        return ProductResult.of(productInfo, brandInfo, likeCount);
+        return ProductResult.of(product, brand, likeCount);
     }
 
     @Transactional(readOnly = true)
     public ProductResults getProducts(ProductCommand.Search command) {
-        var productInfos = productService.getAll(command);
-        var brands = brandService.getAll(productInfos.getContent().stream()
-            .map(ProductInfo::brandId)
+        var products = productService.getAll(command);
+        var brands = brandService.getAll(products.getContent().stream()
+            .map(product -> product.getBrandId())
             .toList());
 
         var pageInfo = new PageInfo(
-            productInfos.getNumber(),
-            productInfos.getSize(),
-            productInfos.getTotalPages(),
-            productInfos.getTotalElements(),
-            productInfos.hasNext()
+            products.getNumber(),
+            products.getSize(),
+            products.getTotalPages(),
+            products.getTotalElements(),
+            products.hasNext()
         );
 
-        var productResults = productInfos.getContent().stream()
-            .map(productInfo -> {
+        var productResults = products.getContent().stream()
+            .map(product -> {
                 var brandInfo = brands.stream()
-                    .filter(brand -> brand.id().equals(productInfo.brandId()))
+                    .filter(brand -> brand.getId().equals(product.getBrandId()))
                     .findFirst()
                     .get();
-                var likeCount = likeService.count(productInfo.id(), LikeTargetType.PRODUCT);
-                return ProductResult.of(productInfo, brandInfo, likeCount);
+                var likeCount = likeService.count(product.getId(), LikeTargetType.PRODUCT);
+                return ProductResult.of(product, brandInfo, likeCount);
             })
             .toList();
         return new ProductResults(productResults, pageInfo);

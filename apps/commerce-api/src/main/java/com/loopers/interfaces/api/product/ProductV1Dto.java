@@ -2,10 +2,10 @@ package com.loopers.interfaces.api.product;
 
 import java.util.List;
 
+import com.loopers.application.brand.BrandResult;
 import com.loopers.application.common.PageInfo;
 import com.loopers.application.product.ProductResult;
 import com.loopers.application.product.ProductResults;
-import com.loopers.domain.brand.BrandInfo;
 
 public class ProductV1Dto {
     public record ProductResponse(
@@ -14,7 +14,7 @@ public class ProductV1Dto {
         String description,
         Long price,
         String status,
-        BrandInfo brand,
+        Brand brand,
         List<String> imageUrls,
         Long likeCount
     ) {
@@ -25,7 +25,7 @@ public class ProductV1Dto {
                 productResult.description(),
                 productResult.price(),
                 productResult.status(),
-                productResult.brand(),
+                Brand.from(productResult.brand()),
                 productResult.imagesUrls(),
                 productResult.likeCount()
             );
@@ -42,6 +42,22 @@ public class ProductV1Dto {
                     .map(ProductResponse::from)
                     .toList(),
                 result.pageInfo()
+            );
+        }
+    }
+
+    public record Brand(
+        Long id,
+        String name,
+        String description,
+        String logoUrl
+    ) {
+        public static Brand from(BrandResult brandResult) {
+            return new Brand(
+                brandResult.id(),
+                brandResult.name(),
+                brandResult.description(),
+                brandResult.logoUrl()
             );
         }
     }

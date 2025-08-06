@@ -38,6 +38,9 @@ public class Inventory extends BaseEntity {
     }
 
     public void deduct(Integer quantity) {
+        if (!canOrder(quantity)) {
+            throw new IllegalArgumentException("재고가 부족합니다.");
+        }
         this.quantity -= quantity;
     }
 }

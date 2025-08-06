@@ -8,11 +8,11 @@ import com.loopers.domain.point.PointHistory;
 import com.loopers.domain.point.PointHistoryRepository;
 
 @Repository
-public class PointHistoryRepositoryImpl implements PointHistoryRepository {
+public class PointHistoryCoreRepository implements PointHistoryRepository {
 
     private final PointHistoryJpaRepository pointHistoryJpaRepository;
 
-    public PointHistoryRepositoryImpl(PointHistoryJpaRepository pointHistoryJpaRepository) {
+    public PointHistoryCoreRepository(PointHistoryJpaRepository pointHistoryJpaRepository) {
         this.pointHistoryJpaRepository = pointHistoryJpaRepository;
     }
 

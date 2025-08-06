@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.loopers.application.order.OrderFacade;
 import com.loopers.application.order.OrderResult;
-import com.loopers.domain.order.OrderCommand;
-import com.loopers.domain.user.UserInfo;
-import com.loopers.domain.user.UserService;
+import com.loopers.application.user.UserFacade;
+import com.loopers.application.user.UserResult;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.interfaces.api.order.OrderV1Dto.OrderRequest;
 import com.loopers.interfaces.api.order.OrderV1Dto.OrderResponse;
@@ -26,17 +25,16 @@ import lombok.RequiredArgsConstructor;
 public class OrderV1Controller implements OrderV1ApiSpec {
 
     private final OrderFacade orderFacade;
-    private final UserService userService;
+    private final UserFacade userFacade;
 
     @PostMapping
     @Override
     public ApiResponse<OrderResponse> createOrder(
         @RequestHeader(name = "X-USER-ID", required = true) String userId,
         @RequestBody OrderRequest request) {
-        var orderOptions = request.toOrderOptions();
-        UserInfo user = userService.get(userId);
-        OrderCommand.Order command = new OrderCommand.Order(user.id(), orderOptions);
-        OrderResult result = orderFacade.placeOrder(command);
+        UserResult user = userFacade.getUser(userId);
+        var criteria = request.toOrderCriteria(user.id());
+        OrderResult result = orderFacade.order(criteria);
         return ApiResponse.success(OrderResponse.from(result));
     }
 
@@ -44,7 +42,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     @Override
     public ApiResponse<OrderResponses> getOrders(
         @RequestHeader(name = "X-USER-ID", required = true) String userId) {
-        UserInfo user = userService.get(userId);
+        UserResult user = userFacade.getUser(userId);
         var results = orderFacade.getOrders(user.id());
         return ApiResponse.success(OrderResponses.from(results));
     }
@@ -54,7 +52,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     public ApiResponse<OrderResponse> getOrder(
         @RequestHeader(name = "X-USER-ID", required = true) String userId,
         @PathVariable Long orderId) {
-        UserInfo user = userService.get(userId);
+        UserResult user = userFacade.getUser(userId);
         var result = orderFacade.getOrder(orderId, user.id());
         return ApiResponse.success(OrderResponse.from(result));
     }

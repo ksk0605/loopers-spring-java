@@ -1,17 +1,16 @@
 package com.loopers.domain.order;
 
+import static com.loopers.support.fixture.OrderFixture.anOrder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 
 public class OrderTest {
 
@@ -23,7 +22,7 @@ public class OrderTest {
         void createOrder_whenValidInfoProvided() {
             // arrange
             Long userId = 1L;
-            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1));
+            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000)));
 
             // act
             Order order = new Order(userId, items);
@@ -36,79 +35,61 @@ public class OrderTest {
             );
         }
 
-        @DisplayName("유저 ID가 없으면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("유저 ID가 없으면, 예외를 발생시킨다.")
         @Test
         void createOrder_whenUserIdIsNull() {
             // arrange
-            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1));
+            List<OrderItem> items = List.of(new OrderItem(1L, 1L, 1, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000)));
 
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Order(null, items)
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("주문 아이템이 비어있으면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("주문 아이템이 비어있으면, 예외를 발생시킨다.")
         @Test
         void createOrder_whenItemsIsEmpty() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Order(1L, List.of())
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("주문 아이템이 null이면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("주문 아이템이 null이면, 예외를 발생시킨다.")
         @Test
         void createOrder_whenItemsIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Order(1L, null)
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("주문 아이템의 상품 ID가 null이면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("주문 아이템의 상품 ID가 null이면, 예외를 발생시킨다.")
         @Test
         void createOrder_whenProductIdIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
-                () -> new OrderItem(null, 1L, 1)
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
+                () -> new OrderItem(null, 1L, 1, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000))
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("주문 아이템의 상품 옵션 ID가 null이면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("주문 아이템의 상품 옵션 ID가 null이면, 예외를 발생시킨다.")
         @Test
         void createOrder_whenProductOptionIdIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
-                () -> new OrderItem(1L, null, 1)
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
+                () -> new OrderItem(1L, null, 1, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000))
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("주문 아이템의 수량이 null이면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("주문 아이템의 수량이 null이면, 예외를 발생시킨다.")
         @Test
         void createOrder_whenQuantityIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
-                () -> new OrderItem(1L, 1L, null)
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
+                () -> new OrderItem(1L, 1L, null, BigDecimal.valueOf(20000), BigDecimal.valueOf(1000))
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 
@@ -119,7 +100,7 @@ public class OrderTest {
         @Test
         void payOrder_whenOrderIsPendingPayment() {
             // arrange
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
+            Order order = anOrder().build();
 
             // act
             order.pay();
@@ -132,16 +113,26 @@ public class OrderTest {
         @Test
         void payOrder_whenOrderIsPaid() {
             // arrange
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
+            Order order = anOrder().build();
             order.pay();
 
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalStateException.class,
                 () -> order.pay()
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
+    }
+
+    @DisplayName("주문의 총 가격을 계산할 수 있다.")
+    @Test
+    void getTotalPrice() {
+        // arrange
+        Order order = anOrder().build();
+
+        // act
+        BigDecimal price = order.getTotalPrice();
+
+        // assert
+        assertThat(price).isEqualTo(BigDecimal.valueOf(11000));
     }
 }
