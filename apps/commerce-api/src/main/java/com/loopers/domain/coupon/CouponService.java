@@ -3,6 +3,7 @@ package com.loopers.domain.coupon;
 import java.math.BigDecimal;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -16,8 +17,9 @@ public class CouponService {
     private final UserCouponRepository userCouponRepository;
     private final CouponDiscountStrategyFactory discountStrategyFactory;
 
+    @Transactional
     public UserCoupon apply(Long userId, Long couponId, BigDecimal totalPrice) {
-        Coupon coupon = couponRepository.find(couponId)
+        Coupon coupon = couponRepository.findForUpdate(couponId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "[ID = " + couponId + "] 존재하지 않는 쿠폰입니다."));
         if (userCouponRepository.exists(userId, couponId)) {
             throw new CoreException(ErrorType.BAD_REQUEST, "이미 사용한 쿠폰입니다.");

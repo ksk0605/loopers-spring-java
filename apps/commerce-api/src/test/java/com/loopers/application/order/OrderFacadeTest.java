@@ -182,11 +182,11 @@ class OrderFacadeTest extends IntegrationTest {
             Inventory inventory = new Inventory(1L, 1L, initialStock);
             inventoryJpaRepository.save(inventory);
 
-            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
+            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, 3L);
             couponJpaRepository.save(coupon);
 
-            ExecutorService executorService = Executors.newFixedThreadPool(2);
-            CountDownLatch countDownLatch = new CountDownLatch(2);
+            ExecutorService executorService = Executors.newFixedThreadPool(3);
+            CountDownLatch countDownLatch = new CountDownLatch(3);
 
             // act
             List<Future<OrderResult>> futures = new ArrayList<>();
@@ -241,6 +241,150 @@ class OrderFacadeTest extends IntegrationTest {
             assertAll(
                 () -> assertThat(successfulOrders).isEqualTo(3),
                 () -> assertThat(savedInv.get().getQuantity()).isEqualTo(0)
+            );
+        }
+    }
+
+    @DisplayName("하나의 쿠폰으로 여러 사용자가 동시에 결제를 시도할 때, ")
+    @Nested
+    class ConcurrentCouponUsage {
+        @DisplayName("쿠폰 사용한도가 없을 경우, 모든 요청이 성공한다.")
+        @Test
+        void completeAllOrders_whenCouponUsageLimitIsZero() throws InterruptedException {
+            // arrange
+            User user1 = anUser().userId("testUser1").build();
+            user1.updatePoint(6000000);
+            userJpaRepository.save(user1);
+            User user2 = anUser().userId("testUser2").build();
+            user2.updatePoint(6000000);
+            userJpaRepository.save(user2);
+            User user3 = anUser().userId("testUser3").build();
+            user3.updatePoint(6000000);
+            userJpaRepository.save(user3);
+
+            Product product = aProduct().build();
+            ProductOption productOption = aProductOption().build();
+            product.addOption(productOption);
+            productJpaRepository.save(product);
+
+            int initialStock = 10;
+            Inventory inventory = new Inventory(1L, 1L, initialStock);
+            inventoryJpaRepository.save(inventory);
+
+            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
+            couponJpaRepository.save(coupon);
+
+            int threadsCount = 3;
+            ExecutorService executorService = Executors.newFixedThreadPool(threadsCount);
+            CountDownLatch countDownLatch = new CountDownLatch(threadsCount);
+
+            // act
+            List<Future<OrderResult>> futures = new ArrayList<>();
+
+            for (int i = 0; i < threadsCount; i++) {
+                Long id = i + 1L;
+                futures.add(executorService.submit(() -> {
+                    try {
+                        return orderFacade.order(new OrderCriteria.Order(id, List.of(new OrderCriteria.Item(1L, 1L, 3)), 1L));
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                }));
+            }
+
+            countDownLatch.await();
+
+            // assert
+            long successfulOrders = futures.stream()
+                .map(future -> {
+                    try {
+                        return future.get();
+                    } catch (Exception e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .count();
+
+            Optional<Inventory> savedInv = inventoryJpaRepository.findById(1L);
+            Optional<User> savedUser1 = userJpaRepository.findById(1L);
+            Optional<User> savedUser2 = userJpaRepository.findById(2L);
+            assertThat(savedInv.isPresent()).isTrue();
+            assertThat(savedUser1.isPresent()).isTrue();
+            assertThat(savedUser2.isPresent()).isTrue();
+            assertAll(
+                () -> assertThat(successfulOrders).isEqualTo(3),
+                () -> assertThat(savedInv.get().getQuantity()).isEqualTo(1)
+            );
+        }
+
+        @DisplayName("쿠폰 사용한도가 있을 경우, 한도 만큼만 성공한다.")
+        @Test
+        void complete() throws InterruptedException {
+            // arrange
+            User user1 = anUser().userId("testUser1").build();
+            user1.updatePoint(6000000);
+            userJpaRepository.save(user1);
+            User user2 = anUser().userId("testUser2").build();
+            user2.updatePoint(6000000);
+            userJpaRepository.save(user2);
+            User user3 = anUser().userId("testUser3").build();
+            user3.updatePoint(6000000);
+            userJpaRepository.save(user3);
+
+            Product product = aProduct().build();
+            ProductOption productOption = aProductOption().build();
+            product.addOption(productOption);
+            productJpaRepository.save(product);
+
+            int initialStock = 10;
+            Inventory inventory = new Inventory(1L, 1L, initialStock);
+            inventoryJpaRepository.save(inventory);
+
+            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, 2L);
+            couponJpaRepository.save(coupon);
+
+            int threadsCount = 3;
+            ExecutorService executorService = Executors.newFixedThreadPool(threadsCount);
+            CountDownLatch countDownLatch = new CountDownLatch(threadsCount);
+
+            // act
+            List<Future<OrderResult>> futures = new ArrayList<>();
+
+            for (int i = 0; i < threadsCount; i++) {
+                Long id = i + 1L;
+                futures.add(executorService.submit(() -> {
+                    try {
+                        return orderFacade.order(new OrderCriteria.Order(id, List.of(new OrderCriteria.Item(1L, 1L, 3)), 1L));
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                }));
+            }
+
+            countDownLatch.await();
+
+            // assert
+            long successfulOrders = futures.stream()
+                .map(future -> {
+                    try {
+                        return future.get();
+                    } catch (Exception e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .count();
+
+            Optional<Inventory> savedInv = inventoryJpaRepository.findById(1L);
+            Optional<User> savedUser1 = userJpaRepository.findById(1L);
+            Optional<User> savedUser2 = userJpaRepository.findById(2L);
+            assertThat(savedInv.isPresent()).isTrue();
+            assertThat(savedUser1.isPresent()).isTrue();
+            assertThat(savedUser2.isPresent()).isTrue();
+            assertAll(
+                () -> assertThat(successfulOrders).isEqualTo(2),
+                () -> assertThat(savedInv.get().getQuantity()).isEqualTo(4)
             );
         }
     }

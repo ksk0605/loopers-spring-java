@@ -26,11 +26,11 @@ public class Coupon extends BaseEntity {
     private Long discountAmount;
     private Long minimumOrderAmount;
     private Long maximumDiscountAmount;
-    private Integer limitCount;
-    private Integer usedCount;
+    private Long limitCount;
+    private Long issuedCount;
 
     private Coupon(String name, String description, CouponType couponType, Long discountRate, Long discountAmount,
-        Long minimumOrderAmount, Long maximumDiscountAmount, Integer limitCount, Integer usedCount) {
+        Long minimumOrderAmount, Long maximumDiscountAmount, Long limitCount) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("쿠폰 이름은 비어있을 수 없습니다.");
         }
@@ -39,6 +39,9 @@ public class Coupon extends BaseEntity {
         }
         if (minimumOrderAmount < 0) {
             throw new IllegalArgumentException("할인 최소 가격은 0이상이어야 합니다.");
+        }
+        if (limitCount != null && limitCount <= 0) {
+            throw new IllegalArgumentException("사용 한도는 0보다 커야합니다.");
         }
 
         this.name = name;
@@ -49,24 +52,23 @@ public class Coupon extends BaseEntity {
         this.minimumOrderAmount = minimumOrderAmount;
         this.maximumDiscountAmount = maximumDiscountAmount;
         this.limitCount = limitCount;
-        this.usedCount = usedCount;
+        this.issuedCount = 0L;
     }
 
     public static Coupon fixedAmount(String name, String description, Long discountAmount, Long minimumOrderAmount,
-        @Nullable Integer limitCount) {
+        @Nullable Long limitCount) {
         if (discountAmount == null) {
             throw new IllegalArgumentException("정액 할인 쿠폰은 할인 가격이 필수입니다.");
         }
         if (discountAmount <= 0) {
             throw new IllegalArgumentException("정액 할인 가격은 0 보다 커야합니다.");
         }
-        return new Coupon(name, description, CouponType.FIXED_AMOUNT, null, discountAmount, minimumOrderAmount, null, limitCount,
-            0);
+        return new Coupon(name, description, CouponType.FIXED_AMOUNT, null, discountAmount, minimumOrderAmount, null, limitCount);
     }
 
     public static Coupon percentage(String name, String description, Long discountRate, Long minimumOrderAmount,
         Long maximumDiscountAmount,
-        @Nullable Integer limitCount) {
+        @Nullable Long limitCount) {
         if (discountRate == null) {
             throw new IllegalArgumentException("정률 할인 쿠폰은 할인율이 필수 입니다.");
         }
@@ -80,11 +82,14 @@ public class Coupon extends BaseEntity {
             throw new IllegalArgumentException("최대 할인 가격은 0 보다 커야합니다.");
         }
         return new Coupon(name, description, CouponType.PERCENTAGE, discountRate, null, minimumOrderAmount, maximumDiscountAmount,
-            limitCount,
-            0);
+            limitCount);
     }
 
     public UserCoupon apply(Long userId, BigDecimal totalPrice, CouponDiscountStrategy strategy) {
+        ++issuedCount;
+        if (limitCount != null && limitCount.compareTo(issuedCount) < 0) {
+            throw new IllegalStateException("사용한도를 초과한 쿠폰입니다.");
+        }
         return new UserCoupon(this, userId, strategy.calculateDiscount(this, totalPrice));
     }
 }
