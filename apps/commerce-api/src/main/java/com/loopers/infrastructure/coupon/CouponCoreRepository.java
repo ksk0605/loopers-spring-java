@@ -20,7 +20,7 @@ public class CouponCoreRepository implements CouponRepository {
     }
 
     @Override
-    public Optional<Coupon> find(Long id) {
-        return couponJpaRepository.findById(id);
+    public Optional<Coupon> findForUpdate(Long id) {
+        return couponJpaRepository.findByIdForUpdate(id);
     }
 }

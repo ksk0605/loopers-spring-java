@@ -5,5 +5,5 @@ import java.util.Optional;
 public interface CouponRepository {
     Coupon save(Coupon coupon);
 
-    Optional<Coupon> find(Long id);
+    Optional<Coupon> findForUpdate(Long id);
 }

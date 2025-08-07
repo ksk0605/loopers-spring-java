@@ -65,6 +65,19 @@ public class CouponTest {
             // assert
             assertThat(exception.getMessage()).isEqualTo("할인 최소 가격은 0이상이어야 합니다.");
         }
+
+        @DisplayName("사용 한도가 0 이하이면, 생성에 실패한다.")
+        @ParameterizedTest
+        @ValueSource(longs = {-1L, 0L})
+        void fail_whenLimitCount(long limitCount) {
+            // act
+            var exception = assertThrows(IllegalArgumentException.class, () ->
+                Coupon.fixedAmount("쿠폰", "쿠폰 설명", 5000L, 10L, limitCount)
+            );
+
+            // assert
+            assertThat(exception.getMessage()).isEqualTo("사용 한도는 0보다 커야합니다.");
+        }
     }
 
     @DisplayName("정액 쿠폰을 생성할 때, ")
