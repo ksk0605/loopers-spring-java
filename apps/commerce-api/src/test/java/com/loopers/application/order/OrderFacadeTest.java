@@ -110,30 +110,29 @@ class OrderFacadeTest extends IntegrationTest {
             Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
             couponJpaRepository.save(coupon);
 
-            ExecutorService executorService = Executors.newFixedThreadPool(2);
-            CountDownLatch countDownLatch = new CountDownLatch(2);
+            int threadsCount = 2;
+            ExecutorService executorService = Executors.newFixedThreadPool(threadsCount);
+            CountDownLatch countDownLatch = new CountDownLatch(threadsCount);
 
             // act
             List<Future<OrderResult>> futures = new ArrayList<>();
 
-            // 첫 번째 주문 (4개)
-            futures.add(executorService.submit(() -> {
-                try {
-                    return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4)), 1L));
-                } finally {
-                    countDownLatch.countDown();
-                }
-            }));
-
-            // 두 번째 주문 (3개)
-            futures.add(executorService.submit(() -> {
-                try {
-                    return orderFacade.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 4)), 1L));
-                } finally {
-                    countDownLatch.countDown();
-                }
-            }));
-
+            for (int i = 0; i < threadsCount; i++) {
+                Long id = i + 1L;
+                futures.add(executorService.submit(() -> {
+                    try {
+                        return orderFacade.order(
+                            new OrderCriteria.Order(
+                                id,
+                                List.of(new OrderCriteria.Item(1L, 1L, 4)),
+                                1L
+                            )
+                        );
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                }));    
+            }
             countDownLatch.await();
 
             // assert
@@ -178,45 +177,36 @@ class OrderFacadeTest extends IntegrationTest {
             product.addOption(productOption);
             productJpaRepository.save(product);
 
-            int initialStock = 10;
+            int initialStock = 12;
             Inventory inventory = new Inventory(1L, 1L, initialStock);
             inventoryJpaRepository.save(inventory);
 
             Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, 3L);
             couponJpaRepository.save(coupon);
 
-            ExecutorService executorService = Executors.newFixedThreadPool(3);
-            CountDownLatch countDownLatch = new CountDownLatch(3);
+            int threadsCount = 3;
+            ExecutorService executorService = Executors.newFixedThreadPool(threadsCount);
+            CountDownLatch countDownLatch = new CountDownLatch(threadsCount);
 
             // act
             List<Future<OrderResult>> futures = new ArrayList<>();
 
-            // 첫 번째 주문 (4개)
-            futures.add(executorService.submit(() -> {
-                try {
-                    return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 4)), 1L));
+            for (int i = 0; i < threadsCount; i++) {
+                Long id = i + 1L;
+                futures.add(executorService.submit(() -> {
+                    try {
+                        return orderFacade.order(
+                            new OrderCriteria.Order(
+                                id, 
+                                List.of(new OrderCriteria.Item(1L, 1L, 4)), 
+                                1L
+                            )
+                        );
                 } finally {
                     countDownLatch.countDown();
                 }
-            }));
-
-            // 두 번째 주문 (3개)
-            futures.add(executorService.submit(() -> {
-                try {
-                    return orderFacade.order(new OrderCriteria.Order(2L, List.of(new OrderCriteria.Item(1L, 1L, 3)), 1L));
-                } finally {
-                    countDownLatch.countDown();
-                }
-            }));
-
-            // 세 번째 주문 (3개)
-            futures.add(executorService.submit(() -> {
-                try {
-                    return orderFacade.order(new OrderCriteria.Order(3L, List.of(new OrderCriteria.Item(1L, 1L, 3)), 1L));
-                } finally {
-                    countDownLatch.countDown();
-                }
-            }));
+                }));
+            }
 
             countDownLatch.await();
 
@@ -247,7 +237,7 @@ class OrderFacadeTest extends IntegrationTest {
 
     @DisplayName("하나의 쿠폰으로 여러 사용자가 동시에 결제를 시도할 때, ")
     @Nested
-    class ConcurrentCouponUsage {
+    class ConcurrentPaymentWithCoupon {
         @DisplayName("쿠폰 사용한도가 없을 경우, 모든 요청이 성공한다.")
         @Test
         void completeAllOrders_whenCouponUsageLimitIsZero() throws InterruptedException {
@@ -385,6 +375,71 @@ class OrderFacadeTest extends IntegrationTest {
             assertAll(
                 () -> assertThat(successfulOrders).isEqualTo(2),
                 () -> assertThat(savedInv.get().getQuantity()).isEqualTo(4)
+            );
+        }
+    }
+
+    @DisplayName("한 명의 사용자가 동시에 쿠폰을 사용할 때, ")
+    @Nested
+    class ConcurrentCouponUsage {
+        @DisplayName("하나의 쿠폰을 두 주문에 사용하면 실패한다.")
+        @Test
+        void failToApplyCoupon_whenSameUserTriesToApplyCouponSimultaneously() throws InterruptedException {
+            // arrange
+            User user = anUser().build();
+            user.updatePoint(6000000);
+            userJpaRepository.save(user);
+
+            Product product = aProduct().build();
+            ProductOption productOption = aProductOption().build();
+            product.addOption(productOption);
+            productJpaRepository.save(product);
+
+            int initialStock = 10;
+            Inventory inventory = new Inventory(1L, 1L, initialStock);
+            inventoryJpaRepository.save(inventory);
+
+            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
+            couponJpaRepository.save(coupon);
+
+            int threadsCount = 2;
+            ExecutorService executorService = Executors.newFixedThreadPool(threadsCount);
+            CountDownLatch countDownLatch = new CountDownLatch(threadsCount);
+
+            // act
+            List<Future<OrderResult>> futures = new ArrayList<>();
+
+            for (int i = 0; i < threadsCount; i++) {
+                futures.add(executorService.submit(() -> {
+                    try {
+                        return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 3)), 1L));
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                }));
+            }
+
+            countDownLatch.await();
+
+            // assert
+            long successfulOrders = futures.stream()
+                .map(future -> {
+                    try {
+                        return future.get();
+                    } catch (Exception e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .count();
+
+            Optional<Inventory> savedInv = inventoryJpaRepository.findById(1L);
+            Optional<User> savedUser = userJpaRepository.findById(1L);
+            assertThat(savedInv.isPresent()).isTrue();
+            assertThat(savedUser.isPresent()).isTrue();
+            assertAll(
+                () -> assertThat(successfulOrders).isEqualTo(1),
+                () -> assertThat(savedInv.get().getQuantity()).isEqualTo(7)
             );
         }
     }
