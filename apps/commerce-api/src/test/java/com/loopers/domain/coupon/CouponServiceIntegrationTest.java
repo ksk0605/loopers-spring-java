@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.loopers.infrastructure.coupon.CouponJpaRepository;
-import com.loopers.infrastructure.coupon.UserCouponJpaRepository;
+import com.loopers.infrastructure.coupon.CouponUsageJpaRepository;
 import com.loopers.support.IntegrationTest;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -35,7 +35,7 @@ class CouponServiceIntegrationTest extends IntegrationTest {
     private CouponJpaRepository couponJpaRepository;
 
     @Autowired
-    private UserCouponJpaRepository userCouponJpaRepository;
+    private CouponUsageJpaRepository userCouponJpaRepository;
 
     @DisplayName("쿠폰을 사용할 때,")
     @Nested
@@ -47,23 +47,22 @@ class CouponServiceIntegrationTest extends IntegrationTest {
             Coupon coupon = couponJpaRepository.save(Coupon.fixedAmount("새로운 쿠폰", "쿠폰의 설명입니다.", 5000L, 30000L, null));
 
             // act
-            UserCoupon userCoupon = couponService.apply(1L, coupon.getId(), BigDecimal.valueOf(30000));
+            CouponUsage userCoupon = couponService.apply(1L, coupon.getId(), BigDecimal.valueOf(30000));
 
             // assert
             assertAll(
-                () -> assertThat(userCoupon.getCoupon().getId()).isEqualTo(coupon.getId()),
-                () -> assertThat(userCoupon.getDiscountAmount()).isEqualByComparingTo(BigDecimal.valueOf(coupon.getDiscountAmount())),
-                () -> assertThat(userCoupon.getUserId()).isEqualTo(1L)
-            );
+                    () -> assertThat(userCoupon.getCoupon().getId()).isEqualTo(coupon.getId()),
+                    () -> assertThat(userCoupon.getDiscountAmount())
+                            .isEqualByComparingTo(BigDecimal.valueOf(coupon.getDiscountAmount())),
+                    () -> assertThat(userCoupon.getUserId()).isEqualTo(1L));
         }
 
         @DisplayName("존재하지 않는 쿠폰 ID를 주면, NOT FOUND 예외를 발생한다.")
         @Test
         void throwsNotFoundException_whenInvalidCouponIdIsProvided() {
             // act
-            var exception = assertThrows(CoreException.class, () ->
-                couponService.apply(1L, 1L, BigDecimal.valueOf(30000))
-            );
+            var exception = assertThrows(CoreException.class,
+                    () -> couponService.apply(1L, 1L, BigDecimal.valueOf(30000)));
 
             // assert
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
@@ -77,8 +76,8 @@ class CouponServiceIntegrationTest extends IntegrationTest {
             couponService.apply(1L, coupon.getId(), BigDecimal.valueOf(30000));
 
             // act
-            var exception = assertThrows(CoreException.class, () ->
-                couponService.apply(1L, coupon.getId(), BigDecimal.valueOf(30000)));
+            var exception = assertThrows(CoreException.class,
+                    () -> couponService.apply(1L, coupon.getId(), BigDecimal.valueOf(30000)));
 
             // assert
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
@@ -94,7 +93,7 @@ class CouponServiceIntegrationTest extends IntegrationTest {
             CountDownLatch countDownLatch = new CountDownLatch(2);
 
             // act
-            List<Future<UserCoupon>> futures = new ArrayList<>();
+            List<Future<CouponUsage>> futures = new ArrayList<>();
 
             futures.add(executorService.submit(() -> {
                 try {
@@ -116,20 +115,19 @@ class CouponServiceIntegrationTest extends IntegrationTest {
 
             // assert
             long successCount = futures.stream()
-                .map(future -> {
-                    try {
-                        return future.get();
-                    } catch (Exception e) {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .count();
+                    .map(future -> {
+                        try {
+                            return future.get();
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .count();
 
             assertAll(
-                () -> assertThat(successCount).isEqualTo(1),
-                () -> assertThat(userCouponJpaRepository.count()).isEqualTo(1)
-            );
+                    () -> assertThat(successCount).isEqualTo(1),
+                    () -> assertThat(userCouponJpaRepository.count()).isEqualTo(1));
         }
     }
 }
