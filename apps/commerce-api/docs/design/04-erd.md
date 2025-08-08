@@ -129,12 +129,36 @@ erDiagram
         datetime created_at
     }
 
+    coupon {
+        bigint id PK
+        varchar name
+        varchar description
+        varchar coupon_type
+        bigint discount_rate
+        bigint discount_amount
+        bigint minimum_order_amount
+        bigint maximum_discount_amount
+        bigint limit_count
+        bigint issued_count
+    }
+    
+    coupon_usage {
+        bigint id PK
+        bigint coupon_id FK
+        bigint user_id FK
+        decimal discount_amount
+    }
+
     user ||--o{ cart : "1:N"
     user ||--o{ like : "1:N"
     user ||--o{ order : "1:N"
     user ||--o{ delivery_address : "1:N"
     user ||--o{ point_history : "1:N"
+    user ||--o{ coupon_usage : "1:N"
     
+    coupon ||--o{ coupon_usage : "1:N"
+    product ||--o{ inventory : "1:N"
+    product_option ||--o{ inventory : "1:N"
     brand ||--o{ product : "1:N"
     category ||--o{ product : "1:N"
     category ||--o{ category : "1:N (self)"
