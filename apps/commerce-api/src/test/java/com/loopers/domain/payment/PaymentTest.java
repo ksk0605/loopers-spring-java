@@ -10,10 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
-
-
 public class PaymentTest {
 
     @DisplayName("결제 생성 시, ")
@@ -41,52 +37,40 @@ public class PaymentTest {
             );
         }
 
-        @DisplayName("주문 ID가 없으면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("주문 ID가 없으면, 예외를 발생시킨다.")
         @Test
         void createPayment_whenOrderIdIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Payment(null, PaymentMethod.CREDIT_CARD, PaymentStatus.PENDING, BigDecimal.valueOf(10000))
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("결제 방법이 없으면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("결제 방법이 없으면, 예외를 발생시킨다.")
         @Test
         void createPayment_whenMethodIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Payment(1L, null, PaymentStatus.PENDING, BigDecimal.valueOf(10000))
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("결제 상태가 없으면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("결제 상태가 없으면, 예외를 발생시킨다.")
         @Test
         void createPayment_whenStatusIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Payment(1L, PaymentMethod.CREDIT_CARD, null, BigDecimal.valueOf(10000))
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("결제 금액이 없으면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("결제 금액이 없으면, 예외를 발생시킨다.")
         @Test
         void createPayment_whenAmountIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Payment(1L, PaymentMethod.CREDIT_CARD, PaymentStatus.PENDING, null)
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 }

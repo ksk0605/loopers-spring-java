@@ -32,4 +32,15 @@ public class Inventory extends BaseEntity {
     public boolean canOrder(Integer orderQuantity) {
         return this.quantity >= orderQuantity;
     }
+
+    public boolean isOptionOf(Long productId, Long productOptionId) {
+        return this.productId.equals(productId) && this.productOptionId.equals(productOptionId);
+    }
+
+    public void deduct(Integer quantity) {
+        if (!canOrder(quantity)) {
+            throw new IllegalArgumentException("재고가 부족합니다.");
+        }
+        this.quantity -= quantity;
+    }
 }

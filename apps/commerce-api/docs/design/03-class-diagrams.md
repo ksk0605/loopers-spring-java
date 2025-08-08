@@ -227,6 +227,41 @@ classDiagram
         REFUND
     }
 
+%% 쿠폰 도메인
+    class Coupon {
+        +Long id
+        +String name
+        +String description
+        +CouponType couponType
+        +Long discountRate
+        +Long discountAmount
+        +Long minimumOrderAmount
+        +Long maximumDiscountAmount
+        +Long limitCount
+        +Long issuedCount
+        +apply(Long userId, BigDecimal totalPrice, CouponDiscountStrategy strategy)
+    }
+
+    class CouponType {
+        <<enumeration>>
+        FIXED_AMOUNT
+        PERCENTAGE
+    }
+
+    class CouponUsage {
+        +Long id
+        +Coupon coupon
+        +Long userId
+        +BigDecimal discountAmount
+    }
+
+    class CouponDiscountStrategy {
+        <<interface>>
+        +boolean support(CouponType couponType)
+        +BigDecimal calculateDiscount(Coupon coupon, BigDecimal price)
+    }
+
+
     Product --> "1" ProductStatus
     Product --> "1" Brand
     Product --> "1" Category
@@ -247,6 +282,12 @@ classDiagram
     Payment --> "1" PaymentMethod
     Payment --> "1" PaymentStatus
     PointHistory --> "1" PointHistoryType
+    Coupon --> "1" CouponType
+    Coupon --> "N" CouponUsage
+    CouponUsage --> "1" Coupon
+    CouponDiscountStrategy <|.. FixedAmountDiscountStrategy
+    CouponDiscountStrategy <|.. PercentageDiscountStrategy
+
 ```
 
 ## 도메인별 세부 설명
@@ -289,3 +330,9 @@ classDiagram
 - **Point**: 사용자 포인트 잔액
 - **PointHistory**: 포인트 변동 이력
 - **PointHistoryType**: 포인트 변동 타입 
+
+### 쿠폰 도메인 
+- **Coupon**: 쿠폰 
+- **CouponType**: 쿠폰 타입 (정률, 정액)
+- **CouponUsage**: 유저의 쿠폰 사용 기록
+- **CouponDiscountStrategy**: 쿠폰 할인 정책 (정률, 정액)

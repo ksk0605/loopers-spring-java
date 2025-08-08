@@ -1,76 +1,68 @@
 package com.loopers.application.order;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.loopers.domain.order.OrderCommand;
+import com.loopers.domain.coupon.CouponService;
+import com.loopers.domain.coupon.CouponUsage;
+import com.loopers.domain.inventory.InventoryService;
+import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderService;
+import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentService;
-import com.loopers.domain.product.ProductCommand;
-import com.loopers.domain.product.ProductPricingService;
+import com.loopers.domain.product.ProductPrice;
+import com.loopers.domain.product.ProductService;
+import com.loopers.domain.user.User;
+import com.loopers.domain.user.UserService;
+import com.loopers.support.annotation.UseCase;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@UseCase
 @RequiredArgsConstructor
 public class OrderFacade {
     private final OrderService orderService;
-    private final ProductPricingService productPricingService;
+    private final CouponService couponService;
     private final PaymentService paymentService;
+    private final ProductService productService;
+    private final InventoryService inventoryService;
+    private final UserService userService;
 
     @Transactional
-    public OrderResult placeOrder(OrderCommand.Place command) {
-        var orderInfo = orderService.place(command);
+    public OrderResult order(OrderCriteria.Order criteria) {
+        User user = userService.get(criteria.userId());
 
-        var options = orderInfo.items().stream()
-            .map(item -> new ProductCommand.PricingOption(
-                item.productId(),
-                item.productOptionId(),
-                item.quantity()))
-            .toList();
-        var productCommand = new ProductCommand.CalculatePrice(options);
-        var totalPrice = productPricingService.calculatePrice(productCommand);
+        List<ProductPrice> productPrices = productService.getAvailableProductPrices(criteria.toProductCommand());
+        Order order = orderService.create(criteria.toOrderCommandWithProductPrices(productPrices));
 
-        var paymentCommand = new PaymentCommand.Process(orderInfo.id(), PaymentMethod.POINT, totalPrice);
-        var paymentInfo = paymentService.process(paymentCommand);
+        CouponUsage userCoupon = couponService.apply(criteria.userId(), criteria.couponId(), order.getTotalPrice());
+        BigDecimal discountPrice = order.getTotalPrice().subtract(userCoupon.getDiscountAmount());
 
-        orderInfo = orderService.pay(orderInfo.id());
-        return OrderResult.of(orderInfo, paymentInfo, totalPrice);
+        PaymentCommand.Pay command = new PaymentCommand.Pay(order.getId(), PaymentMethod.POINT, discountPrice);
+        Payment payment = paymentService.create(command);
+        order.pay();
+
+        inventoryService.deduct(criteria.toInventoryCommand());
+        user.usePoint(order.getTotalPrice().intValue());
+        return OrderResult.of(order, payment, userCoupon);
     }
 
-    public List<OrderResult> getOrders(Long userId) {
-        var orderInfos = orderService.getAll(userId);
-        return orderInfos.stream()
-            .map(orderInfo -> {
-                var options = orderInfo.items().stream()
-                    .map(item -> new ProductCommand.PricingOption(
-                        item.productId(),
-                        item.productOptionId(),
-                        item.quantity()))
-                    .toList();
-                var productCommand = new ProductCommand.CalculatePrice(options);
-                var totalPrice = productPricingService.calculatePrice(productCommand);
-                var paymentInfo = paymentService.get(orderInfo.id());
-                return OrderResult.of(orderInfo, paymentInfo, totalPrice);
-            })
-            .toList();
-    }
-
+    @Transactional(readOnly = true)
     public OrderResult getOrder(Long orderId, Long userId) {
-        var orderInfo = orderService.get(orderId, userId);
-        var options = orderInfo.items().stream()
-            .map(item -> new ProductCommand.PricingOption(
-                item.productId(),
-                item.productOptionId(),
-                item.quantity()))
-            .toList();
-        var productCommand = new ProductCommand.CalculatePrice(options);
-        var totalPrice = productPricingService.calculatePrice(productCommand);
-        var paymentInfo = paymentService.get(orderInfo.id());
-        return OrderResult.of(orderInfo, paymentInfo, totalPrice);
+        Order order = orderService.get(orderId, userId);
+        Payment payment = paymentService.getByOrderId(order.getId());
+        return OrderResult.of(order, payment);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResults getOrders(Long userId) {
+        List<Order> orders = orderService.getAll(userId);
+        List<Long> orderIds = orders.stream().map(order -> order.getId()).toList();
+        List<Payment> payments = paymentService.getAll(orderIds);
+        return OrderResults.of(orders, payments);
     }
 }

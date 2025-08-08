@@ -16,11 +16,11 @@ public class UserService {
     }
 
     @Transactional
-    public UserInfo createUser(UserCommand.Create command) {
+    public User createUser(UserCommand.Create command) {
         userRepository.find(command.userId()).ifPresent(user -> {
             throw new CoreException(ErrorType.CONFLICT, "이미 가입한 ID입니다. [userId = " + command.userId() + "]");
         });
-        User user = userRepository.save(
+        return userRepository.save(
             new User(
                 command.userId(),
                 Gender.valueOf(command.gender()),
@@ -28,20 +28,24 @@ public class UserService {
                 command.email()
             )
         );
-        return UserInfo.from(user);
     }
 
     @Transactional(readOnly = true)
-    public UserInfo get(String userId) {
-        User user = userRepository.find(userId)
+    public User get(String userId) {
+        return userRepository.find(userId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 유저가 존재하지 않습니다. [userId = " + userId + "]"));
-        return UserInfo.from(user);
     }
 
-    public UserInfo updatePoint(String userId, int balance) {
+    @Transactional(readOnly = true)
+    public User get(Long id) {
+        return userRepository.find(id)
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 유저가 존재하지 않습니다. [id = " + id + "]"));
+    }
+
+    public User updatePoint(String userId, int balance) {
         User user = userRepository.find(userId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 유저가 존재하지 않습니다. [userId = " + userId + "]"));
         user.updatePoint(balance);
-        return UserInfo.from(userRepository.save(user));
+        return userRepository.save(user);
     }
 }

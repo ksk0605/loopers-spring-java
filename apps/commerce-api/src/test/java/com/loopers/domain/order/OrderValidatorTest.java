@@ -1,5 +1,7 @@
 package com.loopers.domain.order;
 
+import static com.loopers.support.fixture.OrderFixture.anOrder;
+import static com.loopers.support.fixture.OrderItemFixture.anOrderItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -44,7 +46,7 @@ public class OrderValidatorTest {
         void validateOrder_whenProductIsNotFound() {
             // arrange
             when(productRepository.find(anyLong())).thenReturn(Optional.empty());
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
+            Order order = anOrder().build();
 
             // act
             CoreException result = assertThrows(CoreException.class,
@@ -69,7 +71,7 @@ public class OrderValidatorTest {
                 LocalDateTime.now().plusDays(1)
             );
             when(productRepository.find(1L)).thenReturn(Optional.of(product));
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 1)));
+            Order order = anOrder().build();
 
             // act
             CoreException result = assertThrows(CoreException.class,
@@ -84,7 +86,9 @@ public class OrderValidatorTest {
         @Test
         void validateOrder_whenQuantityIsZero() {
             // arrange
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 0)));
+            Order order = anOrder()
+                .orderItems(List.of(anOrderItem().quantity(0).build()))
+                .build();
 
             // act
             CoreException result = assertThrows(CoreException.class,
@@ -111,7 +115,7 @@ public class OrderValidatorTest {
             Inventory inventory = new Inventory(1L, 1L, 10);
             when(productRepository.find(1L)).thenReturn(Optional.of(product));
             when(inventoryRepository.find(1L, 1L)).thenReturn(Optional.of(inventory));
-            Order order = new Order(1L, List.of(new OrderItem(1L, 1L, 11)));
+            Order order = anOrder().orderItems(List.of(anOrderItem().quantity(11).build())).build();
 
             // act
             CoreException result = assertThrows(CoreException.class,

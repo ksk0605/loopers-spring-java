@@ -12,9 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
-
 public class UserTest {
     @DisplayName("유저를 생성할 때, ")
     @Nested
@@ -43,63 +40,51 @@ public class UserTest {
 
         @DisplayName("ID가 빈칸으로만 이루어져 있으면, BAD_REQUEST 예외가 발생한다.")
         @Test
-        void throwsBadRequestException_whenIdIsBlank() {
+        void throwsException_whenIdIsBlank() {
             // arrange
             String userId = "    ";
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User(userId, Gender.MALE, "1990-01-01", "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("ID에 영문 및 숫자 외의 문자가 들어오면, BAD_REQUEST 예외가 발생한다.")
         @ParameterizedTest
         @ValueSource(strings = {"한글", "@"})
-        void throwsBadRequestException_whenIdContainsNonAlphanumericCharacters(String source) {
+        void throwsException_whenIdContainsNonAlphanumericCharacters(String source) {
             // arrange
             String userId = "testId" + source;
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User(userId, Gender.MALE, "1990-01-01", "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("ID가 10자를 넘어가면, BAD_REQUEST 예외가 발생한다.")
         @Test
-        void throwsBadRequestException_whenIdExceeds10Characters() {
+        void throwsException_whenIdExceeds10Characters() {
             // arrange
             String userId = "12overTenId";
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User(userId, Gender.MALE, "1990-01-01", "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("이메일이 빈칸으로만 이루어져 있으면, BAD_REQUEST 예외가 발생한다.")
         @Test
-        void throwsBadRequestException_whenEmailIsBlank() {
+        void throwsException_whenEmailIsBlank() {
             // arrange
             String email = "  ";
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser66", Gender.MALE, "1990-01-01", email);
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("이메일이 xx@yy.zz 형식에 맞지 않으면, BAD_REQUEST 예외가 발생한다.")
@@ -109,32 +94,26 @@ public class UserTest {
             "test@", // 도메인 없음
             "test@test" // 최상위 도메인 없음
         })
-        void throwsBadRequestException_whenEmailFormatIsInvalid(String value) {
+        void throwsException_whenEmailFormatIsInvalid(String value) {
             // arrange
             String email = value;
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser66", Gender.MALE, "1990-01-01", email);
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("생년월일이 빈칸으로만 이루어져 있으면, BAD_REQUEST 예외가 발생한다.")
         @Test
-        void throwsBadRequestException_whenBirthDateIsBlank() {
+        void throwsException_whenBirthDateIsBlank() {
             // arrange
             String birthDate = "  ";
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser", Gender.MALE, birthDate, "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("생년월일이 yyyy-MM-dd 형식에 맞지 않으면, BAD_REQUEST 예외가 발생한다.")
@@ -147,17 +126,14 @@ public class UserTest {
             "1990-01-1", // 한 자리 일
             "1990-1-01" // 한 자리 월
         })
-        void throwsBadRequestException_whenBirthDateFormatIsInvalid(String value) {
+        void throwsException_whenBirthDateFormatIsInvalid(String value) {
             // arrange
             String birthDate = value;
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser", Gender.MALE, birthDate, "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @DisplayName("생년월일이 존재하지 않는 날짜라면, BAD_REQUEST 예외가 발생한다.")
@@ -167,17 +143,14 @@ public class UserTest {
             "1990-12-32",
             "1990-01-00",
         })
-        void throwsBadRequestException_whenBirthDateIsInvalid(String value) {
+        void throwsException_whenBirthDateIsInvalid(String value) {
             // arrange
             String birthDate = value;
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new User("testUser", Gender.MALE, birthDate, "test@test.com");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 }

@@ -17,11 +17,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LikeTarget {
     @Column(name = "target_id")
-    Long id;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_type")
-    LikeTargetType type;
+    private LikeTargetType type;
 
     public LikeTarget(Long id, LikeTargetType type) {
         this.id = requireNotNull(id, "좋아요 타겟 ID는 필수입니다.");

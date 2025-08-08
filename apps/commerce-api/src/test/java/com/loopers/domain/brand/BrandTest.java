@@ -10,9 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
-
 class BrandTest {
 
     @DisplayName("브랜드를 생성할 때, ")
@@ -40,71 +37,56 @@ class BrandTest {
             );
         }
 
-        @DisplayName("브랜드 이름이 빈칸으로만 이루어져 있으면, BAD_REQUEST 예외가 발생한다.")
+        @DisplayName("브랜드 이름이 빈칸으로만 이루어져 있으면, 예외가 발생한다.")
         @ParameterizedTest
         @ValueSource(strings = {"", "   "})
-        void throwsBadRequestException_whenNameIsBlank(String name) {
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+        void throwsException_whenNameIsBlank(String name) {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new Brand(name, "테스트 브랜드 설명", "https://test.logo.url");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("브랜드 설명이 빈칸으로만 이루어져 있으면, BAD_REQUEST 예외가 발생한다.")
+        @DisplayName("브랜드 설명이 빈칸으로만 이루어져 있으면, 예외가 발생한다.")
         @ParameterizedTest
         @ValueSource(strings = {"", "   "})
-        void throwsBadRequestException_whenDescriptionIsBlank(String description) {
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+        void throwsException_whenDescriptionIsBlank(String description) {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new Brand("브랜드 명", description, "https://test.logo.url");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("브랜드 이름이 빈칸으로만 이루어져 있으면, BAD_REQUEST 예외가 발생한다.")
+        @DisplayName("브랜드 이름이 빈칸으로만 이루어져 있으면, 예외가 발생한다.")
         @Test
-        void throwsBadRequestException_whenNameIsNull() {
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+        void throwsException_whenNameIsNull() {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new Brand(null, "테스트 브랜드 설명", "https://test.logo.url");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("브랜드 설명이 10자 미만이면, BAD_REQUEST 예외가 발생한다.")
+        @DisplayName("브랜드 설명이 10자 미만이면, 예외가 발생한다.")
         @ParameterizedTest
         @ValueSource(strings = {"2자", "아홉자 브랜드설명"})
-        void throwsBadRequestException_whenDescriptionIsLessThanMinLength(String description) {
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+        void throwsException_whenDescriptionIsLessThanMinLength(String description) {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new Brand("테스트 브랜드", description, "https://test.logo.url");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("브랜드 설명이 50자 초과이면, BAD_REQUEST 예외가 발생한다.")
+        @DisplayName("브랜드 설명이 50자 초과이면, 예외가 발생한다.")
         @ParameterizedTest
         @ValueSource(strings = {
             "이 문자열은 오십일 글자입니다. 설명의 최대 길이 초과 여부를 테스트 하기 위한 예시입니다.",
             "이 문자열은 오십 글자를 한참 넘는 문장입니다. 설명의 최대 길이 초과 여부를 테스트 하기 위한 예시입니다."
         })
-        void throwsBadRequestException_whenDescriptionExceedsMaxLength(String description) {
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+        void throwsException_whenDescriptionExceedsMaxLength(String description) {
+            // act & assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 new Brand("테스트 브랜드", description, "https://test.logo.url");
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.loopers.domain.inventory;
 
+import static com.loopers.support.fixture.InventoryFixture.anInventory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -9,9 +10,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 
 public class InventoryTest {
 
@@ -37,43 +35,34 @@ public class InventoryTest {
             );
         }
 
-        @DisplayName("상품 ID가 비어있으면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("상품 ID가 비어있으면, 예외를 발생시킨다.")
         @Test
         void createInventory_whenProductIdIsEmpty() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Inventory(null, 1L, 1)
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("상품 옵션 ID가 비어있으면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("상품 옵션 ID가 비어있으면, 예외를 발생시킨다.")
         @Test
         void createInventory_whenProductOptionIdIsEmpty() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Inventory(1L, null, 1)
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("재고가 없으면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("재고가 없으면, 예외를 발생시킨다.")
         @Test
         void createInventory_whenQuantityIsEmpty() {
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Inventory(1L, 1L, null)
             );
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("재고가 0 미만이면, BAD REQUEST 예외를 발생시킨다.")
+        @DisplayName("재고가 0 미만이면, 예외를 발생시킨다.")
         @Test
         void createInventory_whenQuantityIsZero() {
             // arrange
@@ -81,13 +70,27 @@ public class InventoryTest {
             Long productOptionId = 1L;
             Integer quantity = -1;
 
-            // act
-            CoreException result = assertThrows(CoreException.class,
+            // act & assert
+            assertThrows(IllegalArgumentException.class,
                 () -> new Inventory(productId, productOptionId, quantity)
             );
+        }
+    }
+
+    @DisplayName("재고를 차감할 때, ")
+    @Nested
+    class Deduct {
+        @DisplayName("보유 재고보다 높은 양을 차감하려고 하면 예외를 발생한다.")
+        @Test
+        void deduct_failsWhenRequestedQuantityIsGreaterThanAvailableQuantity() {
+            // arrange
+            Inventory inventory = anInventory().build();
+
+            // act
+            var result = assertThrows(IllegalArgumentException.class, () -> inventory.deduct(11));
 
             // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+            assertThat(result.getMessage()).isEqualTo("재고가 부족합니다.");
         }
     }
 }

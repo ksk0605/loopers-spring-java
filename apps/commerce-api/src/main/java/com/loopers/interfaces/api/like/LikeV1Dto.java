@@ -2,9 +2,9 @@ package com.loopers.interfaces.api.like;
 
 import java.util.List;
 
+import com.loopers.application.brand.BrandResult;
 import com.loopers.application.like.LikeResult;
 import com.loopers.application.product.ProductResult;
-import com.loopers.domain.brand.BrandInfo;
 
 public class LikeV1Dto {
     public record LikeResponse(Long userId, Long targetId, String targetType) {
@@ -52,7 +52,7 @@ public class LikeV1Dto {
             String description,
             String logoUrl
         ) {
-            public static BrandResponse from(BrandInfo brand) {
+            public static BrandResponse from(BrandResult brand) {
                 return new BrandResponse(
                     brand.id(),
                     brand.name(),

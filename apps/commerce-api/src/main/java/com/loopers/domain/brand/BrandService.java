@@ -16,17 +16,13 @@ public class BrandService {
     private final BrandRepository brandRepository;
 
     @Transactional(readOnly = true)
-    public BrandInfo get(Long id) {
-        Brand brand = brandRepository.find(id)
+    public Brand get(Long id) {
+        return brandRepository.find(id)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "[id = " + id + "] 브랜드를 찾을 수 없습니다."));
-        return BrandInfo.from(brand);
     }
 
     @Transactional(readOnly = true)
-    public List<BrandInfo> getAll(List<Long> ids) {
-        return brandRepository.findAll(ids)
-            .stream()
-            .map(BrandInfo::from)
-            .toList();
+    public List<Brand> getAll(List<Long> ids) {
+        return brandRepository.findAll(ids);
     }
 }

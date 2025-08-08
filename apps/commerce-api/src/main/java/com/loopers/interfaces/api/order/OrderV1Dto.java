@@ -3,9 +3,9 @@ package com.loopers.interfaces.api.order;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.loopers.application.order.OrderCriteria;
 import com.loopers.application.order.OrderResult;
-import com.loopers.domain.order.OrderCommand;
-import com.loopers.domain.order.OrderItemInfo;
+import com.loopers.application.order.OrderResults;
 
 public class OrderV1Dto {
 
@@ -16,15 +16,18 @@ public class OrderV1Dto {
     }
 
     public record OrderRequest(
-        List<OrderItemRequest> items) {
-        public List<OrderCommand.OrderOption> toOrderOptions() {
-            return items()
-                .stream()
-                .map(item -> new OrderCommand.OrderOption(
-                    item.productId(),
-                    item.productOptionId(),
-                    item.quantity()))
-                .toList();
+        List<OrderItemRequest> items,
+        Long couponId
+    ) {
+        public OrderCriteria.Order toOrderCriteria(Long userId) {
+            return new OrderCriteria.Order(
+                userId,
+                items.stream()
+                    .map(item ->
+                        new OrderCriteria.Item(item.productId(), item.productOptionId(), item.quantity()))
+                    .toList(),
+                couponId
+            );
         }
     }
 
@@ -32,7 +35,7 @@ public class OrderV1Dto {
         Long productId,
         Long productOptionId,
         Integer quantity) {
-        public static OrderItemResponse from(OrderItemInfo orderItemInfo) {
+        public static OrderItemResponse from(OrderResult.OrderItemResult orderItemInfo) {
             return new OrderItemResponse(
                 orderItemInfo.productId(),
                 orderItemInfo.productOptionId(),
@@ -64,9 +67,9 @@ public class OrderV1Dto {
 
     public record OrderResponses(
         List<OrderResponse> orders) {
-        public static OrderResponses from(List<OrderResult> results) {
+        public static OrderResponses from(OrderResults orderResults) {
             return new OrderResponses(
-                results.stream()
+                orderResults.results().stream()
                     .map(OrderResponse::from)
                     .toList());
         }

@@ -33,7 +33,7 @@ public class PointHistoryTest {
         @DisplayName("0 이하의 정수로 포인트를 충전 시 실패한다.")
         @ParameterizedTest
         @ValueSource(ints = {0, -1})
-        void throwsBadRequestException_whenAmountIsBelowZero(int value) {
+        void throwsException_whenAmountIsBelowZero(int value) {
             // arrange
             int amount = value;
 
