@@ -37,7 +37,6 @@ public class OrderFacade {
         User user = userService.get(criteria.userId());
 
         List<ProductPrice> productPrices = productService.getAvailableProductPrices(criteria.toProductCommand());
-
         Order order = orderService.create(criteria.toOrderCommandWithProductPrices(productPrices));
 
         UserCoupon userCoupon = couponService.apply(criteria.userId(), criteria.couponId(), order.getTotalPrice());
@@ -48,9 +47,7 @@ public class OrderFacade {
         order.pay();
 
         inventoryService.deduct(criteria.toInventoryCommand());
-
         user.usePoint(order.getTotalPrice().intValue());
-
         return OrderResult.of(order, payment, userCoupon);
     }
 
