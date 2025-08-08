@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.loopers.domain.coupon.Coupon;
+import com.loopers.infrastructure.coupon.CouponUsageJpaRepository;
 import com.loopers.domain.inventory.Inventory;
 import com.loopers.domain.order.OrderStatus;
 import com.loopers.domain.payment.PaymentStatus;
@@ -48,6 +49,9 @@ class OrderFacadeTest extends IntegrationTest {
 
     @Autowired
     private CouponJpaRepository couponJpaRepository;
+
+    @Autowired
+    private CouponUsageJpaRepository couponUsageJpaRepository;
 
     @Autowired
     private UserJpaRepository userJpaRepository;
@@ -437,9 +441,11 @@ class OrderFacadeTest extends IntegrationTest {
             Optional<User> savedUser = userJpaRepository.findById(1L);
             assertThat(savedInv.isPresent()).isTrue();
             assertThat(savedUser.isPresent()).isTrue();
+            
             assertAll(
                 () -> assertThat(successfulOrders).isEqualTo(1),
-                () -> assertThat(savedInv.get().getQuantity()).isEqualTo(7)
+                () -> assertThat(savedInv.get().getQuantity()).isEqualTo(7),
+                () -> assertThat(couponUsageJpaRepository.findAll()).hasSize(1)
             );
         }
     }
