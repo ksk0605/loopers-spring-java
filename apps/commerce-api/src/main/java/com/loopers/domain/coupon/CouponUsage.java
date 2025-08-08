@@ -15,22 +15,17 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "user_coupon",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "uk_user_coupon",
-            columnNames = {"user_id", "coupon_id"}
-        )
-    }
-)
+@Table(name = "coupon_usage", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_coupon_usage", columnNames = { "user_id", "coupon_id" })
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserCoupon extends BaseEntity {
+public class CouponUsage extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Coupon coupon;
     private Long userId;
     private BigDecimal discountAmount;
 
-    public UserCoupon(Coupon coupon, Long userId, BigDecimal discountAmount) {
+    public CouponUsage(Coupon coupon, Long userId, BigDecimal discountAmount) {
         this.coupon = coupon;
         this.userId = userId;
         this.discountAmount = discountAmount;

@@ -21,9 +21,8 @@ public class CouponTest {
         @Test
         void fail_whenNameIsNull() {
             // act
-            var exception = assertThrows(IllegalArgumentException.class, () ->
-                Coupon.fixedAmount(null, "쿠폰 설명", 5000L, 20000L, null)
-            );
+            var exception = assertThrows(IllegalArgumentException.class,
+                    () -> Coupon.fixedAmount(null, "쿠폰 설명", 5000L, 20000L, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("쿠폰 이름은 비어있을 수 없습니다.");
@@ -33,9 +32,8 @@ public class CouponTest {
         @Test
         void fail_whenNameIsBlank() {
             // act
-            var exception = assertThrows(IllegalArgumentException.class, () ->
-                Coupon.fixedAmount("", "쿠폰 설명", 5000L, 20000L, null)
-            );
+            var exception = assertThrows(IllegalArgumentException.class,
+                    () -> Coupon.fixedAmount("", "쿠폰 설명", 5000L, 20000L, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("쿠폰 이름은 비어있을 수 없습니다.");
@@ -45,9 +43,8 @@ public class CouponTest {
         @Test
         void fail_whenMinimumOrderAmountIsNull() {
             // act
-            var exception = assertThrows(IllegalArgumentException.class, () ->
-                Coupon.fixedAmount("쿠폰", "쿠폰 설명", 5000L, null, null)
-            );
+            var exception = assertThrows(IllegalArgumentException.class,
+                    () -> Coupon.fixedAmount("쿠폰", "쿠폰 설명", 5000L, null, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("할인 최소 가격은 필수입니다.");
@@ -55,12 +52,11 @@ public class CouponTest {
 
         @DisplayName("할인 최소 가격이 0 미만이면, 생성에 실패한다.")
         @ParameterizedTest
-        @ValueSource(longs = {-1L, -1111L})
+        @ValueSource(longs = { -1L, -1111L })
         void fail_whenMinimumOrderAmountIsLessThanZero(long minimumOrderAmount) {
             // act
-            var exception = assertThrows(IllegalArgumentException.class, () ->
-                Coupon.fixedAmount("쿠폰", "쿠폰 설명", 5000L, minimumOrderAmount, null)
-            );
+            var exception = assertThrows(IllegalArgumentException.class,
+                    () -> Coupon.fixedAmount("쿠폰", "쿠폰 설명", 5000L, minimumOrderAmount, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("할인 최소 가격은 0이상이어야 합니다.");
@@ -68,12 +64,11 @@ public class CouponTest {
 
         @DisplayName("사용 한도가 0 이하이면, 생성에 실패한다.")
         @ParameterizedTest
-        @ValueSource(longs = {-1L, 0L})
+        @ValueSource(longs = { -1L, 0L })
         void fail_whenLimitCount(long limitCount) {
             // act
-            var exception = assertThrows(IllegalArgumentException.class, () ->
-                Coupon.fixedAmount("쿠폰", "쿠폰 설명", 5000L, 10L, limitCount)
-            );
+            var exception = assertThrows(IllegalArgumentException.class,
+                    () -> Coupon.fixedAmount("쿠폰", "쿠폰 설명", 5000L, 10L, limitCount));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("사용 한도는 0보다 커야합니다.");
@@ -89,8 +84,7 @@ public class CouponTest {
         void failCreateFixedCoupon_whenDiscountAmountIsNull() {
             // act
             var exception = assertThrows(IllegalArgumentException.class,
-                () -> Coupon.fixedAmount("쿠폰", "쿠폰쿠폰", null, null, null)
-            );
+                    () -> Coupon.fixedAmount("쿠폰", "쿠폰쿠폰", null, null, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("정액 할인 쿠폰은 할인 가격이 필수입니다.");
@@ -98,12 +92,11 @@ public class CouponTest {
 
         @DisplayName("할인 가격이 0이하면, 생성에 실패한다.")
         @ParameterizedTest
-        @ValueSource(longs = {0L, -1L})
+        @ValueSource(longs = { 0L, -1L })
         void failCreateFixedCoupon_whenDiscountAmountIsZeroOrLess(long discountAmount) {
             // act
             var exception = assertThrows(IllegalArgumentException.class,
-                () -> Coupon.fixedAmount("쿠폰", "쿠폰쿠폰", discountAmount, null, null)
-            );
+                    () -> Coupon.fixedAmount("쿠폰", "쿠폰쿠폰", discountAmount, null, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("정액 할인 가격은 0 보다 커야합니다.");
@@ -111,12 +104,11 @@ public class CouponTest {
 
         @DisplayName("할인 최소 가격이 0보다 작으면, 생성에 실패한다.")
         @ParameterizedTest
-        @ValueSource(longs = {-1L, -1111L})
+        @ValueSource(longs = { -1L, -1111L })
         void failCreateFixedCoupon_whenMinimumDiscountAmountIsLessThanZero(long minimumDiscountAmount) {
             // act
             var exception = assertThrows(IllegalArgumentException.class,
-                () -> Coupon.fixedAmount("쿠폰", "쿠폰쿠폰", 1000L, minimumDiscountAmount, null)
-            );
+                    () -> Coupon.fixedAmount("쿠폰", "쿠폰쿠폰", 1000L, minimumDiscountAmount, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("할인 최소 가격은 0이상이어야 합니다.");
@@ -131,8 +123,7 @@ public class CouponTest {
         void failCreatePercentageCoupon_whenDiscountRateIsNull() {
             // act
             var exception = assertThrows(IllegalArgumentException.class,
-                () -> Coupon.percentage("쿠폰", "쿠폰쿠폰", null, 10000L, 10000L, null)
-            );
+                    () -> Coupon.percentage("쿠폰", "쿠폰쿠폰", null, 10000L, 10000L, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("정률 할인 쿠폰은 할인율이 필수 입니다.");
@@ -140,12 +131,11 @@ public class CouponTest {
 
         @DisplayName("할인율이 0 이하 이면, 생성에 실패한다.")
         @ParameterizedTest
-        @ValueSource(longs = {-1L, -1111L})
+        @ValueSource(longs = { -1L, -1111L })
         void failCreatePercentageCoupon_whenDiscountRateIsZeroOrLess(long discountRate) {
             // act
             var exception = assertThrows(IllegalArgumentException.class,
-                () -> Coupon.percentage("쿠폰", "쿠폰쿠폰", discountRate, 10000L, 10000L, null)
-            );
+                    () -> Coupon.percentage("쿠폰", "쿠폰쿠폰", discountRate, 10000L, 10000L, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("할인율은 0 보다 커야 합니다.");
@@ -156,8 +146,7 @@ public class CouponTest {
         void failCreatePercentageCoupon_whenMaximumDiscountAmountIsNull() {
             // act
             var exception = assertThrows(IllegalArgumentException.class,
-                () -> Coupon.percentage("쿠폰", "쿠폰쿠폰", 10L, 10000L, null, null)
-            );
+                    () -> Coupon.percentage("쿠폰", "쿠폰쿠폰", 10L, 10000L, null, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("정률 할인 쿠폰은 최대 할인 가격이 필수입니다.");
@@ -165,12 +154,11 @@ public class CouponTest {
 
         @DisplayName("최대 할인 가격이 0 이하이면, 생성에 실패한다.")
         @ParameterizedTest
-        @ValueSource(longs = {-1L, -1111L})
+        @ValueSource(longs = { -1L, -1111L })
         void failCreatePercentageCoupon_whenMaximumDiscountAmountIsZeroOrLess(long maximumDiscountAmount) {
             // act
             var exception = assertThrows(IllegalArgumentException.class,
-                () -> Coupon.percentage("쿠폰", "쿠폰쿠폰", 10L, 10000L, maximumDiscountAmount, null)
-            );
+                    () -> Coupon.percentage("쿠폰", "쿠폰쿠폰", 10L, 10000L, maximumDiscountAmount, null));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("최대 할인 가격은 0 보다 커야합니다.");
@@ -187,13 +175,12 @@ public class CouponTest {
             Coupon coupon = Coupon.fixedAmount("정액 할인 쿠폰", "쿠폰 설명", 5000L, 20000L, null);
 
             // act
-            UserCoupon userCoupon = coupon.apply(1L, BigDecimal.valueOf(20000), new FixedAmountDiscountStrategy());
+            CouponUsage userCoupon = coupon.apply(1L, BigDecimal.valueOf(20000), new FixedAmountDiscountStrategy());
 
             // assert
             assertAll(
-                () -> assertThat(userCoupon.getUserId()).isEqualTo(1L),
-                () -> assertThat(userCoupon.getDiscountAmount()).isEqualByComparingTo(BigDecimal.valueOf(5000))
-            );
+                    () -> assertThat(userCoupon.getUserId()).isEqualTo(1L),
+                    () -> assertThat(userCoupon.getDiscountAmount()).isEqualByComparingTo(BigDecimal.valueOf(5000)));
         }
 
         @DisplayName("정액 할인 쿠폰인 경우, 최소 주문 금액 보다 주문 가격이 작으면 예외를 발생한다.")
@@ -203,9 +190,8 @@ public class CouponTest {
             Coupon coupon = Coupon.fixedAmount("정액 할인 쿠폰", "쿠폰 설명", 5000L, 20000L, null);
 
             // act
-            var exception = assertThrows(IllegalStateException.class, () ->
-                coupon.apply(1L, BigDecimal.valueOf(19999), new FixedAmountDiscountStrategy())
-            );
+            var exception = assertThrows(IllegalStateException.class,
+                    () -> coupon.apply(1L, BigDecimal.valueOf(19999), new FixedAmountDiscountStrategy()));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("적용할 수 없는 쿠폰입니다. 주문 최소 가격: 20000, 현재 가격: 19999");
@@ -218,13 +204,12 @@ public class CouponTest {
             Coupon coupon = Coupon.percentage("정액 할인 쿠폰", "쿠폰 설명", 10L, 20000L, 3000L, null);
 
             // act
-            UserCoupon userCoupon = coupon.apply(1L, BigDecimal.valueOf(20000), new PercentageDiscountStrategy());
+            CouponUsage userCoupon = coupon.apply(1L, BigDecimal.valueOf(20000), new PercentageDiscountStrategy());
 
             // assert
             assertAll(
-                () -> assertThat(userCoupon.getUserId()).isEqualTo(1L),
-                () -> assertThat(userCoupon.getDiscountAmount()).isEqualByComparingTo(BigDecimal.valueOf(2000))
-            );
+                    () -> assertThat(userCoupon.getUserId()).isEqualTo(1L),
+                    () -> assertThat(userCoupon.getDiscountAmount()).isEqualByComparingTo(BigDecimal.valueOf(2000)));
         }
 
         @DisplayName("정액 할인 쿠폰인 경우, 최소 주문 금액 보다 주문 가격이 작으면 예외를 발생한다.")
@@ -234,9 +219,8 @@ public class CouponTest {
             Coupon coupon = Coupon.percentage("정액 할인 쿠폰", "쿠폰 설명", 10L, 20000L, 3000L, null);
 
             // act
-            var exception = assertThrows(IllegalStateException.class, () ->
-                coupon.apply(1L, BigDecimal.valueOf(19999), new PercentageDiscountStrategy())
-            );
+            var exception = assertThrows(IllegalStateException.class,
+                    () -> coupon.apply(1L, BigDecimal.valueOf(19999), new PercentageDiscountStrategy()));
 
             // assert
             assertThat(exception.getMessage()).isEqualTo("적용할 수 없는 쿠폰입니다. 주문 최소 가격: 20000, 현재 가격: 19999");
@@ -249,10 +233,11 @@ public class CouponTest {
             Coupon coupon = Coupon.percentage("정액 할인 쿠폰", "쿠폰 설명", 7L, 4000L, 500L, null);
 
             // act
-            UserCoupon userCoupon = coupon.apply(1L, BigDecimal.valueOf(4320), new PercentageDiscountStrategy());
+            CouponUsage userCoupon = coupon.apply(1L, BigDecimal.valueOf(4320), new PercentageDiscountStrategy());
 
             // assert
-            assertThat(userCoupon.getDiscountAmount()).isEqualByComparingTo(BigDecimal.valueOf(303)); // 4320 * 0.07 = 302.4
+            assertThat(userCoupon.getDiscountAmount()).isEqualByComparingTo(BigDecimal.valueOf(303)); // 4320 * 0.07 =
+                                                                                                      // 302.4
         }
     }
 }

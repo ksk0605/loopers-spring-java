@@ -1,7 +1,7 @@
 package com.loopers.domain.coupon;
 
-public interface UserCouponRepository {
-    UserCoupon save(UserCoupon userCoupon);
+public interface CouponUsageRepository {
+    CouponUsage save(CouponUsage userCoupon);
 
     boolean exists(Long userId, Long couponId);
 }

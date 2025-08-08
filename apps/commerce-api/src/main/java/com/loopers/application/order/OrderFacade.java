@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.domain.coupon.CouponService;
-import com.loopers.domain.coupon.UserCoupon;
+import com.loopers.domain.coupon.CouponUsage;
 import com.loopers.domain.inventory.InventoryService;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderService;
@@ -39,7 +39,7 @@ public class OrderFacade {
         List<ProductPrice> productPrices = productService.getAvailableProductPrices(criteria.toProductCommand());
         Order order = orderService.create(criteria.toOrderCommandWithProductPrices(productPrices));
 
-        UserCoupon userCoupon = couponService.apply(criteria.userId(), criteria.couponId(), order.getTotalPrice());
+        CouponUsage userCoupon = couponService.apply(criteria.userId(), criteria.couponId(), order.getTotalPrice());
         BigDecimal discountPrice = order.getTotalPrice().subtract(userCoupon.getDiscountAmount());
 
         PaymentCommand.Pay command = new PaymentCommand.Pay(order.getId(), PaymentMethod.POINT, discountPrice);

@@ -2,18 +2,18 @@ package com.loopers.infrastructure.coupon;
 
 import org.springframework.stereotype.Component;
 
-import com.loopers.domain.coupon.UserCoupon;
-import com.loopers.domain.coupon.UserCouponRepository;
+import com.loopers.domain.coupon.CouponUsage;
+import com.loopers.domain.coupon.CouponUsageRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class UserCouponCoreRepository implements UserCouponRepository {
-    private final UserCouponJpaRepository userCouponJpaRepository;
+public class CouponUsageCoreRepository implements CouponUsageRepository {
+    private final CouponUsageJpaRepository userCouponJpaRepository;
 
     @Override
-    public UserCoupon save(UserCoupon userCoupon) {
+    public CouponUsage save(CouponUsage userCoupon) {
         return userCouponJpaRepository.save(userCoupon);
     }
 
