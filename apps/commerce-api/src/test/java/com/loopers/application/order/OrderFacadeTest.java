@@ -443,4 +443,69 @@ class OrderFacadeTest extends IntegrationTest {
             );
         }
     }
+
+    @DisplayName("한 명의 사용자가 동시에 포인트로 결제를 시도하면, 하나의 주문만 성공한다.")
+    @Test
+    void completeOneOrder_whenSameUserTriesToPaySimultaneously() throws InterruptedException {
+        // arrange
+        User user = anUser().build();
+        user.updatePoint(63000);
+        userJpaRepository.save(user);
+
+        Product product = aProduct().build();
+        ProductOption productOption = aProductOption().build();
+        product.addOption(productOption);
+        productJpaRepository.save(product);
+
+        int initialStock = 10;
+        Inventory inventory = new Inventory(1L, 1L, initialStock);
+        inventoryJpaRepository.save(inventory);
+
+        Coupon coupon1 = Coupon.fixedAmount("고정 할인1", null, 5000L, 10000L, null);
+        Coupon coupon2 = Coupon.fixedAmount("고정 할인2", null, 5000L, 10000L, null);
+        couponJpaRepository.save(coupon1);
+        couponJpaRepository.save(coupon2);
+
+        int threadsCount = 2;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadsCount);
+        CountDownLatch countDownLatch = new CountDownLatch(threadsCount);
+
+        // act
+        List<Future<OrderResult>> futures = new ArrayList<>();
+
+        for (int i = 0; i < threadsCount; i++) {
+            Long couponId = i + 1L;
+            futures.add(executorService.submit(() -> {
+                try {
+                    return orderFacade.order(new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 3)), couponId));
+                } finally {
+                    countDownLatch.countDown();
+                }
+            }));
+        }
+
+        countDownLatch.await();
+
+        // assert
+        long successfulOrders = futures.stream()
+            .map(future -> {
+                try {
+                    return future.get();
+                } catch (Exception e) {
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .count();
+
+        Optional<Inventory> savedInv = inventoryJpaRepository.findById(1L);
+        Optional<User> savedUser = userJpaRepository.findById(1L);
+        assertThat(savedInv.isPresent()).isTrue();
+        assertThat(savedUser.isPresent()).isTrue();
+        assertAll(
+            () -> assertThat(successfulOrders).isEqualTo(1),
+            () -> assertThat(savedInv.get().getQuantity()).isEqualTo(7),
+            () -> assertThat(savedUser.get().getPoint()).isEqualTo(0)
+        );
+    }
 }
