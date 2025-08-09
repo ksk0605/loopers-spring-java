@@ -1,13 +1,17 @@
 package com.loopers;
 
-import jakarta.annotation.PostConstruct;
+import java.util.TimeZone;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import java.util.TimeZone;
+import org.springframework.retry.annotation.EnableRetry;
+
+import jakarta.annotation.PostConstruct;
 
 @ConfigurationPropertiesScan
 @SpringBootApplication
+@EnableRetry
 public class CommerceApiApplication {
 
     @PostConstruct
