@@ -31,6 +31,12 @@ public class ProductCoreRepository implements ProductRepository {
     @Override
     public Page<Product> findAll(Search command) {
         PageRequest pageRequest = PageRequest.of(command.page(), command.size());
-        return productJpaRepository.findAll(command.status(), command.sortBy().name(), pageRequest);
+        if (command.sortBy().isLatest()) {
+            return productJpaRepository.findByStatusOrderByLatest(command.status(), pageRequest);
+        }
+        if (command.sortBy().isPriceAsc()) {
+            return productJpaRepository.findByStatusOrderByPrice(command.status(), pageRequest);
+        }
+        return productJpaRepository.findByStatusOrderByLikes(command.status(), pageRequest);
     }
 }

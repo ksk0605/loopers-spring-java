@@ -14,4 +14,12 @@ public enum SortBy {
             .findFirst()
             .orElseThrow(() -> new CoreException(ErrorType.BAD_REQUEST, "지원하지 않는 정렬 조건입니다." + sort.toUpperCase()));
     }
+
+    public boolean isLatest() {
+        return this == LATEST;
+    }
+
+    public boolean isPriceAsc() {
+        return this == PRICE_ASC;
+    }
 }
