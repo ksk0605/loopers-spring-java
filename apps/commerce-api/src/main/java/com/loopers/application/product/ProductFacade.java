@@ -1,5 +1,7 @@
 package com.loopers.application.product;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.application.common.PageInfo;
@@ -7,6 +9,7 @@ import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.like.LikeService;
 import com.loopers.domain.like.LikeTargetType;
+import com.loopers.domain.like.TargetLikeCount;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductService;
@@ -32,9 +35,10 @@ public class ProductFacade {
     @Transactional(readOnly = true)
     public ProductResults getProducts(ProductCommand.Search command) {
         var products = productService.getAll(command);
-        var brands = brandService.getAll(products.getContent().stream()
+        List<Long> brandIds = products.getContent().stream()
             .map(product -> product.getBrandId())
-            .toList());
+            .toList();
+        var brands = brandService.getAll(brandIds);
 
         var pageInfo = new PageInfo(
             products.getNumber(),
@@ -44,16 +48,10 @@ public class ProductFacade {
             products.hasNext()
         );
 
-        var productResults = products.getContent().stream()
-            .map(product -> {
-                var brandInfo = brands.stream()
-                    .filter(brand -> brand.getId().equals(product.getBrandId()))
-                    .findFirst()
-                    .get();
-                var likeCount = likeService.count(product.getId(), LikeTargetType.PRODUCT);
-                return ProductResult.of(product, brandInfo, likeCount);
-            })
+        List<Long> productIds = products.getContent().stream()
+            .map(product -> product.getId())
             .toList();
-        return new ProductResults(productResults, pageInfo);
+        List<TargetLikeCount> targetLikeCounts = likeService.getAllByTargetIn(productIds, LikeTargetType.PRODUCT);
+        return ProductResults.of(products, brands, targetLikeCounts, pageInfo);
     }
 }
