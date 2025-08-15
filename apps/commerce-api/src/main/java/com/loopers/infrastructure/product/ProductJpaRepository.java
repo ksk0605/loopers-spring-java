@@ -13,15 +13,23 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
 
     @Query("""
         SELECT p FROM Product p
-        LEFT JOIN LikeSummary ls ON ls.target.id = p.id AND ls.target.type = 'PRODUCT'
-        WHERE (:status IS NULL OR p.status = :status)
-        ORDER BY
-        CASE WHEN :sortBy = 'LIKES_DESC' THEN ls.likeCount END DESC NULLS LAST,
-        CASE WHEN :sortBy = 'LATEST' THEN p.saleStartDate END DESC,
-        CASE WHEN :sortBy = 'PRICE_ASC' THEN p.price END ASC
+        WHERE p.status = :status
+        ORDER BY p.saleStartDate DESC
         """)
-    Page<Product> findAll(
-        @Param("status") ProductStatus status,
-        @Param("sortBy") String sortBy,
-        Pageable pageable);
+    Page<Product> findByStatusOrderByLatest(@Param("status") ProductStatus status, Pageable pageable);
+
+    @Query("""
+        SELECT p FROM Product p
+        WHERE p.status = :status
+        ORDER BY p.price ASC
+        """)
+    Page<Product> findByStatusOrderByPrice(@Param("status") ProductStatus status, Pageable pageable);
+
+    @Query("""
+        SELECT p FROM LikeSummary ls
+        JOIN Product p ON p.id = ls.target.id
+        WHERE ls.target.type = 'PRODUCT' AND p.status = :status
+        ORDER BY ls.likeCount DESC
+        """)
+    Page<Product> findByStatusOrderByLikes(@Param("status") ProductStatus status, Pageable pageable);
 }

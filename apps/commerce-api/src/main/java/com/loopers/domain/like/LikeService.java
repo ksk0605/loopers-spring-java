@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class LikeService {
     private final LikeRepository likeRepository;
     private final LikeSummaryModifier likeSummaryModifier;
+    private final LikeSummaryRepository likeSummaryRepository;
 
     @Transactional
     public void like(Long userId, Long targetId, LikeTargetType targetType) {
@@ -41,5 +42,11 @@ public class LikeService {
     @Transactional(readOnly = true)
     public List<Like> getAll(Long userId, LikeTargetType targetType) {
         return likeRepository.findAll(userId, targetType);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TargetLikeCount> getAllByTargetIn(List<Long> productIds, LikeTargetType likeTargetType) {
+        List<LikeTarget> targets = productIds.stream().map(id -> new LikeTarget(id, likeTargetType)).toList();
+        return likeSummaryRepository.findAllByTargetIn(targets);
     }
 }
