@@ -21,7 +21,8 @@ public class RedisCacheConfig {
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofHours(1))
-            .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+            .serializeKeysWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
             .serializeValuesWith(
                 RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
             .disableCachingNullValues();
@@ -31,9 +32,9 @@ public class RedisCacheConfig {
             .withCacheConfiguration("products",
                 defaultConfig.entryTtl(Duration.ofMinutes(15))) // 상품 목록: 15분
             .withCacheConfiguration("product",
-                defaultConfig.entryTtl(Duration.ofHours(2)))    // 상품 상세: 2시간
-            .withCacheConfiguration("brands",
-                defaultConfig.entryTtl(Duration.ofHours(6)))    // 브랜드: 6시간
+                defaultConfig.entryTtl(Duration.ofHours(2))) // 상품 상세: 2시간
+            .withCacheConfiguration("brand",
+                defaultConfig.entryTtl(Duration.ofHours(6))) // 브랜드: 6시간
             .enableStatistics()
             .build();
     }

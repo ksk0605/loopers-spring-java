@@ -17,8 +17,8 @@ public class ProductImage extends BaseEntity {
     private boolean isMain;
     private int sortOrder;
 
-    public ProductImage(String url, boolean isMain, int sortOrder) {
-        this.imageUrl = url;
+    public ProductImage(String imageUrl, boolean isMain, int sortOrder) {
+        this.imageUrl = imageUrl;
         this.isMain = isMain;
         this.sortOrder = sortOrder;
     }

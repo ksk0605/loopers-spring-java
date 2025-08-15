@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,14 @@ public class ProductService {
     public Product get(Long id) {
         return productRepository.find(id)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다. 상품 ID: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "product", key = "#id", unless = "#result == null")
+    public ProductInfo getInfo(Long id) {
+        Product product = productRepository.find(id)
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품을 찾을 수 없습니다. 상품 ID: " + id));
+        return ProductInfo.from(product);
     }
 
     @Transactional(readOnly = true)

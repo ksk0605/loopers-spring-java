@@ -1,6 +1,6 @@
 package com.loopers.application.product;
 
-import com.loopers.domain.product.ProductOption;
+import com.loopers.domain.product.ProductOptionInfo;
 
 public record ProductOptionResult(
     Long id,
@@ -9,7 +9,7 @@ public record ProductOptionResult(
     Long additionalPrice,
     Integer stockQuantity
 ) {
-    public static ProductOptionResult of(ProductOption productOption, Integer stockQuantity) {
+    public static ProductOptionResult of(ProductOptionInfo productOption, Integer stockQuantity) {
         return new ProductOptionResult(
             productOption.getId(),
             productOption.getOptionType(),

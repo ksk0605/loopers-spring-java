@@ -9,14 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.loopers.application.common.PageInfo;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandService;
+import com.loopers.domain.inventory.InventoryService;
 import com.loopers.domain.like.LikeService;
 import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.like.TargetLikeCount;
-import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductCommand;
-import com.loopers.domain.product.ProductOption;
+import com.loopers.domain.product.ProductInfo;
+import com.loopers.domain.product.ProductOptionInfo;
 import com.loopers.domain.product.ProductService;
-import com.loopers.domain.inventory.InventoryService;
 import com.loopers.support.annotation.UseCase;
 
 import lombok.RequiredArgsConstructor;
@@ -30,17 +30,15 @@ public class ProductFacade {
     private final LikeService likeService;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "product", key = "#productId", unless = "#result == null")
     public ProductDetailResult getProduct(Long productId) {
-        Product product = productService.get(productId);
-        List<ProductOption> options = product.getOptions();
-        List<Long> optionIds = options.stream()
-            .map(ProductOption::getId)
+        ProductInfo product = productService.getInfo(productId);
+        List<Long> optionIds = product.getOptions().stream()
+            .map(ProductOptionInfo::getId)
             .toList();
         Map<Long, Integer> stockQuantities = inventoryService.getStockQuantities(optionIds);
         Brand brand = brandService.get(product.getBrandId());
         var likeCount = likeService.count(productId, LikeTargetType.PRODUCT);
-        return ProductDetailResult.of(product, brand, likeCount, options, stockQuantities);
+        return ProductDetailResult.of(product, brand, likeCount, stockQuantities);
     }
 
     @Transactional(readOnly = true)
