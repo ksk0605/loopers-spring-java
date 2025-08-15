@@ -1,6 +1,7 @@
 package com.loopers.application.product;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,11 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.loopers.application.common.PageInfo;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandService;
+import com.loopers.domain.inventory.InventoryService;
 import com.loopers.domain.like.LikeService;
 import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.like.TargetLikeCount;
-import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductCommand;
+import com.loopers.domain.product.ProductInfo;
+import com.loopers.domain.product.ProductOptionInfo;
 import com.loopers.domain.product.ProductService;
 import com.loopers.support.annotation.UseCase;
 
@@ -22,16 +25,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductFacade {
     private final ProductService productService;
+    private final InventoryService inventoryService;
     private final BrandService brandService;
     private final LikeService likeService;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "product", key = "#productId", unless = "#result == null")
-    public ProductResult getProduct(Long productId) {
-        Product product = productService.get(productId);
+    public ProductDetailResult getProduct(Long productId) {
+        ProductInfo product = productService.getInfo(productId);
+        List<Long> optionIds = product.getOptions().stream()
+            .map(ProductOptionInfo::getId)
+            .toList();
+        Map<Long, Integer> stockQuantities = inventoryService.getStockQuantities(optionIds);
         Brand brand = brandService.get(product.getBrandId());
         var likeCount = likeService.count(productId, LikeTargetType.PRODUCT);
-        return ProductResult.of(product, brand, likeCount);
+        return ProductDetailResult.of(product, brand, likeCount, stockQuantities);
     }
 
     @Transactional(readOnly = true)

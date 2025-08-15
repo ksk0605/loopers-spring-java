@@ -79,9 +79,9 @@ public class ProductV1ApiE2ETest {
             String requestUrl = ENDPOINT.apply("/" + 1);
 
             // act
-            ParameterizedTypeReference<ApiResponse<ProductV1Dto.ProductResponse>> responseType = new ParameterizedTypeReference<>() {
+            ParameterizedTypeReference<ApiResponse<ProductV1Dto.ProductDetailResponse>> responseType = new ParameterizedTypeReference<>() {
             };
-            ResponseEntity<ApiResponse<ProductV1Dto.ProductResponse>> response =
+            ResponseEntity<ApiResponse<ProductV1Dto.ProductDetailResponse>> response =
                 testRestTemplate.exchange(requestUrl, HttpMethod.GET, new HttpEntity<>(null), responseType);
 
             // assert

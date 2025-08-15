@@ -39,4 +39,9 @@ public class InventoryCoreRepository implements InventoryRepository {
 
         return inventories;
     }
+
+    @Override
+    public List<Inventory> findAll(List<Long> optionIds) {
+        return inventoryJpaRepository.findAllByProductOptionIdIn(optionIds);
+    }
 }
