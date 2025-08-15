@@ -2,6 +2,7 @@ package com.loopers.application.product;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.application.common.PageInfo;
@@ -25,6 +26,7 @@ public class ProductFacade {
     private final LikeService likeService;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "product", key = "#productId", unless = "#result == null")
     public ProductResult getProduct(Long productId) {
         Product product = productService.get(productId);
         Brand brand = brandService.get(product.getBrandId());
@@ -33,6 +35,7 @@ public class ProductFacade {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "products", key = "#command", unless = "#result == null")
     public ProductResults getProducts(ProductCommand.Search command) {
         var products = productService.getAll(command);
         List<Long> brandIds = products.getContent().stream()
@@ -45,8 +48,7 @@ public class ProductFacade {
             products.getSize(),
             products.getTotalPages(),
             products.getTotalElements(),
-            products.hasNext()
-        );
+            products.hasNext());
 
         List<Long> productIds = products.getContent().stream()
             .map(product -> product.getId())
