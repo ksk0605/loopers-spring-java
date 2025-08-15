@@ -43,16 +43,16 @@ class ProductFacadeIntegrationTest extends IntegrationTest {
             likeJpaRepository.save(aLike().build());
 
             // act
-            ProductResult productResult = productFacade.getProduct(1L);
+            ProductDetailResult productResult = productFacade.getProduct(1L);
 
             // assert
             assertAll(
                 () -> assertThat(productResult.id()).isEqualTo(1L),
                 () -> assertThat(productResult.brand().name()).isEqualTo("테스트 브랜드"),
                 () -> assertThat(productResult.brand().id()).isEqualTo(1L),
-                () -> assertThat(productResult.likeCount()).isEqualTo(1L)
+                () -> assertThat(productResult.likeCount()).isEqualTo(1L),
+                () -> assertThat(productResult.options().size()).isEqualTo(0)
             );
-
         }
     }
 }

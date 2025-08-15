@@ -4,10 +4,41 @@ import java.util.List;
 
 import com.loopers.application.brand.BrandResult;
 import com.loopers.application.common.PageInfo;
+import com.loopers.application.product.ProductDetailResult;
+import com.loopers.application.product.ProductOptionResult;
 import com.loopers.application.product.ProductResult;
 import com.loopers.application.product.ProductResults;
 
 public class ProductV1Dto {
+
+    public record ProductDetailResponse(
+        Long id,
+        String name,
+        String description,
+        Long price,
+        String status,
+        Brand brand,
+        List<String> imageUrls,
+        Long likeCount,
+        List<ProductOptionResponse> options
+    ) {
+        public static ProductDetailResponse from(ProductDetailResult productResult) {
+            return new ProductDetailResponse(
+                productResult.id(),
+                productResult.name(),
+                productResult.description(),
+                productResult.price(),
+                productResult.status(),
+                Brand.from(productResult.brand()),
+                productResult.imagesUrls(),
+                productResult.likeCount(),
+                productResult.options().stream()
+                    .map(ProductOptionResponse::from)
+                    .toList()
+            );
+        }
+    }
+
     public record ProductResponse(
         Long id,
         String name,
@@ -58,6 +89,24 @@ public class ProductV1Dto {
                 brandResult.name(),
                 brandResult.description(),
                 brandResult.logoUrl()
+            );
+        }
+    }
+
+    public record ProductOptionResponse(
+        Long id,
+        String optionType,
+        String optionValue,
+        Long additionalPrice,
+        Integer stockQuantity
+    ) {
+        public static ProductOptionResponse from(ProductOptionResult productOptionResult) {
+            return new ProductOptionResponse(
+                productOptionResult.id(),
+                productOptionResult.optionType(),
+                productOptionResult.optionValue(),
+                productOptionResult.additionalPrice(),
+                productOptionResult.stockQuantity()
             );
         }
     }

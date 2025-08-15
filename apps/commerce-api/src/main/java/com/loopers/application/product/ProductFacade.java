@@ -1,6 +1,7 @@
 package com.loopers.application.product;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,9 @@ import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.like.TargetLikeCount;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductCommand;
+import com.loopers.domain.product.ProductOption;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.inventory.InventoryService;
 import com.loopers.support.annotation.UseCase;
 
 import lombok.RequiredArgsConstructor;
@@ -22,16 +25,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductFacade {
     private final ProductService productService;
+    private final InventoryService inventoryService;
     private final BrandService brandService;
     private final LikeService likeService;
 
     @Transactional(readOnly = true)
     @Cacheable(value = "product", key = "#productId", unless = "#result == null")
-    public ProductResult getProduct(Long productId) {
+    public ProductDetailResult getProduct(Long productId) {
         Product product = productService.get(productId);
+        List<ProductOption> options = product.getOptions();
+        List<Long> optionIds = options.stream()
+            .map(ProductOption::getId)
+            .toList();
+        Map<Long, Integer> stockQuantities = inventoryService.getStockQuantities(optionIds);
         Brand brand = brandService.get(product.getBrandId());
         var likeCount = likeService.count(productId, LikeTargetType.PRODUCT);
-        return ProductResult.of(product, brand, likeCount);
+        return ProductDetailResult.of(product, brand, likeCount, options, stockQuantities);
     }
 
     @Transactional(readOnly = true)
