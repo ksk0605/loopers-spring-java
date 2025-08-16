@@ -5,6 +5,9 @@ import static com.loopers.support.fixture.LikeSummaryFixture.aLikeSummary;
 import static com.loopers.support.fixture.ProductFixture.aProduct;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,7 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.like.LikeSummary;
@@ -24,16 +27,20 @@ import com.loopers.infrastructure.like.LikeSummaryJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.support.IntegrationTest;
 
-@SpringBootTest
 public class ProductServiceIntegrationTest extends IntegrationTest {
 
     @Autowired
     private ProductService productService;
 
     @Autowired
+    @MockitoSpyBean
+    private ProductCacheRepository productCacheRepository;
+
+    @Autowired
     private BrandJpaRepository brandJpaRepository;
 
     @Autowired
+    @MockitoSpyBean
     private ProductJpaRepository productJpaRepository;
 
     @Autowired
@@ -42,44 +49,44 @@ public class ProductServiceIntegrationTest extends IntegrationTest {
     @Autowired
     private LikeSummaryJpaRepository likeSummaryJpaRepository;
 
-    @BeforeEach
-    void setUp() {
-        brandJpaRepository.save(new Brand("브랜드 명", null, null));
-
-        // 상품 목록 세팅
-        Product product = aProduct().name("상품 1").price(BigDecimal.valueOf(20000)).saleStartDate(LocalDateTime.now().plusDays(1)).build();
-        product.addImage("testUrl", true);
-        productJpaRepository.save(product);
-        productJpaRepository.save(aProduct().name("상품 2").price(BigDecimal.valueOf(10000)).saleStartDate(LocalDateTime.now().plusDays(3)).build());
-        productJpaRepository.save(aProduct().name("상품 3").price(BigDecimal.valueOf(30000)).saleStartDate(LocalDateTime.now().plusDays(5)).build());
-
-        // 좋아요 세팅
-        likeJpaRepository.save(aLike().targetId(1L).build());
-        likeJpaRepository.save(aLike().targetId(2L).build());
-        likeJpaRepository.save(aLike().targetId(3L).build());
-        likeJpaRepository.save(aLike().targetId(1L).build());
-        likeJpaRepository.save(aLike().userId(2L).targetId(2L).build());
-        likeJpaRepository.save(aLike().userId(2L).targetId(3L).build());
-        likeJpaRepository.save(aLike().userId(3L).targetId(2L).build());
-
-        LikeSummary summary1 = aLikeSummary().build();
-        LikeSummary summary2 = aLikeSummary().targetId(2L).build();
-        LikeSummary summary3 = aLikeSummary().targetId(3L).build();
-        summary1.incrementLikeCount();
-        summary2.incrementLikeCount();
-        summary2.incrementLikeCount();
-        summary2.incrementLikeCount();
-        summary3.incrementLikeCount();
-        summary3.incrementLikeCount();
-        likeSummaryJpaRepository.save(summary1);
-        likeSummaryJpaRepository.save(summary2);
-        likeSummaryJpaRepository.save(summary3);
-
-    }
-
     @DisplayName("상품 목록을 조회할 때, ")
     @Nested
     class GetAll {
+        @BeforeEach
+        void setUp() {
+            brandJpaRepository.save(new Brand("브랜드 명", null, null));
+
+            // 상품 목록 세팅
+            Product product = aProduct().name("상품 1").price(BigDecimal.valueOf(20000)).saleStartDate(LocalDateTime.now().plusDays(1)).build();
+            product.addImage("testUrl", true);
+            productJpaRepository.save(product);
+            productJpaRepository.save(aProduct().name("상품 2").price(BigDecimal.valueOf(10000)).saleStartDate(LocalDateTime.now().plusDays(3)).build());
+            productJpaRepository.save(aProduct().name("상품 3").price(BigDecimal.valueOf(30000)).saleStartDate(LocalDateTime.now().plusDays(5)).build());
+
+            // 좋아요 세팅
+            likeJpaRepository.save(aLike().targetId(1L).build());
+            likeJpaRepository.save(aLike().targetId(2L).build());
+            likeJpaRepository.save(aLike().targetId(3L).build());
+            likeJpaRepository.save(aLike().targetId(1L).build());
+            likeJpaRepository.save(aLike().userId(2L).targetId(2L).build());
+            likeJpaRepository.save(aLike().userId(2L).targetId(3L).build());
+            likeJpaRepository.save(aLike().userId(3L).targetId(2L).build());
+
+            LikeSummary summary1 = aLikeSummary().build();
+            LikeSummary summary2 = aLikeSummary().targetId(2L).build();
+            LikeSummary summary3 = aLikeSummary().targetId(3L).build();
+            summary1.incrementLikeCount();
+            summary2.incrementLikeCount();
+            summary2.incrementLikeCount();
+            summary2.incrementLikeCount();
+            summary3.incrementLikeCount();
+            summary3.incrementLikeCount();
+            likeSummaryJpaRepository.save(summary1);
+            likeSummaryJpaRepository.save(summary2);
+            likeSummaryJpaRepository.save(summary3);
+
+        }
+
         @DisplayName("검색 조건을 가격 오름차순으로 가져올 수 있다.")
         @Test
         void getProducts_orderBygetPrice() {
@@ -159,6 +166,51 @@ public class ProductServiceIntegrationTest extends IntegrationTest {
                 () -> assertThat(products.getContent().get(2).getPrice()).isEqualByComparingTo(BigDecimal.valueOf(20000)),
                 () -> assertThat(products.getContent().get(2).getId()).isEqualByComparingTo(1L)
             );
+        }
+    }
+
+    @DisplayName("상품 상세 정보를 조회할 때, ")
+    @Nested
+    class GetInfoWithCache {
+        @DisplayName("캐시에 상품 상세 정보가 있으면 캐시에서 반환한다.")
+        @Test
+        void returnsProductInfo_fromCache() {
+            // arrange
+            Product product = aProduct().build();
+            productCacheRepository.setProductInfo(1L, ProductInfo.from(product));
+
+            // act
+            var productInfo = productService.getInfo(1L);
+
+            // assert
+            verify(productCacheRepository, times(1)).getProductInfo(1L);
+            assertThat(productInfo.getName()).isEqualTo(product.getName());
+            assertThat(productInfo.getPrice()).isEqualTo(product.getPrice().longValue());
+            assertThat(productInfo.getStatus()).isEqualTo(product.getStatus().name());
+            assertThat(productInfo.getBrandId()).isEqualTo(product.getBrandId());
+            assertThat(productInfo.getImageUrls()).hasSize(product.getImages().size());
+            assertThat(productInfo.getOptions()).hasSize(product.getOptions().size());
+        }
+
+        @DisplayName("캐시에 상품 상세 정보가 없으면 캐시를 저장하고, 데이터베이스에서 조회한다.")
+        @Test
+        void returnsProductInfo_fromDatabase() {
+            // arrange
+            Product product = aProduct().build();
+            productJpaRepository.save(product);
+
+            // act
+            var productInfo = productService.getInfo(1L);
+
+            // assert
+            verify(productCacheRepository, times(1)).setProductInfo(any(Long.class), any(ProductInfo.class));
+            verify(productJpaRepository, times(1)).findById(any(Long.class));
+            assertThat(productInfo.getName()).isEqualTo(product.getName());
+            assertThat(productInfo.getPrice()).isEqualTo(product.getPrice().longValue());
+            assertThat(productInfo.getStatus()).isEqualTo(product.getStatus().name());
+            assertThat(productInfo.getBrandId()).isEqualTo(product.getBrandId());
+            assertThat(productInfo.getImageUrls()).hasSize(product.getImages().size());
+            assertThat(productInfo.getOptions()).hasSize(product.getOptions().size());
         }
     }
 }

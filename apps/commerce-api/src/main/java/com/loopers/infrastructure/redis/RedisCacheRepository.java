@@ -1,6 +1,8 @@
 package com.loopers.infrastructure.redis;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,6 +18,14 @@ public class RedisCacheRepository {
     public <T> Optional<T> get(String key, Class<T> clazz) {
         Object value = redisTemplate.opsForValue().get(key);
         return Optional.ofNullable(value).map(clazz::cast);
+    }
+
+    public <T> Optional<List<T>> getList(String key, Class<T> clazz) {
+        Object value = redisTemplate.opsForValue().get(key);
+        if (value == null) {
+            return Optional.empty();
+        }
+        return Optional.of(Arrays.asList(value).stream().map(clazz::cast).toList());
     }
 
     public void set(String key, Object value, Duration ttl) {

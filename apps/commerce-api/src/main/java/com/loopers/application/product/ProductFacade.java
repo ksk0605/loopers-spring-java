@@ -2,8 +2,8 @@ package com.loopers.application.product;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.application.common.PageInfo;
@@ -13,6 +13,7 @@ import com.loopers.domain.inventory.InventoryService;
 import com.loopers.domain.like.LikeService;
 import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.like.TargetLikeCount;
+import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductOptionInfo;
@@ -28,6 +29,7 @@ public class ProductFacade {
     private final InventoryService inventoryService;
     private final BrandService brandService;
     private final LikeService likeService;
+    private final ProductCacheRepository productCacheRepository;
 
     @Transactional(readOnly = true)
     public ProductDetailResult getProduct(Long productId) {
@@ -42,8 +44,11 @@ public class ProductFacade {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "products", key = "#command", unless = "#result == null")
     public ProductResults getProducts(ProductCommand.Search command) {
+        Optional<ProductResults> results = productCacheRepository.getProductResults(command);
+        if (results.isPresent()) {
+            return results.get();
+        }
         var products = productService.getAll(command);
         List<Long> brandIds = products.getContent().stream()
             .map(product -> product.getBrandId())
@@ -61,6 +66,8 @@ public class ProductFacade {
             .map(product -> product.getId())
             .toList();
         List<TargetLikeCount> targetLikeCounts = likeService.getAllByTargetIn(productIds, LikeTargetType.PRODUCT);
-        return ProductResults.of(products, brands, targetLikeCounts, pageInfo);
+        ProductResults productResults = ProductResults.of(products, brands, targetLikeCounts, pageInfo);
+        productCacheRepository.setProductResults(command, productResults);
+        return productResults;
     }
 }
