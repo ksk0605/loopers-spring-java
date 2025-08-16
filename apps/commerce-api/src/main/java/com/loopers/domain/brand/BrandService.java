@@ -1,8 +1,8 @@
 package com.loopers.domain.brand;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,12 +15,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BrandService {
     private final BrandRepository brandRepository;
+    private final BrandCacheRepository brandCacheRepository;
 
-    @Transactional(readOnly = true)
-    @Cacheable(value = "brand", key = "#id", unless = "#result == null")
     public Brand get(Long id) {
-        return brandRepository.find(id)
+        Optional<Brand> cachedBrand = brandCacheRepository.getBrand(id);
+        if (cachedBrand.isPresent()) {
+            return cachedBrand.get();
+        }
+        Brand brand = brandRepository.find(id)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "[id = " + id + "] 브랜드를 찾을 수 없습니다."));
+        brandCacheRepository.setBrand(id, brand);
+        return brand;
     }
 
     @Transactional(readOnly = true)

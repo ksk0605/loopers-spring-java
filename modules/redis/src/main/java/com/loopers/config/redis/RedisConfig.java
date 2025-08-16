@@ -12,6 +12,7 @@ import org.springframework.data.redis.connection.RedisStaticMasterReplicaConfigu
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import io.lettuce.core.ReadFrom;
@@ -38,8 +39,7 @@ public class RedisConfig {
 
         return lettuceConnectionFactory(
             database, master, replicas,
-            b -> b.readFrom(ReadFrom.REPLICA_PREFERRED)
-        );
+            b -> b.readFrom(ReadFrom.REPLICA_PREFERRED));
     }
 
     @Bean
@@ -51,8 +51,22 @@ public class RedisConfig {
 
         return lettuceConnectionFactory(
             database, master, replicas,
-            b -> b.readFrom(ReadFrom.MASTER)
-        );
+            b -> b.readFrom(ReadFrom.MASTER));
+    }
+
+    @Primary
+    @Bean
+    public RedisTemplate<String, Object> genericRedisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+
+        redisTemplate.setConnectionFactory(lettuceConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+        return redisTemplate;
     }
 
     @Primary
@@ -65,8 +79,7 @@ public class RedisConfig {
     @Bean
     @Qualifier(REDIS_TEMPLATE_MASTER)
     public RedisTemplate<String, String> masterRedisTemplate(
-        @Qualifier(CONNECTION_MASTER) LettuceConnectionFactory lettuceConnectionFactory
-    ) {
+        @Qualifier(CONNECTION_MASTER) LettuceConnectionFactory lettuceConnectionFactory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         return defaultRedisTemplate(template, lettuceConnectionFactory);
     }
@@ -75,17 +88,15 @@ public class RedisConfig {
         int database,
         RedisNodeInfo master,
         List<RedisNodeInfo> replicas,
-        Consumer<LettuceClientConfiguration.LettuceClientConfigurationBuilder> customizer
-    ) {
-        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder =
-            LettuceClientConfiguration.builder();
+        Consumer<LettuceClientConfiguration.LettuceClientConfigurationBuilder> customizer) {
+        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder = LettuceClientConfiguration.builder();
         if (customizer != null) {
             customizer.accept(builder);
         }
         LettuceClientConfiguration clientConfig = builder.build();
 
-        RedisStaticMasterReplicaConfiguration masterReplica =
-            new RedisStaticMasterReplicaConfiguration(master.getHost(), master.getPort());
+        RedisStaticMasterReplicaConfiguration masterReplica = new RedisStaticMasterReplicaConfiguration(
+            master.getHost(), master.getPort());
         masterReplica.setDatabase(database);
         if (replicas != null) {
             for (RedisNodeInfo r : replicas) {
@@ -97,8 +108,7 @@ public class RedisConfig {
 
     private <K, V> RedisTemplate<K, V> defaultRedisTemplate(
         RedisTemplate<K, V> template,
-        LettuceConnectionFactory connectionFactory
-    ) {
+        LettuceConnectionFactory connectionFactory) {
         StringRedisSerializer string = new StringRedisSerializer();
         template.setKeySerializer(string);
         template.setValueSerializer(string);
