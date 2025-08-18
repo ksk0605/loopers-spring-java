@@ -8,33 +8,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.loopers.application.user.UserFacade;
-import com.loopers.application.user.UserInfo;
+import com.loopers.application.user.UserResult;
+import com.loopers.domain.user.UserCommand;
 import com.loopers.interfaces.api.ApiResponse;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 public class UserV1Controller implements UserV1ApiSpec {
-
     private final UserFacade userFacade;
-
-    public UserV1Controller(UserFacade userFacade) {
-        this.userFacade = userFacade;
-    }
 
     @PostMapping
     @Override
     public ApiResponse<UserV1Dto.UserResponse> createUser(
         @RequestBody @Valid UserV1Dto.CreateUserRequest request
     ) {
-        UserInfo info = userFacade.createUser(
+        var command = new UserCommand.Create(
             request.userId(),
             request.gender().name(),
             request.birthDate(),
             request.email()
         );
-        UserV1Dto.UserResponse response = UserV1Dto.UserResponse.from(info);
+        UserResult result = userFacade.createUser(command);
+        UserV1Dto.UserResponse response = UserV1Dto.UserResponse.from(result);
         return ApiResponse.success(response);
     }
 
@@ -42,7 +41,7 @@ public class UserV1Controller implements UserV1ApiSpec {
     public ApiResponse<UserV1Dto.UserResponse> getMe(
         @RequestHeader("X-USER-ID") String userId
     ) {
-        UserInfo userInfo = userFacade.getUser(userId);
-        return ApiResponse.success(UserV1Dto.UserResponse.from(userInfo));
+        UserResult result = userFacade.getUser(userId);
+        return ApiResponse.success(UserV1Dto.UserResponse.from(result));
     }
 }

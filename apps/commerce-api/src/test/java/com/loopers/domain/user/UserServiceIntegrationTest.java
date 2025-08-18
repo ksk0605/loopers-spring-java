@@ -1,5 +1,6 @@
 package com.loopers.domain.user;
 
+import static com.loopers.support.fixture.UserFixture.anUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,9 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,26 +18,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import com.loopers.infrastructure.user.UserJpaRepository;
+import com.loopers.support.IntegrationTest;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
-import com.loopers.utils.DatabaseCleanUp;
 
 @SpringBootTest
-public class UserServiceIntegrationTest {
+public class UserServiceIntegrationTest extends IntegrationTest {
 
     @Autowired
     private UserService userService;
 
     @MockitoSpyBean
     private UserJpaRepository userJpaRepository;
-
-    @Autowired
-    private DatabaseCleanUp databaseCleanUp;
-
-    @AfterEach
-    void tearDown() {
-        databaseCleanUp.truncateAllTables();
-    }
 
     @DisplayName("회원 가입시, ")
     @Nested
@@ -51,9 +42,10 @@ public class UserServiceIntegrationTest {
             Gender gender = Gender.MALE;
             String birthDate = "1997-06-05";
             String email = "test@loopers.com";
+            UserCommand.Create command = new UserCommand.Create(userId, gender.name(), birthDate, email);
 
             // act
-            User user = userService.createUser(userId, gender, birthDate, email);
+            User user = userService.createUser(command);
 
             // assert
             assertAll(
@@ -69,13 +61,11 @@ public class UserServiceIntegrationTest {
         @Test
         void throwsException_whenDuplicateIdIsProvided() {
             // arrange
-            userJpaRepository.save(
-                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().build());
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
-                userService.createUser("testUser", Gender.FEMALE, "1998-06-05", "test2@loopers.com");
+                userService.createUser(new UserCommand.Create("testUser", "FEMALE", "1998-06-05", "test2@loopers.com"));
             });
 
             // assert
@@ -91,32 +81,29 @@ public class UserServiceIntegrationTest {
         void returnsExampleInfo_whenValidIdIsProvided() {
             // arrange
             String userId = "testUser";
-            userJpaRepository.save(
-                new User(userId, Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().userId(userId).build());
 
             // act
-            Optional<User> user = userService.findUser(userId);
+            User user = userService.get(userId);
 
             // assert
-            assertThat(user.isPresent()).isTrue();
-            assertThat(user.get().getUserId()).isEqualTo(userId);
+            assertThat(user.getUserId()).isEqualTo(userId);
         }
 
-        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, Null을 반환한다.")
+        @DisplayName("해당 ID 의 회원이 존재하지 않을 경우, NOT FOUND 예외를 발생한다.")
         @Test
         void throwsException_whenInvalidIdIsProvided() {
             // arrange
-            userJpaRepository.save(
-                new User("testUser", Gender.MALE, "1997-06-05", "test@loopers.com")
-            );
+            userJpaRepository.save(anUser().userId("testUser").build());
             String invalidUserId = "useruser";
 
             // act
-            Optional<User> user = userService.findUser(invalidUserId);
+            CoreException result = assertThrows(CoreException.class, () -> {
+                userService.get(invalidUserId);
+            });
 
             // assert
-            assertThat(user).isEmpty();
+            assertThat(result.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
         }
     }
 }

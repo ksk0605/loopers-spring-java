@@ -2,7 +2,7 @@ package com.loopers.interfaces.api.user;
 
 import java.time.LocalDate;
 
-import com.loopers.application.user.UserInfo;
+import com.loopers.application.user.UserResult;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -22,13 +22,13 @@ public class UserV1Dto {
         LocalDate birthDate,
         String email
     ) {
-        public static UserResponse from(UserInfo userInfo) {
+        public static UserResponse from(UserResult userResult) {
             return new UserResponse(
-                userInfo.id(),
-                userInfo.userId(),
-                Gender.from(userInfo.gender().name()),
-                userInfo.birthDate(),
-                userInfo.email()
+                userResult.id(),
+                userResult.userId(),
+                Gender.from(userResult.gender().name()),
+                userResult.birthDate(),
+                userResult.email()
             );
         }
     }
