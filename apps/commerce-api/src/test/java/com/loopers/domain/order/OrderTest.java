@@ -95,7 +95,7 @@ public class OrderTest {
 
     @DisplayName("주문을 결제처리할 때, ")
     @Nested
-    class Pay {
+    class Create {
         @DisplayName("주문이 결제 대기 중이라면, 주문 상태를 결제완료로 변경한다.")
         @Test
         void payOrder_whenOrderIsPendingPayment() {

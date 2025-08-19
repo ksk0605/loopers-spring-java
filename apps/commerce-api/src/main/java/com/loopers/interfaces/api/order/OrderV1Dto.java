@@ -48,8 +48,6 @@ public class OrderV1Dto {
         List<OrderItemResponse> items,
         Long userId,
         String orderStatus,
-        String paymentMethod,
-        String paymentStatus,
         LocalDateTime orderDate,
         Long totalPrice) {
         public static OrderResponse from(OrderResult orderInfo) {
@@ -58,8 +56,6 @@ public class OrderV1Dto {
                 orderInfo.items().stream().map(OrderItemResponse::from).toList(),
                 orderInfo.userId(),
                 orderInfo.status().name(),
-                orderInfo.paymentMethod().name(),
-                orderInfo.paymentStatus().name(),
                 orderInfo.orderDate(),
                 orderInfo.totalPrice().longValue());
         }

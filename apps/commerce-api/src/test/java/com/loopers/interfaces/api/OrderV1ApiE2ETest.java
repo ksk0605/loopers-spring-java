@@ -136,9 +136,7 @@ public class OrderV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().items().get(0).productOptionId()).isEqualTo(2L),
                 () -> assertThat(response.getBody().data().items().get(0).quantity()).isEqualTo(1),
                 () -> assertThat(response.getBody().data().userId()).isEqualTo(1L),
-                () -> assertThat(response.getBody().data().orderStatus()).isEqualTo("PAYMENT_COMPLETED"),
-                () -> assertThat(response.getBody().data().paymentMethod()).isEqualTo("POINT"),
-                () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo("COMPLETED"),
+                () -> assertThat(response.getBody().data().orderStatus()).isEqualTo("PENDING_PAYMENT"),
                 () -> assertThat(response.getBody().data().orderDate()).isAfter(LocalDateTime.now().minusDays(1)),
                 () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(7000L));
         }
@@ -418,8 +416,6 @@ public class OrderV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().items().get(0).quantity()).isEqualTo(1),
                 () -> assertThat(response.getBody().data().userId()).isEqualTo(1L),
                 () -> assertThat(response.getBody().data().orderStatus()).isEqualTo("PENDING"),
-                () -> assertThat(response.getBody().data().paymentMethod()).isEqualTo("POINT"),
-                () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo("COMPLETED"),
                 () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(11000L));
         }
     }
