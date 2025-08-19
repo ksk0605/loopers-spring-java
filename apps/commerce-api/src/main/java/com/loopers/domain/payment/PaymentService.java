@@ -7,12 +7,11 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class PaymentService {
-    private final PaymentRepository paymentRepository;
-    private final PaymentValidatorFactory validatorFactory;
+    private final PaymentEventRepository paymentEventRepository;
 
-    public Payment create(PaymentCommand.Create command) {
-        Payment payment = new Payment(command.orderId(), command.method(), PaymentStatus.PENDING, command.amount());
-        payment.process(validatorFactory.getValidator(command.method()));
-        return paymentRepository.save(payment);
+    public PaymentEvent create(PaymentCommand.Create command) {
+        PaymentEvent paymentEvent = new PaymentEvent(command.orderId(), command.amount());
+        paymentEventRepository.save(paymentEvent);
+        return paymentEvent;
     }
 }

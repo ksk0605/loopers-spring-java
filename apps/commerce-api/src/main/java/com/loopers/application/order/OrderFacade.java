@@ -9,6 +9,8 @@ import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.coupon.CouponUsage;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderService;
+import com.loopers.domain.payment.PaymentCommand;
+import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.product.ProductPrice;
 import com.loopers.domain.product.ProductService;
 import com.loopers.support.annotation.UseCase;
@@ -21,6 +23,7 @@ public class OrderFacade {
     private final OrderService orderService;
     private final CouponService couponService;
     private final ProductService productService;
+    private final PaymentService paymentService;
 
     @Transactional
     public OrderResult order(OrderCriteria.Order criteria) {
@@ -28,7 +31,8 @@ public class OrderFacade {
         Order order = orderService.create(criteria.toOrderCommandWithProductPrices(productPrices));
 
         CouponUsage userCoupon = couponService.apply(criteria.userId(), criteria.couponId(), order.getTotalPrice());
-        BigDecimal discountPrice = order.getTotalPrice().subtract(userCoupon.getDiscountAmount());
+        BigDecimal amount = order.getTotalPrice().subtract(userCoupon.getDiscountAmount());
+        paymentService.create(new PaymentCommand.Create(order.getOrderId(), amount));
 
         return OrderResult.of(order, userCoupon);
     }

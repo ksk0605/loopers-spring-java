@@ -1,6 +1,9 @@
 package com.loopers.interfaces.api;
 
 import static com.loopers.support.fixture.OrderFixture.anOrder;
+import static com.loopers.support.fixture.ProductFixture.aProduct;
+import static com.loopers.support.fixture.ProductOptionFixture.aProductOption;
+import static com.loopers.support.fixture.UserFixture.anUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -25,9 +28,6 @@ import org.springframework.http.ResponseEntity;
 
 import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.inventory.Inventory;
-import com.loopers.domain.payment.Payment;
-import com.loopers.domain.payment.PaymentMethod;
-import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductOption;
 import com.loopers.domain.product.ProductStatus;
@@ -36,7 +36,6 @@ import com.loopers.domain.user.User;
 import com.loopers.infrastructure.coupon.CouponJpaRepository;
 import com.loopers.infrastructure.inventory.InventoryJpaRepository;
 import com.loopers.infrastructure.order.OrderJpaRepository;
-import com.loopers.infrastructure.payment.PaymentJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.interfaces.api.order.OrderV1Dto;
@@ -66,9 +65,6 @@ public class OrderV1ApiE2ETest {
     private DatabaseCleanUp databaseCleanUp;
 
     @Autowired
-    private PaymentJpaRepository paymentJpaRepository;
-
-    @Autowired
     private CouponJpaRepository couponJpaRepository;
 
     @AfterEach
@@ -83,31 +79,15 @@ public class OrderV1ApiE2ETest {
         @Test
         void returnsOrderInfo_whenValidRequestIsProvided() {
             // arrange
-            User user = new User(
-                "testUser",
-                Gender.MALE,
-                "1997-06-05",
-                "test@loopers.com");
+            User user = anUser().build();
             user.chargePoint(30000);
-            userJpaRepository.save(
-                user);
+            userJpaRepository.save(user);
 
-            Product product = new Product(
-                "상품 이름",
-                null,
-                BigDecimal.valueOf(10000),
-                ProductStatus.ON_SALE,
-                1L,
-                1L,
-                LocalDateTime.now().plusDays(1));
-            product.addOption(new ProductOption(
-                "SIZE",
-                "M",
-                BigDecimal.valueOf(1000)));
-            product.addOption(new ProductOption(
-                "SIZE",
-                "L",
-                BigDecimal.valueOf(2000)));
+            Product product = aProduct().name("상품 이름").build();
+            ProductOption productOption1 = aProductOption().build();
+            ProductOption productOption2 = aProductOption().build();
+            product.addOption(productOption1);
+            product.addOption(productOption2);
             productJpaRepository.save(product);
 
             inventoryJpaRepository.save(new Inventory(1L, 2L, 10));
@@ -138,7 +118,7 @@ public class OrderV1ApiE2ETest {
                 () -> assertThat(response.getBody().data().userId()).isEqualTo(1L),
                 () -> assertThat(response.getBody().data().orderStatus()).isEqualTo("PENDING_PAYMENT"),
                 () -> assertThat(response.getBody().data().orderDate()).isAfter(LocalDateTime.now().minusDays(1)),
-                () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(7000L));
+                () -> assertThat(response.getBody().data().totalPrice()).isEqualTo(16000L));
         }
 
         @DisplayName("재고가 부족할 경우, 주문 생성 실패 응답을 반환한다.")
@@ -225,63 +205,6 @@ public class OrderV1ApiE2ETest {
                 () -> assertTrue(response.getStatusCode().is4xxClientError()),
                 () -> assertThat(response.getBody().meta().message()).isEqualTo("구매할 상품이 존재하지 않습니다."));
         }
-
-        @DisplayName("포인트가 부족할 경우, 주문 생성 실패 응답을 반환한다.")
-        @Test
-        void returnsOrderInfo_whenInvalidProductOption() {
-            // arrange
-            User user = new User(
-                "testUser",
-                Gender.MALE,
-                "1997-06-05",
-                "test@loopers.com");
-            user.chargePoint(16999);
-            userJpaRepository.save(user);
-
-            Product product = new Product(
-                "상품 이름",
-                null,
-                BigDecimal.valueOf(10000),
-                ProductStatus.ON_SALE,
-                1L,
-                1L,
-                LocalDateTime.now().plusDays(1));
-            product.addOption(new ProductOption(
-                "SIZE",
-                "M",
-                BigDecimal.valueOf(1000)));
-            product.addOption(new ProductOption(
-                "SIZE",
-                "L",
-                BigDecimal.valueOf(2000)));
-            productJpaRepository.save(product);
-
-            inventoryJpaRepository.save(new Inventory(1L, 1L, 10));
-            inventoryJpaRepository.save(new Inventory(1L, 2L, 10));
-
-            Coupon coupon = Coupon.fixedAmount("고정 할인", null, 5000L, 10000L, null);
-            couponJpaRepository.save(coupon);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", "testUser");
-
-            OrderV1Dto.OrderRequest request = new OrderV1Dto.OrderRequest(
-                List.of(
-                    new OrderV1Dto.OrderItemRequest(1L, 1L, 1),
-                    new OrderV1Dto.OrderItemRequest(1L, 2L, 1)),
-                1L);
-
-            // act
-            ParameterizedTypeReference<ApiResponse<OrderV1Dto.OrderResponse>> responseType = new ParameterizedTypeReference<>() {
-            };
-            ResponseEntity<ApiResponse<OrderV1Dto.OrderResponse>> response = testRestTemplate.exchange(ENDPOINT,
-                HttpMethod.POST, new HttpEntity<>(request, headers), responseType);
-
-            // assert
-            assertAll(
-                () -> assertTrue(response.getStatusCode().is4xxClientError()),
-                () -> assertThat(response.getBody().meta().message()).isEqualTo("포인트가 부족합니다."));
-        }
     }
 
     @DisplayName("GET /api/v1/orders")
@@ -316,8 +239,6 @@ public class OrderV1ApiE2ETest {
             productJpaRepository.save(product);
 
             orderJpaRepository.save(anOrder().build());
-            paymentJpaRepository
-                .save(new Payment(1L, PaymentMethod.POINT, PaymentStatus.COMPLETED, BigDecimal.valueOf(10000)));
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");
@@ -393,8 +314,6 @@ public class OrderV1ApiE2ETest {
             productJpaRepository.save(product);
 
             orderJpaRepository.save(anOrder().build());
-            paymentJpaRepository
-                .save(new Payment(1L, PaymentMethod.POINT, PaymentStatus.COMPLETED, BigDecimal.valueOf(22000)));
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");
