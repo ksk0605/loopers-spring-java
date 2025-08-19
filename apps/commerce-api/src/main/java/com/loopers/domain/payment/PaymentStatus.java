@@ -1,8 +1,23 @@
 package com.loopers.domain.payment;
 
+import java.util.Arrays;
+
 public enum PaymentStatus {
-    PENDING,
-    COMPLETED,
+    NOT_STARTED,
+    EXECUTING,
+    SUCCESS,
     FAILED,
-    CANCELLED,
+    UNKNOWN,
+    ;
+
+    public static PaymentStatus from(String status) {
+        return Arrays.stream(values())
+            .filter(s -> s.name().equalsIgnoreCase(status))
+            .findFirst()
+            .orElse(UNKNOWN);
+    }
+
+    public boolean isExcuted() {
+        return this != NOT_STARTED;
+    }
 }

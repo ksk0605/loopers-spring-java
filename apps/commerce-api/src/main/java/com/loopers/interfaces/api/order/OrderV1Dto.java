@@ -45,21 +45,19 @@ public class OrderV1Dto {
 
     public record OrderResponse(
         Long id,
+        String orderId,
         List<OrderItemResponse> items,
         Long userId,
         String orderStatus,
-        String paymentMethod,
-        String paymentStatus,
         LocalDateTime orderDate,
         Long totalPrice) {
         public static OrderResponse from(OrderResult orderInfo) {
             return new OrderResponse(
                 orderInfo.id(),
+                orderInfo.orderId(),
                 orderInfo.items().stream().map(OrderItemResponse::from).toList(),
                 orderInfo.userId(),
                 orderInfo.status().name(),
-                orderInfo.paymentMethod().name(),
-                orderInfo.paymentStatus().name(),
                 orderInfo.orderDate(),
                 orderInfo.totalPrice().longValue());
         }

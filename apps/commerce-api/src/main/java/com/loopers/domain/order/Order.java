@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.loopers.domain.BaseEntity;
+import com.loopers.support.util.IdempotencyCreator;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -25,11 +26,15 @@ import lombok.NoArgsConstructor;
 public class Order extends BaseEntity {
     private Long userId;
 
+    private String orderId;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")
     private List<OrderItem> items;
 
     private OrderStatus status;
+
+    private BigDecimal orderAmount;
 
     private LocalDateTime orderDate;
 
@@ -37,6 +42,8 @@ public class Order extends BaseEntity {
         this.userId = requireNotNull(userId, "주문 생성은 유저 ID가 필수입니다.");
         this.items = requireNonEmpty(items, "주문 생성은 주문 아이템이 필수입니다.");
         this.status = OrderStatus.PENDING;
+        this.orderId = IdempotencyCreator.create(this);
+        this.orderAmount = getTotalPrice();
     }
 
     public static Order from(OrderCommand.Order command) {
@@ -67,5 +74,9 @@ public class Order extends BaseEntity {
         return items.stream()
             .map(item -> item.calculatePrice())
             .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void applyDiscount(BigDecimal discountAmount) {
+        this.orderAmount = getTotalPrice().subtract(discountAmount);
     }
 }
