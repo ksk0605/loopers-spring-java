@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.loopers.domain.coupon.CouponUsage;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderItem;
 import com.loopers.domain.order.OrderStatus;
