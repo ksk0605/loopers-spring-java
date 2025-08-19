@@ -1,5 +1,8 @@
 package com.loopers.domain.payment;
 
+import static com.loopers.support.util.RequireUtils.requireNonEmpty;
+import static com.loopers.support.util.RequireUtils.requireNotNull;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -11,9 +14,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import static com.loopers.support.util.RequireUtils.requireNonEmpty;
-import static com.loopers.support.util.RequireUtils.requireNotNull;
 
 @Entity
 @Table(name = "payment_event")
@@ -49,5 +49,17 @@ public class PaymentEvent {
         this.status = PaymentStatus.NOT_STARTED;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void execute() {
+        if (status != PaymentStatus.NOT_STARTED) {
+            throw new IllegalStateException("이미 실행 중인 결제입니다.");
+        }
+        status = PaymentStatus.EXECUTING;
+        updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isValid(BigDecimal amount) {
+        return this.amount.compareTo(amount) == 0;
     }
 }

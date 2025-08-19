@@ -8,4 +8,14 @@ public class PaymentCommand {
         BigDecimal amount
     ) {
     }
+
+    public record Approve(
+        String userId,
+        String orderId,
+        CardType cardType,
+        String cardNo,
+        BigDecimal amount,
+        PaymentMethod method
+    ) {
+    }
 }
