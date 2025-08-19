@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentMethod;
+import com.loopers.domain.payment.PaymentStatus;
 
 public class PaymentV1Dto {
     public record PaymentRequest(
@@ -58,6 +59,43 @@ public class PaymentV1Dto {
                 case CREDIT_CARD -> PaymentMethod.CREDIT_CARD;
                 case POINT -> PaymentMethod.POINT;
                 case CREDIT_CARD_AND_POINT -> PaymentMethod.CREDIT_CARD_AND_POINT;
+            };
+        }
+    }
+
+    public record PaymentCallbackRequest(
+        String transactionKey,
+        String orderId,
+        CardTypeDto cardType,
+        String cardNo,
+        Long amount,
+        PaymentStatusDto status,
+        String reason
+    ) {
+        public PaymentCommand.Callback toCommand() {
+            return new PaymentCommand.Callback(
+                orderId,
+                transactionKey,
+                cardType.toCardType(),
+                cardNo,
+                BigDecimal.valueOf(amount),
+                status.toPaymentStatus(),
+                reason
+            );
+        }
+    }
+
+    public enum PaymentStatusDto {
+        PENDING,
+        SUCCESS,
+        FAILED,
+        ;
+
+        public PaymentStatus toPaymentStatus() {
+            return switch (this) {
+                case PENDING -> PaymentStatus.EXECUTING;
+                case SUCCESS -> PaymentStatus.SUCCESS;
+                case FAILED -> PaymentStatus.FAILED;
             };
         }
     }

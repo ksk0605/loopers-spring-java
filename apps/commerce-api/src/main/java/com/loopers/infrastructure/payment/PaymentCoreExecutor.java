@@ -25,7 +25,7 @@ public class PaymentCoreExecutor implements PaymentExcutor {
             command.cardType().name(),
             command.cardNo(),
             command.amount().longValue(),
-            "http://localhost:8080");
+            "http://localhost:8080/api/v1/payments/callback");
         PgSimulatorApiResponse<PgSimulatorTransactionResponse> response = pgSimulatorClient.request(request, command.userId());
 
         return new PaymentRequestResult(

@@ -18,4 +18,15 @@ public class PaymentCommand {
         PaymentMethod method
     ) {
     }
+
+    public record Callback(
+        String orderId,
+        String transactionKey,
+        CardType cardType,
+        String cardNo,
+        BigDecimal amount,
+        PaymentStatus status,
+        String reason
+    ) {
+    }
 }
