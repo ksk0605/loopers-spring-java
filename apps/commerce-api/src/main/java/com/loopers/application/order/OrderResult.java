@@ -25,18 +25,7 @@ public record OrderResult(
             order.getOrderDate(),
             order.getOrderId(),
             order.getItems().stream().map(OrderItemResult::from).toList(),
-            order.getTotalPrice());
-    }
-
-    public static OrderResult of(Order order, CouponUsage userCoupon) {
-        return new OrderResult(
-            order.getId(),
-            order.getUserId(),
-            order.getStatus(),
-            order.getOrderDate(),
-            order.getOrderId(),
-            order.getItems().stream().map(OrderItemResult::from).toList(),
-            order.getTotalPrice().subtract(userCoupon.getDiscountAmount()));
+            order.getOrderAmount());
     }
 
     public record OrderItemResult(

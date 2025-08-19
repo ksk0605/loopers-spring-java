@@ -34,6 +34,8 @@ public class Order extends BaseEntity {
 
     private OrderStatus status;
 
+    private BigDecimal orderAmount;
+
     private LocalDateTime orderDate;
 
     public Order(Long userId, List<OrderItem> items) {
@@ -71,5 +73,9 @@ public class Order extends BaseEntity {
         return items.stream()
             .map(item -> item.calculatePrice())
             .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void applyDiscount(BigDecimal discountAmount) {
+        this.orderAmount = getTotalPrice().subtract(discountAmount);
     }
 }

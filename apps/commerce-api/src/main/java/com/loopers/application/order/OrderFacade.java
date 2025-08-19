@@ -1,6 +1,5 @@
 package com.loopers.application.order;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +30,10 @@ public class OrderFacade {
         Order order = orderService.create(criteria.toOrderCommandWithProductPrices(productPrices));
 
         CouponUsage userCoupon = couponService.apply(criteria.userId(), criteria.couponId(), order.getTotalPrice());
-        BigDecimal amount = order.getTotalPrice().subtract(userCoupon.getDiscountAmount());
-        paymentService.create(new PaymentCommand.Create(order.getOrderId(), amount));
+        order.applyDiscount(userCoupon.getDiscountAmount());
+        paymentService.create(new PaymentCommand.Create(order.getOrderId(), order.getOrderAmount()));
 
-        return OrderResult.of(order, userCoupon);
+        return OrderResult.of(order);
     }
 
     @Transactional(readOnly = true)
