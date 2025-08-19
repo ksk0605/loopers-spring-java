@@ -7,12 +7,17 @@ public enum PaymentStatus {
     EXECUTING,
     SUCCESS,
     FAILED,
-    UNKNOWN,;
+    UNKNOWN,
+    ;
 
     public static PaymentStatus from(String status) {
         return Arrays.stream(values())
             .filter(s -> s.name().equalsIgnoreCase(status))
             .findFirst()
             .orElse(UNKNOWN);
+    }
+
+    public boolean isExcuted() {
+        return this != NOT_STARTED;
     }
 }

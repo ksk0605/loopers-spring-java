@@ -4,6 +4,7 @@ import com.loopers.domain.payment.PaymentCommand.Approve;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.support.annotation.UseCase;
 import com.loopers.domain.payment.PaymentExcutor;
+import com.loopers.domain.payment.PaymentRequestResult;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +16,7 @@ public class PaymentFacade {
 
     public PaymentResult approve(Approve command) {
         paymentService.execute(command);
-        paymentExcutor.request(command);
-        return new PaymentResult(null, null);
+        PaymentRequestResult result = paymentExcutor.request(command);
+        return new PaymentResult(result.getTransactionKey(), result.getStatus());
     }
 }

@@ -52,7 +52,7 @@ public class PaymentEvent {
     }
 
     public void execute() {
-        if (status != PaymentStatus.NOT_STARTED) {
+        if (status.isExcuted()) {
             throw new IllegalStateException("이미 실행 중인 결제입니다.");
         }
         status = PaymentStatus.EXECUTING;
