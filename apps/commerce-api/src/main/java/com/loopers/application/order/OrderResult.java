@@ -14,6 +14,7 @@ public record OrderResult(
     Long userId,
     OrderStatus status,
     LocalDateTime orderDate,
+    String orderId,
     List<OrderItemResult> items,
     BigDecimal totalPrice) {
     public static OrderResult of(Order order) {
@@ -22,6 +23,7 @@ public record OrderResult(
             order.getUserId(),
             order.getStatus(),
             order.getOrderDate(),
+            order.getOrderId(),
             order.getItems().stream().map(OrderItemResult::from).toList(),
             order.getTotalPrice());
     }
@@ -32,6 +34,7 @@ public record OrderResult(
             order.getUserId(),
             order.getStatus(),
             order.getOrderDate(),
+            order.getOrderId(),
             order.getItems().stream().map(OrderItemResult::from).toList(),
             order.getTotalPrice().subtract(userCoupon.getDiscountAmount()));
     }
