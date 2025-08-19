@@ -295,24 +295,6 @@ public class OrderV1ApiE2ETest {
                 "1997-06-05",
                 "test@loopers.com"));
 
-            Product product = new Product(
-                "상품 이름",
-                null,
-                BigDecimal.valueOf(10000),
-                ProductStatus.ON_SALE,
-                1L,
-                1L,
-                LocalDateTime.now().plusDays(1));
-            product.addOption(new ProductOption(
-                "SIZE",
-                "M",
-                BigDecimal.valueOf(1000)));
-            product.addOption(new ProductOption(
-                "SIZE",
-                "L",
-                BigDecimal.valueOf(2000)));
-            productJpaRepository.save(product);
-
             orderJpaRepository.save(anOrder().build());
 
             HttpHeaders headers = new HttpHeaders();

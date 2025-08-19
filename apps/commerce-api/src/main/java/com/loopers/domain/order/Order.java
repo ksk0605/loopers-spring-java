@@ -43,6 +43,7 @@ public class Order extends BaseEntity {
         this.items = requireNonEmpty(items, "주문 생성은 주문 아이템이 필수입니다.");
         this.status = OrderStatus.PENDING;
         this.orderId = IdempotencyCreator.create(this);
+        this.orderAmount = getTotalPrice();
     }
 
     public static Order from(OrderCommand.Order command) {
