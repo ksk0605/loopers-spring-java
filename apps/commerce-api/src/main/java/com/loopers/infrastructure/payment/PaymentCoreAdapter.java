@@ -3,7 +3,7 @@ package com.loopers.infrastructure.payment;
 import org.springframework.stereotype.Component;
 
 import com.loopers.domain.payment.PaymentCommand.Approve;
-import com.loopers.domain.payment.PaymentExcutor;
+import com.loopers.domain.payment.PaymentAdapter;
 import com.loopers.domain.payment.PaymentRequestResult;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.infrastructure.payment.pgsimulator.PgSimulatorClient;
@@ -18,31 +18,30 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentCoreExecutor implements PaymentExcutor {
+public class PaymentCoreAdapter implements PaymentAdapter {
     private final PgSimulatorClient pgSimulatorClient;
 
     @Override
     public PaymentRequestResult request(Approve command) {
         PgSimulatorPaymentRequest request = new PgSimulatorPaymentRequest(
-            command.orderId(),
-            command.cardType().name(),
-            command.cardNo(),
-            command.amount().longValue(),
-            "http://localhost:8080/api/v1/payments/callback");
+                command.orderId(),
+                command.cardType().name(),
+                command.cardNo(),
+                command.amount().longValue(),
+                "http://localhost:8080/api/v1/payments/callback");
 
         try {
             PgSimulatorApiResponse<PgSimulatorTransactionResponse> response = pgSimulatorClient.request(request,
-                command.userId());
+                    command.userId());
 
             PgSimulatorTransactionResponse data = response.data();
             return PaymentRequestResult.success(
-                data.getTransactionKey(),
-                PaymentStatus.from(data.getStatus()),
-                data.getReason()
-            );
+                    data.getTransactionKey(),
+                    PaymentStatus.from(data.getStatus()),
+                    data.getReason());
         } catch (PgSimulatorException e) {
             log.error("PG 시뮬레이터 결제 실패. HttpStatus: {}, ErrorCode: {}, Message: {}", e.getHttpStatus(),
-                e.getErrorCode(), e.getMessage());
+                    e.getErrorCode(), e.getMessage());
             int status = e.getHttpStatus();
             if (status >= 400 && status < 500) {
                 return PaymentRequestResult.fail(e.getMessage());

@@ -1,5 +1,5 @@
 package com.loopers.domain.payment;
 
-public interface PaymentExcutor {
+public interface PaymentAdapter {
     PaymentRequestResult request(PaymentCommand.Approve command);
 }
