@@ -18,6 +18,7 @@ resilience4j:
         wait-duration: 500ms
         retry-exceptions:
           - com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorRetryableException
+          - feign.RetryableException
 
 spring:
   main:
@@ -32,6 +33,14 @@ spring:
       - redis.yml
       - logging.yml
       - monitoring.yml
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          pg-simulator:
+            connectTimeout: 3000
+            readTimeout: 1000
 
 springdoc:
   use-fqn: true
