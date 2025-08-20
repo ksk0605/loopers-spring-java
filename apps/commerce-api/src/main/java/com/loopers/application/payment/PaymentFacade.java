@@ -17,6 +17,6 @@ public class PaymentFacade {
     public PaymentResult approve(Approve command) {
         paymentService.execute(command);
         PaymentRequestResult result = paymentExcutor.request(command);
-        return new PaymentResult(result.getTransactionKey(), result.getStatus());
+        return new PaymentResult(result.transactionKey(), result.status());
     }
 }
