@@ -67,7 +67,7 @@ class OrderFacadeTest extends IntegrationTest {
         couponJpaRepository.save(coupon);
 
         // act
-        OrderCriteria.Order cri = new OrderCriteria.Order(1L, List.of(new OrderCriteria.Item(1L, 1L, 10)), 1L);
+        OrderCriteria.Order cri = new OrderCriteria.Order(1L, user.getUserId(), List.of(new OrderCriteria.Item(1L, 1L, 10)), 1L);
         OrderResult result = orderFacade.order(cri);
 
         // assert

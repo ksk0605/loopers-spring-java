@@ -22,7 +22,7 @@ public class PaymentEventTest {
             BigDecimal amount = BigDecimal.valueOf(10000);
 
             // act
-            PaymentEvent paymentEvent = new PaymentEvent(orderId, amount);
+            PaymentEvent paymentEvent = new PaymentEvent(orderId, amount, "userId");
 
             // assert
             assertThat(paymentEvent.getOrderId()).isEqualTo(orderId);
@@ -37,14 +37,14 @@ public class PaymentEventTest {
         @Test
         void createPaymentEvent_whenOrderIdIsEmpty() {
             // act & assert
-            assertThrows(IllegalArgumentException.class, () -> new PaymentEvent(null, BigDecimal.valueOf(10000)));
+            assertThrows(IllegalArgumentException.class, () -> new PaymentEvent(null, BigDecimal.valueOf(10000), "userId"));
         }
 
         @DisplayName("결제 금액이 없으면, 예외를 발생시킨다.")
         @Test
         void createPaymentEvent_whenAmountIsEmpty() {
             // act & assert
-            assertThrows(IllegalArgumentException.class, () -> new PaymentEvent("ORD-1111-2222", null));
+            assertThrows(IllegalArgumentException.class, () -> new PaymentEvent("ORD-1111-2222", null, "userId"));
         }
     }
 }

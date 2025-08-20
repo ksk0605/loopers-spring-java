@@ -8,6 +8,7 @@ public class PaymentEventFixture {
 
     private String orderId = "1234567890";
     private BigDecimal amount = BigDecimal.valueOf(10000);
+    private String buyerId = "userId";
 
     public static PaymentEventFixture aPaymentEvent() {
         return new PaymentEventFixture();
@@ -23,8 +24,13 @@ public class PaymentEventFixture {
         return this;
     }
 
+    public PaymentEventFixture buyerId(String buyerId) {
+        this.buyerId = buyerId;
+        return this;
+    }
+
     public PaymentEvent build() {
-        return new PaymentEvent(orderId, amount);
+        return new PaymentEvent(orderId, amount, buyerId);
     }
 
     private PaymentEventFixture() {

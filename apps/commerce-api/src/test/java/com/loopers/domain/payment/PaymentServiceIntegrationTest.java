@@ -2,14 +2,13 @@ package com.loopers.domain.payment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.loopers.support.IntegrationTest;
 
@@ -28,7 +27,7 @@ class PaymentServiceIntegrationTest extends IntegrationTest {
         @Test
         void createPayment_whenPaymentCreated() {
             // arrange
-            PaymentCommand.Create command = new PaymentCommand.Create("ORD-1111-2222", BigDecimal.valueOf(10000));
+            PaymentCommand.Create command = new PaymentCommand.Create("ORD-1111-2222", BigDecimal.valueOf(10000), 1L, "userId");
 
             // act
             paymentService.create(command);
