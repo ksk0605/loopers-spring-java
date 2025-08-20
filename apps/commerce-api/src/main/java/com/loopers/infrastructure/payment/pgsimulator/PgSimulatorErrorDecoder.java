@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorException;
+import com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorRetryableException;
 import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorApiResponse;
 
 import feign.Response;
@@ -39,8 +40,14 @@ public class PgSimulatorErrorDecoder implements ErrorDecoder {
                 && errorResponse.meta().result() == PgSimulatorApiResponse.Metadata.Result.FAIL) {
                 String errorCode = errorResponse.meta().errorCode();
                 String errorMessage = errorResponse.meta().message();
+                int status = response.status();
                 log.warn("PG 시뮬레이터 에러 - 코드: {}, 메시지: {}", errorCode, errorMessage);
-                return new PgSimulatorException(errorCode, errorMessage, response.status());
+                if (status >= 500 && status < 600) {
+                    return new PgSimulatorRetryableException(errorCode, errorMessage, status);
+                } 
+                else {
+                    return new PgSimulatorException(errorCode, errorMessage, status);
+                }
             }
         } catch (IOException e) {
             log.error("PG 시뮬레이터 응답 파싱 실패", e);

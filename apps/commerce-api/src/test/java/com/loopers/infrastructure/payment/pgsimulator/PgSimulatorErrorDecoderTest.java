@@ -2,6 +2,8 @@ package com.loopers.infrastructure.payment.pgsimulator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorException;
+import com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorRetryableException;
+
 import feign.Request;
 import feign.Request.HttpMethod;
 import feign.Response;
@@ -28,7 +30,7 @@ class PgSimulatorErrorDecoderTest {
     }
 
     @Test
-    @DisplayName("실패 응답(FAIL)이 오면, JSON 본문을 파싱하여 PgSimulatorException을 던진다")
+    @DisplayName("실패 응답(FAIL) 상태가 4xx이면, JSON 본문을 파싱하여 PgSimulatorException을 던진다")
     void givenFailResponse_whenDecode_thenThrowsPgSimulatorException() {
         // arrange 
         String errorJson = """
@@ -54,6 +56,35 @@ class PgSimulatorErrorDecoderTest {
         PgSimulatorException pgException = (PgSimulatorException) exception;
         assertEquals("INVALID_CARD_INFO", pgException.getErrorCode());
         assertEquals("카드 정보가 잘못되었습니다.", pgException.getMessage());
+    }
+
+    @Test
+    @DisplayName("실패 응답(FAIL) 상태가 5xx이면, JSON 본문을 파싱하여 PgSimulatorRetryableException을 던진다")
+    void givenFailResponse_whenDecode_thenThrowsPgSimulatorRetryableException() {
+        // arrange 
+        String errorJson = """
+            {
+                "meta": {
+                    "result": "FAIL",
+                    "errorCode": "SERVER_ERROR",
+                    "message": "서버에 일시적인 문제가 발생했습니다."
+                },
+                "data": null
+            }
+            """;
+
+        Response mockResponse = createMockResponse(500, errorJson);
+        String methodKey = "PgSimulatorClient#request(PgSimulatorPaymentRequest,String)";
+
+        // act
+        Exception exception = errorDecoder.decode(methodKey, mockResponse);
+
+        // assert
+        assertInstanceOf(PgSimulatorRetryableException.class, exception);
+
+        PgSimulatorRetryableException pgException = (PgSimulatorRetryableException) exception;
+        assertEquals("SERVER_ERROR", pgException.getErrorCode());
+        assertEquals("서버에 일시적인 문제가 발생했습니다.", pgException.getMessage());
     }
 
     @Test
