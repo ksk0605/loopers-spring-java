@@ -3,9 +3,11 @@ package com.loopers.application.payment;
 import static com.loopers.support.fixture.PaymentEventFixture.aPaymentEvent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +26,7 @@ import com.loopers.domain.payment.PaymentRequestResult;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.payment.PaymentTransaction;
+import com.loopers.domain.payment.TransactionInfo;
 import com.loopers.infrastructure.payment.PaymentEventJpaRepository;
 import com.loopers.infrastructure.payment.PaymentTransactionJpaRepository;
 import com.loopers.support.IntegrationTest;
@@ -149,6 +152,33 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
             assertThat(updatedEvent.get().getTransactionKey()).isEqualTo("key-12345");
             assertThat(updatedEvent.get().getAmount()).isEqualByComparingTo(event.getAmount());
             assertThat(updatedEvent.get().getApprovedAt()).isNotNull();
+        }
+
+        @DisplayName("팬딩상태(EXECUTING,UNKNOWN) 결제를 모두 싱크한다.")
+        @Test
+        void syncAllPendingPayments() {
+            // arrange
+            PaymentEvent successEvent = aPaymentEvent().orderId("1234").build();
+            successEvent.success();
+            paymentEventJpaRepository.save(successEvent);
+            PaymentEvent executingEvent = aPaymentEvent().orderId("5678").build();
+            executingEvent.execute();
+            paymentEventJpaRepository.save(executingEvent);
+
+            when(paymentAdapter.getTransaction(any(), any())).
+                thenReturn(new TransactionInfo("key-12345", "5678", CardType.SAMSUNG, "1234-1234-1234-1234", BigDecimal.valueOf(10000), PaymentStatus.SUCCESS, null));
+
+            // act
+            paymentFacade.syncPayments();
+
+            // assert
+            List<PaymentEvent> events = paymentEventJpaRepository.findAll();
+            assertThat(events).hasSize(2);
+            assertThat(events.get(0).getStatus()).isEqualTo(PaymentStatus.SUCCESS);
+            assertThat(events.get(1).getStatus()).isEqualTo(PaymentStatus.SUCCESS);
+
+            List<PaymentTransaction> transactions = paymentTransactionJpaRepository.findAll();
+            assertThat(transactions).hasSize(1);
         }
     }
 }

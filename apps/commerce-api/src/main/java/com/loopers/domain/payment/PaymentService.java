@@ -1,12 +1,14 @@
 package com.loopers.domain.payment;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.domain.payment.PaymentCommand.Request;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -40,5 +42,10 @@ public class PaymentService {
         event.sync(command);
         PaymentTransaction transaction = PaymentTransaction.of(command, event.getId());
         paymentTransactionRepository.save(transaction);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PaymentEvent> getPendingPayments() {
+        return paymentEventRepository.findAllPendingPayments();
     }
 }

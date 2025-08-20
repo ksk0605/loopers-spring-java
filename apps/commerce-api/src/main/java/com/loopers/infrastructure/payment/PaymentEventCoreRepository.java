@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.payment;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -23,5 +24,10 @@ public class PaymentEventCoreRepository implements PaymentEventRepository {
     @Override
     public Optional<PaymentEvent> findByOrderId(String orderId) {
         return paymentEventJpaRepository.findByOrderId(orderId);
-    }    
+    }
+
+    @Override
+    public List<PaymentEvent> findAllPendingPayments() {
+        return paymentEventJpaRepository.findAllPendingPayments();
+    }
 }
