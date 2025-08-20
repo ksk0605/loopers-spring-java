@@ -10,6 +10,16 @@ server:
     keep-alive-timeout: 60s # 60s
   max-http-request-header-size: 8KB
 
+resilience4j:
+  retry:
+    instances:
+      pg-simulator:
+        max-attempts: 2
+        wait-duration: 500ms
+        retry-exceptions:
+          - com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorRetryableException
+          - feign.RetryableException
+
 spring:
   main:
     web-application-type: servlet
@@ -23,6 +33,17 @@ spring:
       - redis.yml
       - logging.yml
       - monitoring.yml
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          pg-simulator:
+            connectTimeout: 3000
+            readTimeout: 1000
+
+  payment:
+  callback-url: http://localhost:8080/api/v1/payments/callback
 
 springdoc:
   use-fqn: true

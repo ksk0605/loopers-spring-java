@@ -12,6 +12,7 @@ import com.loopers.domain.product.ProductPrice;
 public class OrderCriteria {
     public record Order(
         Long userId,
+        String userName,
         List<Item> items,
         Long couponId
     ) {

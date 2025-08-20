@@ -6,6 +6,8 @@ import static com.loopers.support.util.RequireUtils.requireNotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,14 +26,18 @@ public class PaymentEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String buyerId;
+
     private String orderId;
 
     private boolean isPaymentDone;
 
     private String transactionKey;
 
+    @Enumerated(EnumType.STRING)
     private PaymentMethod method;
 
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
     private BigDecimal amount;
@@ -42,13 +48,14 @@ public class PaymentEvent {
 
     private LocalDateTime approvedAt;
 
-    public PaymentEvent(String orderId, BigDecimal amount) {
+    public PaymentEvent(String orderId, BigDecimal amount, String buyerId) {
         this.orderId = requireNonEmpty(orderId, "주문 번호는 필수 값 입니다.");
         this.amount = requireNotNull(amount, "결제 금액은 필수 값 입니다.");
         this.isPaymentDone = false;
         this.status = PaymentStatus.NOT_STARTED;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.buyerId = buyerId;
     }
 
     public void execute() {

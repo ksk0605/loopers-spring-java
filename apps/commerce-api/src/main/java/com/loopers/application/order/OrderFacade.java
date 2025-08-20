@@ -31,7 +31,7 @@ public class OrderFacade {
 
         CouponUsage userCoupon = couponService.apply(criteria.userId(), criteria.couponId(), order.getTotalPrice());
         order.applyDiscount(userCoupon.getDiscountAmount());
-        paymentService.create(new PaymentCommand.Create(order.getOrderId(), order.getOrderAmount()));
+        paymentService.create(new PaymentCommand.Create(order.getOrderId(), order.getOrderAmount(), order.getUserId(), criteria.userName()));
 
         return OrderResult.of(order);
     }

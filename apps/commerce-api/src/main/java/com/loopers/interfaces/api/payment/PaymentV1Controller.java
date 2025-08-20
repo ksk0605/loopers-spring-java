@@ -24,10 +24,7 @@ public class PaymentV1Controller implements PaymentV1ApiSpec {
         @RequestHeader("X-USER-ID") String userId,
         @RequestBody PaymentV1Dto.PaymentRequest request
     ) {
-        PaymentResult result = paymentFacade.approve(request.toCommand(userId));
-        return ApiResponse.success(new PaymentV1Dto.PaymentResponse(
-            result.transactionKey(),
-            result.status().name()
-        ));
+        PaymentResult result = paymentFacade.requestPayment(request.toCommand(userId));
+        return ApiResponse.success(PaymentV1Dto.PaymentResponse.from(result));
     }
 }

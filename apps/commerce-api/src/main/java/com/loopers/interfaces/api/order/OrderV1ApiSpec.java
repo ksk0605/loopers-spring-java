@@ -1,5 +1,6 @@
 package com.loopers.interfaces.api.order;
 
+import com.loopers.domain.user.UserInfo;
 import com.loopers.interfaces.api.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,24 +13,22 @@ public interface OrderV1ApiSpec {
         description = "주문을 생성합니다."
     )
     ApiResponse<OrderV1Dto.OrderResponse> createOrder(
-        String userId,
-        OrderV1Dto.OrderRequest request
+        OrderV1Dto.OrderRequest request,
+        UserInfo userInfo
     );
 
     @Operation(
         summary = "주문 목록 조회",
         description = "주문 목록을 조회합니다."
     )
-    ApiResponse<OrderV1Dto.OrderResponses> getOrders(
-        String userId
-    );
+    ApiResponse<OrderV1Dto.OrderResponses> getOrders(UserInfo userInfo);
 
     @Operation(
         summary = "주문 조회",
         description = "주문을 조회합니다."
     )
     ApiResponse<OrderV1Dto.OrderResponse> getOrder(
-        String userId,
+        UserInfo userInfo,
         Long orderId
     );
 }

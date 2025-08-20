@@ -19,9 +19,10 @@ public class OrderV1Dto {
         List<OrderItemRequest> items,
         Long couponId
     ) {
-        public OrderCriteria.Order toOrderCriteria(Long userId) {
+        public OrderCriteria.Order toOrderCriteria(Long userId, String username) {
             return new OrderCriteria.Order(
                 userId,
+                username,
                 items.stream()
                     .map(item ->
                         new OrderCriteria.Item(item.productId(), item.productOptionId(), item.quantity()))
