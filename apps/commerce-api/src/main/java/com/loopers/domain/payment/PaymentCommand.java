@@ -5,7 +5,9 @@ import java.math.BigDecimal;
 public class PaymentCommand {
     public record Create(
         String orderId,
-        BigDecimal amount
+        BigDecimal amount,
+        Long userId,
+        String username
     ) {
     }
 

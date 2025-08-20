@@ -3,10 +3,10 @@ package com.loopers.domain.payment;
 import org.springframework.stereotype.Component;
 
 import com.loopers.domain.payment.PaymentCommand.Approve;
-import com.loopers.domain.payment.PaymentCommand.Callback;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -14,10 +14,9 @@ import lombok.RequiredArgsConstructor;
 public class PaymentService {
     private final PaymentEventRepository paymentEventRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
-    private final PaymentAdapter paymentAdapter;
 
     public PaymentEvent create(PaymentCommand.Create command) {
-        PaymentEvent paymentEvent = new PaymentEvent(command.orderId(), command.amount());
+        PaymentEvent paymentEvent = new PaymentEvent(command.orderId(), command.amount(), command.username());
         paymentEventRepository.save(paymentEvent);
         return paymentEvent;
     }
@@ -32,11 +31,23 @@ public class PaymentService {
         paymentEventRepository.save(event);
     }
 
-    public PaymentRequestResult request(Approve command) {
-        PaymentRequestResult result = paymentAdapter.request(command);
-        if (!result.isSuccess()) {
-            throw new CoreException(ErrorType.INTERNAL_ERROR, result.reason());
-        }
-        return result;
+    @Transactional
+    public void update(TransactionInfo info) {
+        PaymentEvent event = paymentEventRepository.findByOrderId(info.orderId())
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "결제 이벤트를 찾을 수 없습니다."));
+
+        PaymentTransaction transaction = new PaymentTransaction(
+                info.orderId(),
+                info.transactionKey(),
+                info.cardType(),
+                info.amount(),
+                info.status(),
+                event.getId());
+        paymentTransactionRepository.save(transaction);
+    }
+
+    public PaymentEvent getEvent(String orderId) {
+        return paymentEventRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "결제 이벤트를 찾을 수 없습니다."));
     }
 }

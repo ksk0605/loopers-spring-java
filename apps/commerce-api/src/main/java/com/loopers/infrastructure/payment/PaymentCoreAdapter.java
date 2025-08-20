@@ -1,15 +1,19 @@
 package com.loopers.infrastructure.payment;
 
+import java.math.BigDecimal;
+
 import org.springframework.stereotype.Component;
 
 import com.loopers.domain.payment.PaymentCommand.Approve;
 import com.loopers.domain.payment.PaymentAdapter;
 import com.loopers.domain.payment.PaymentRequestResult;
 import com.loopers.domain.payment.PaymentStatus;
+import com.loopers.domain.payment.TransactionInfo;
 import com.loopers.infrastructure.payment.pgsimulator.PgSimulatorClient;
 import com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorException;
 import com.loopers.infrastructure.payment.pgsimulator.request.PgSimulatorPaymentRequest;
 import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorApiResponse;
+import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorTransactionDetailResponse;
 import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorTransactionResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -54,5 +58,19 @@ public class PaymentCoreAdapter implements PaymentAdapter {
             String customMessage = "결제 시스템 연동 중 알 수 없는 오류가 발생했습니다.";
             return PaymentRequestResult.fail(customMessage);
         }
+    }
+
+    @Override
+    public TransactionInfo getTransaction(String transactionKey, String userId) {
+        PgSimulatorApiResponse<PgSimulatorTransactionDetailResponse> response = pgSimulatorClient.getTransaction(transactionKey, userId);
+        PgSimulatorTransactionDetailResponse data = response.data();
+        return new TransactionInfo(
+            data.transactionKey(),
+            data.orderId(),
+            data.cardType().toCardType(),
+            data.cardNo(),
+            BigDecimal.valueOf(data.amount()),
+            data.status().toPaymentStatus(),
+            data.reason());
     }
 }

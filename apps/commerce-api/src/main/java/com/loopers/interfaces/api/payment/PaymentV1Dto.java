@@ -72,6 +72,7 @@ public class PaymentV1Dto {
         PaymentStatusDto status,
         String reason
     ) {
+
         public PaymentCommand.Callback toCommand() {
             return new PaymentCommand.Callback(
                 orderId,
