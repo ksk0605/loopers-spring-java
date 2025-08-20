@@ -10,6 +10,15 @@ server:
     keep-alive-timeout: 60s # 60s
   max-http-request-header-size: 8KB
 
+resilience4j:
+  retry:
+    instances:
+      pg-simulator:
+        max-attempts: 2
+        wait-duration: 500ms
+        retry-exceptions:
+          - com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorRetryableException
+
 spring:
   main:
     web-application-type: servlet
