@@ -1,5 +1,6 @@
 package com.loopers.domain.payment;
 
+import static com.loopers.support.fixture.PaymentEventFixture.aPaymentEvent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -45,6 +46,32 @@ public class PaymentEventTest {
         void createPaymentEvent_whenAmountIsEmpty() {
             // act & assert
             assertThrows(IllegalArgumentException.class, () -> new PaymentEvent("ORD-1111-2222", null, "userId"));
+        }
+    }
+
+    @DisplayName("결제를 실행할 때, ")
+    @Nested
+    class Execute {
+        @DisplayName("이미 성공한 결제를 실행하면, 예외를 발생시킨다.")
+        @Test
+        void throwsException_whenAlreadySuccess() {
+            // arrange
+            PaymentEvent event = aPaymentEvent().build();
+            event.success();
+
+            // act & assert
+            assertThrows(IllegalStateException.class, () -> event.execute());
+        }
+
+        @DisplayName("이미 실패한 결제를 실행하면, 예외를 발생시킨다.")
+        @Test
+        void throwsException_whenAlreadyFail() {
+            // arrange
+            PaymentEvent event = aPaymentEvent().build();
+            event.fail();
+
+            // act & assert
+            assertThrows(IllegalStateException.class, () -> event.execute());
         }
     }
 }

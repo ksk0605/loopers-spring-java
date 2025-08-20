@@ -59,8 +59,8 @@ public class PaymentEvent {
     }
 
     public void execute() {
-        if (status.isExcuted()) {
-            throw new IllegalStateException("이미 실행 중인 결제입니다.");
+        if (status.isCompleted()) {
+            throw new IllegalStateException("이미 처리가 완료된 결제입니다.");
         }
         status = PaymentStatus.EXECUTING;
         updatedAt = LocalDateTime.now();
@@ -73,6 +73,30 @@ public class PaymentEvent {
     public void sync(PaymentCommand.Sync command) {
         this.transactionKey = command.transactionKey();
         this.amount = command.amount();
-        this.status = command.status();
+        if (command.success()) {
+            success();
+        } else if (command.fail()) {
+            fail();
+        } else {
+            this.status = command.status();
+        }
+    }
+
+    public void success() {
+        if (status.isCompleted()) {
+            throw new IllegalStateException("이미 처리가 완료된 결제입니다.");
+        }
+        this.isPaymentDone = true;
+        this.status = PaymentStatus.SUCCESS;
+        this.approvedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void fail() {
+        if (status.isCompleted()) {
+            throw new IllegalStateException("이미 처리가 완료된 결제입니다.");
+        }
+        this.status = PaymentStatus.FAILED;
+        this.updatedAt = LocalDateTime.now();
     }
 }

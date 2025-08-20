@@ -30,5 +30,24 @@ public class PaymentCommand {
         PaymentStatus status,
         String reason
     ) {
+        public static Sync from(TransactionInfo info) {
+            return new Sync(
+                info.orderId(),
+                info.transactionKey(),
+                info.cardType(),
+                info.cardNo(),
+                info.amount(),
+                info.status(),
+                info.reason()
+            );
+        }
+
+        public boolean success() {
+            return status == PaymentStatus.SUCCESS;
+        }
+
+        public boolean fail() {
+            return status == PaymentStatus.FAILED;
+        }
     }
 }

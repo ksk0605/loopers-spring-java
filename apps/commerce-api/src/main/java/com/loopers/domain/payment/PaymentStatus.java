@@ -17,7 +17,7 @@ public enum PaymentStatus {
             .orElse(UNKNOWN);
     }
 
-    public boolean isExcuted() {
-        return this != NOT_STARTED;
+    public boolean isCompleted() {
+        return this == SUCCESS || this == FAILED;
     }
 }

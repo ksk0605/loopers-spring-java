@@ -148,6 +148,7 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
             assertThat(updatedEvent.get().getStatus()).isEqualTo(PaymentStatus.SUCCESS);
             assertThat(updatedEvent.get().getTransactionKey()).isEqualTo("key-12345");
             assertThat(updatedEvent.get().getAmount()).isEqualByComparingTo(event.getAmount());
+            assertThat(updatedEvent.get().getApprovedAt()).isNotNull();
         }
     }
 }
