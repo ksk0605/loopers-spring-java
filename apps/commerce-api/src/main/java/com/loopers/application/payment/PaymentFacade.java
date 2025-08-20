@@ -1,12 +1,10 @@
 package com.loopers.application.payment;
 
 import com.loopers.domain.payment.PaymentAdapter;
-import com.loopers.domain.payment.PaymentCommand.Callback;
 import com.loopers.domain.payment.PaymentCommand.Request;
-import com.loopers.domain.payment.PaymentEvent;
+import com.loopers.domain.payment.PaymentCommand.Sync;
 import com.loopers.domain.payment.PaymentRequestResult;
 import com.loopers.domain.payment.PaymentService;
-import com.loopers.domain.payment.TransactionInfo;
 import com.loopers.support.annotation.UseCase;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -28,9 +26,7 @@ public class PaymentFacade {
         return new PaymentResult(result.transactionKey());
     }
 
-    public void handleCallback(Callback command) {
-        PaymentEvent event = paymentService.getEvent(command.orderId());
-        TransactionInfo info = paymentAdapter.getTransaction(command.transactionKey(), event.getBuyerId());
-        paymentService.update(info);
+    public void syncPayment(Sync command) {
+        paymentService.sync(command);
     }
 }

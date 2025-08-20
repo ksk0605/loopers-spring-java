@@ -11,9 +11,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @Table(name = "payment_transaction")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentTransaction {
@@ -46,5 +48,16 @@ public class PaymentTransaction {
         this.status = status;
         this.paymentEventId = paymentEventId;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public static PaymentTransaction of(PaymentCommand.Sync command, Long paymentEventId) {
+        return new PaymentTransaction(
+            command.orderId(),
+            command.transactionKey(),
+            command.cardType(),
+            command.amount(),
+            command.status(),
+            paymentEventId
+        );
     }
 }

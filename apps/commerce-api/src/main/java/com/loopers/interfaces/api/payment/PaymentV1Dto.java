@@ -78,8 +78,8 @@ public class PaymentV1Dto {
         String reason
     ) {
 
-        public PaymentCommand.Callback toCommand() {
-            return new PaymentCommand.Callback(
+        public PaymentCommand.Sync toCommand() {
+            return new PaymentCommand.Sync(
                 orderId,
                 transactionKey,
                 cardType.toCardType(),

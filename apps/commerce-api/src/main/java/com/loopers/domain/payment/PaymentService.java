@@ -15,12 +15,14 @@ public class PaymentService {
     private final PaymentEventRepository paymentEventRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
 
+    @Transactional
     public PaymentEvent create(PaymentCommand.Create command) {
         PaymentEvent paymentEvent = new PaymentEvent(command.orderId(), command.amount(), command.username());
         paymentEventRepository.save(paymentEvent);
         return paymentEvent;
     }
 
+    @Transactional
     public void execute(Request command) {
         PaymentEvent event = paymentEventRepository.findByOrderId(command.orderId())
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "결제 이벤트를 찾을 수 없습니다."));
@@ -32,22 +34,11 @@ public class PaymentService {
     }
 
     @Transactional
-    public void update(TransactionInfo info) {
-        PaymentEvent event = paymentEventRepository.findByOrderId(info.orderId())
+    public void sync(PaymentCommand.Sync command) {
+        PaymentEvent event = paymentEventRepository.findByOrderId(command.orderId())
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "결제 이벤트를 찾을 수 없습니다."));
-
-        PaymentTransaction transaction = new PaymentTransaction(
-            info.orderId(),
-            info.transactionKey(),
-            info.cardType(),
-            info.amount(),
-            info.status(),
-            event.getId());
+        event.sync(command);
+        PaymentTransaction transaction = PaymentTransaction.of(command, event.getId());
         paymentTransactionRepository.save(transaction);
-    }
-
-    public PaymentEvent getEvent(String orderId) {
-        return paymentEventRepository.findByOrderId(orderId)
-            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "결제 이벤트를 찾을 수 없습니다."));
     }
 }

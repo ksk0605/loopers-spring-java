@@ -23,7 +23,9 @@ import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentRequestResult;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.payment.PaymentStatus;
+import com.loopers.domain.payment.PaymentTransaction;
 import com.loopers.infrastructure.payment.PaymentEventJpaRepository;
+import com.loopers.infrastructure.payment.PaymentTransactionJpaRepository;
 import com.loopers.support.IntegrationTest;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -38,6 +40,9 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
     @Autowired
     private PaymentEventJpaRepository paymentEventJpaRepository;
 
+    @Autowired
+    private PaymentTransactionJpaRepository paymentTransactionJpaRepository;
+
     @MockitoBean
     private PaymentAdapter paymentAdapter;
 
@@ -48,7 +53,7 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
 
     @DisplayName("결제 승인 요청 시, ")
     @Nested
-    class Create {
+    class Request {
         @DisplayName("정상적인 결제 정보가 주어지면, 결제 이벤트는 실행중(EXECUTING) 상태로 변경된다.")
         @Test
         void createPaymentEvent_whenPaymentCreated() {
@@ -108,6 +113,41 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
             });
 
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.CONFLICT);
+        }
+    }
+
+    @DisplayName("결제 싱크를 시도할 때, ")
+    @Nested
+    class Sync {
+        @DisplayName("주어진 정보를 바탕으로 결제 이벤트 정보를 업데이트하고, 결제 이벤트에 대한 결제 트랜잭션을 생성한다.")
+        @Test
+        void syncPayment_whenValidTransactionInfoProvided() {
+            // arrange
+            PaymentEvent event = paymentEventJpaRepository.save(aPaymentEvent().build());
+
+            // act
+            paymentFacade.syncPayment(new PaymentCommand.Sync(
+                event.getOrderId(),
+                "key-12345",
+                CardType.SAMSUNG,
+                "1234-1234-1234-1234",
+                event.getAmount(),
+                PaymentStatus.SUCCESS,
+                null
+            ));
+
+            // assert
+            Optional<PaymentTransaction> transaction = paymentTransactionJpaRepository.findById(1L);
+            assertThat(transaction).isPresent();
+            assertThat(transaction.get().getOrderId()).isEqualTo(event.getOrderId());
+            assertThat(transaction.get().getTransactionKey()).isEqualTo("key-12345");
+            assertThat(transaction.get().getStatus()).isEqualTo(PaymentStatus.SUCCESS);
+
+            Optional<PaymentEvent> updatedEvent = paymentEventJpaRepository.findById(event.getId());
+            assertThat(updatedEvent).isPresent();
+            assertThat(updatedEvent.get().getStatus()).isEqualTo(PaymentStatus.SUCCESS);
+            assertThat(updatedEvent.get().getTransactionKey()).isEqualTo("key-12345");
+            assertThat(updatedEvent.get().getAmount()).isEqualByComparingTo(event.getAmount());
         }
     }
 }

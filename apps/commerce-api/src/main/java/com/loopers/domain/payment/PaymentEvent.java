@@ -6,9 +6,9 @@ import static com.loopers.support.util.RequireUtils.requireNotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -68,5 +68,11 @@ public class PaymentEvent {
 
     public boolean isValid(BigDecimal amount) {
         return this.amount.compareTo(amount) == 0;
+    }
+
+    public void sync(PaymentCommand.Sync command) {
+        this.transactionKey = command.transactionKey();
+        this.amount = command.amount();
+        this.status = command.status();
     }
 }

@@ -20,7 +20,7 @@ public class PaymentCallbackV1Controller {
     public void callbackPayment(
         @RequestBody PaymentV1Dto.PaymentCallbackRequest request
     ) {
-        PaymentCommand.Callback command = request.toCommand();
-        paymentFacade.handleCallback(command);
+        PaymentCommand.Sync command = request.toCommand();
+        paymentFacade.syncPayment(command);
     }
 }

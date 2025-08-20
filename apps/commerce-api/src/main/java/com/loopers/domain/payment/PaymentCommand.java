@@ -21,7 +21,7 @@ public class PaymentCommand {
     ) {
     }
 
-    public record Callback(
+    public record Sync(
         String orderId,
         String transactionKey,
         CardType cardType,
