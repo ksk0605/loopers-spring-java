@@ -1,9 +1,26 @@
-package com.loopers.infrastructure.payment.pgsimulator.response;
+package com.loopers.infrastructure.payment.pgsimulator;
 
 import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PaymentStatus;
 
-public record PgSimulatorTransactionDetailResponse(
+public class PgSimulatorDto {
+    public record Request(
+        String orderId,
+        String cardType,
+        String cardNo,
+        Long amount,
+        String callbackUrl
+    ) {
+    }
+
+    public record TransactionResponse(
+        String transactionKey,
+        TransactionStatusResponse status,
+        String reason
+    ) {
+    }
+
+    public record TransactionDetailResponse(
         String transactionKey,
         String orderId,
         CardTypeDto cardType,
@@ -11,6 +28,7 @@ public record PgSimulatorTransactionDetailResponse(
         Long amount,
         TransactionStatusResponse status,
         String reason) {
+    }
 
     public enum CardTypeDto {
         SAMSUNG,

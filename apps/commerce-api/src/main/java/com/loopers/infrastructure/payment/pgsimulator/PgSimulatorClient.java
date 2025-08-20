@@ -7,21 +7,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import com.loopers.infrastructure.payment.pgsimulator.request.PgSimulatorPaymentRequest;
-import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorApiResponse;
-import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorTransactionDetailResponse;
-import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorTransactionResponse;
-
 import io.github.resilience4j.retry.annotation.Retry;
 
 @FeignClient(name = "pg-simulator", url = "http://localhost:8082", configuration = PgSimulatorConfig.class)
 public interface PgSimulatorClient {
     @PostMapping("/api/v1/payments")
     @Retry(name = "pg-simulator")
-    PgSimulatorApiResponse<PgSimulatorTransactionResponse> request(@RequestBody PgSimulatorPaymentRequest request,
+    PgSimulatorApiResponse<PgSimulatorDto.TransactionResponse> request(@RequestBody PgSimulatorDto.Request request,
         @RequestHeader("X-USER-ID") String userId);
 
     @GetMapping("/api/v1/payments/{transactionKey}")
-    PgSimulatorApiResponse<PgSimulatorTransactionDetailResponse> getTransaction(@PathVariable String transactionKey,
+    PgSimulatorApiResponse<PgSimulatorDto.TransactionDetailResponse> getTransaction(@PathVariable String transactionKey,
         @RequestHeader("X-USER-ID") String userId);
 }

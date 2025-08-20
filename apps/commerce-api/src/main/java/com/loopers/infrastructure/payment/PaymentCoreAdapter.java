@@ -7,14 +7,10 @@ import org.springframework.stereotype.Component;
 import com.loopers.domain.payment.PaymentAdapter;
 import com.loopers.domain.payment.PaymentCommand.Request;
 import com.loopers.domain.payment.PaymentRequestResult;
-import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.payment.TransactionInfo;
 import com.loopers.infrastructure.payment.pgsimulator.PgSimulatorClient;
+import com.loopers.infrastructure.payment.pgsimulator.PgSimulatorDto;
 import com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorException;
-import com.loopers.infrastructure.payment.pgsimulator.request.PgSimulatorPaymentRequest;
-import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorApiResponse;
-import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorTransactionDetailResponse;
-import com.loopers.infrastructure.payment.pgsimulator.response.PgSimulatorTransactionResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +23,7 @@ public class PaymentCoreAdapter implements PaymentAdapter {
 
     @Override
     public PaymentRequestResult request(Request command) {
-        PgSimulatorPaymentRequest request = new PgSimulatorPaymentRequest(
+        PgSimulatorDto.Request request = new PgSimulatorDto.Request(
             command.orderId(),
             command.cardType().name(),
             command.cardNo(),
@@ -35,14 +31,14 @@ public class PaymentCoreAdapter implements PaymentAdapter {
             "http://localhost:8080/api/v1/payments/callback");
 
         try {
-            PgSimulatorApiResponse<PgSimulatorTransactionResponse> response = pgSimulatorClient.request(request,
+            var response = pgSimulatorClient.request(request,
                 command.userId());
+            var data = response.data();
 
-            PgSimulatorTransactionResponse data = response.data();
             return PaymentRequestResult.success(
-                data.getTransactionKey(),
-                PaymentStatus.from(data.getStatus()),
-                data.getReason());
+                data.transactionKey(),
+                data.status().toPaymentStatus(),
+                data.reason());
         } catch (PgSimulatorException e) {
             log.error("PG 시뮬레이터 결제 실패. HttpStatus: {}, ErrorCode: {}, Message: {}", e.getHttpStatus(),
                 e.getErrorCode(), e.getMessage());
@@ -62,9 +58,9 @@ public class PaymentCoreAdapter implements PaymentAdapter {
 
     @Override
     public TransactionInfo getTransaction(String transactionKey, String userId) {
-        PgSimulatorApiResponse<PgSimulatorTransactionDetailResponse> response = pgSimulatorClient.getTransaction(transactionKey,
+        var response = pgSimulatorClient.getTransaction(transactionKey,
             userId);
-        PgSimulatorTransactionDetailResponse data = response.data();
+        var data = response.data();
         return new TransactionInfo(
             data.transactionKey(),
             data.orderId(),
