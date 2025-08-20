@@ -33,14 +33,14 @@ public class PgSimulatorErrorDecoder implements ErrorDecoder {
 
         try {
             PgSimulatorApiResponse<?> errorResponse = objectMapper.readValue(responseBody,
-                    PgSimulatorApiResponse.class);
+                PgSimulatorApiResponse.class);
 
             if (errorResponse != null && errorResponse.meta() != null
-                    && errorResponse.meta().result() == PgSimulatorApiResponse.Metadata.Result.FAIL) {
+                && errorResponse.meta().result() == PgSimulatorApiResponse.Metadata.Result.FAIL) {
                 String errorCode = errorResponse.meta().errorCode();
                 String errorMessage = errorResponse.meta().message();
                 log.warn("PG 시뮬레이터 에러 - 코드: {}, 메시지: {}", errorCode, errorMessage);
-                return new PgSimulatorException(errorCode, errorMessage);
+                return new PgSimulatorException(errorCode, errorMessage, response.status());
             }
         } catch (IOException e) {
             log.error("PG 시뮬레이터 응답 파싱 실패", e);

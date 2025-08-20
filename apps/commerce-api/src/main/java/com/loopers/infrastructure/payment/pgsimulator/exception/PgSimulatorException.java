@@ -6,9 +6,11 @@ import lombok.Getter;
 public class PgSimulatorException extends RuntimeException {
 
     private final String errorCode;
+    private final int httpStatus; 
 
-    public PgSimulatorException(String errorCode, String message) {
+    public PgSimulatorException(String errorCode, String message, int httpStatus) {
         super(message);
         this.errorCode = errorCode;
+        this.httpStatus = httpStatus;
     }
 }
