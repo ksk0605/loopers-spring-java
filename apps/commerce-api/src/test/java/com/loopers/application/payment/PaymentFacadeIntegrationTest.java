@@ -55,7 +55,7 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
             // arrange
             PaymentEvent event = aPaymentEvent().build();
             paymentEventJpaRepository.save(event);
-            PaymentCommand.Approve command = new PaymentCommand.Approve(
+            PaymentCommand.Request command = new PaymentCommand.Request(
                 "userId",
                 event.getOrderId(),
                 CardType.SAMSUNG,
@@ -79,7 +79,7 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
         @Test
         void createPaymentEvent_whenPaymentEventNotFound() {
             // arrange
-            PaymentCommand.Approve command = new PaymentCommand.Approve("userId", "orderId", CardType.SAMSUNG,
+            PaymentCommand.Request command = new PaymentCommand.Request("userId", "orderId", CardType.SAMSUNG,
                 "1234-1234-1234-1234", BigDecimal.valueOf(10000), PaymentMethod.CREDIT_CARD);
 
             // act & assert
@@ -99,7 +99,7 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
 
             // act & assert
             CoreException exception = assertThrows(CoreException.class, () -> {
-                paymentFacade.requestPayment(new PaymentCommand.Approve("userId",
+                paymentFacade.requestPayment(new PaymentCommand.Request("userId",
                     "1234567890",
                     CardType.SAMSUNG,
                     "1234-1234-1234-1234",

@@ -16,8 +16,8 @@ public class PaymentV1Dto {
         Long amount,
         PaymentMethodDto method
     ) {
-        public PaymentCommand.Approve toCommand(String userId) {
-            return new PaymentCommand.Approve(
+        public PaymentCommand.Request toCommand(String userId) {
+            return new PaymentCommand.Request(
                 userId,
                 orderId,
                 cardType.toCardType(),

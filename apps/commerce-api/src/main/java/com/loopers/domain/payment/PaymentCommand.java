@@ -11,7 +11,7 @@ public class PaymentCommand {
     ) {
     }
 
-    public record Approve(
+    public record Request(
         String userId,
         String orderId,
         CardType cardType,

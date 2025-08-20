@@ -1,8 +1,8 @@
 package com.loopers.application.payment;
 
 import com.loopers.domain.payment.PaymentAdapter;
-import com.loopers.domain.payment.PaymentCommand.Approve;
 import com.loopers.domain.payment.PaymentCommand.Callback;
+import com.loopers.domain.payment.PaymentCommand.Request;
 import com.loopers.domain.payment.PaymentEvent;
 import com.loopers.domain.payment.PaymentRequestResult;
 import com.loopers.domain.payment.PaymentService;
@@ -19,7 +19,7 @@ public class PaymentFacade {
     private final PaymentService paymentService;
     private final PaymentAdapter paymentAdapter;
 
-    public PaymentResult requestPayment(Approve command) {
+    public PaymentResult requestPayment(Request command) {
         paymentService.execute(command);
         PaymentRequestResult result = paymentAdapter.request(command);
         if (!result.isSuccess()) {
