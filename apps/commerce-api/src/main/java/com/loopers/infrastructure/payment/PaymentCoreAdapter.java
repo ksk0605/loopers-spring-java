@@ -2,6 +2,7 @@ package com.loopers.infrastructure.payment;
 
 import java.math.BigDecimal;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.loopers.domain.payment.PaymentAdapter;
@@ -19,8 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class PaymentCoreAdapter implements PaymentAdapter {
+    @Value("${payment.callback-url}")
+    private String callbackUrl;
     private final PgSimulatorClient pgSimulatorClient;
-
+    
     @Override
     public PaymentRequestResult request(Request command) {
         PgSimulatorDto.Request request = new PgSimulatorDto.Request(
@@ -28,7 +31,7 @@ public class PaymentCoreAdapter implements PaymentAdapter {
             command.cardType().name(),
             command.cardNo(),
             command.amount().longValue(),
-            "http://localhost:8080/api/v1/payments/callback");
+            callbackUrl);
 
         try {
             var response = pgSimulatorClient.request(request,
