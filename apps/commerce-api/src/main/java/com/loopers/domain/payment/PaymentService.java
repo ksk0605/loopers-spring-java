@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentEventRepository paymentEventRepository;
+    private final PaymentExcutor paymentExcutor;
 
     public PaymentEvent create(PaymentCommand.Create command) {
         PaymentEvent paymentEvent = new PaymentEvent(command.orderId(), command.amount());
@@ -27,5 +28,13 @@ public class PaymentService {
         }
         event.execute();
         paymentEventRepository.save(event);
+    }
+
+    public PaymentRequestResult request(Approve command) {
+        PaymentRequestResult result = paymentExcutor.request(command);
+        if (!result.isSuccess()) {
+            throw new CoreException(ErrorType.INTERNAL_ERROR, result.reason());
+        }
+        return result;
     }
 }
