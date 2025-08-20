@@ -2,6 +2,7 @@ package com.loopers.interfaces.api.payment;
 
 import java.math.BigDecimal;
 
+import com.loopers.application.payment.PaymentResult;
 import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentMethod;
@@ -28,9 +29,13 @@ public class PaymentV1Dto {
     }
 
     public record PaymentResponse(
-        String transactionKey,
-        String status
+        String transactionKey
     ) {
+        public static PaymentResponse from(PaymentResult result) {
+            return new PaymentResponse(
+                result.transactionKey()
+            );
+        }
     }
 
     public enum CardTypeDto {

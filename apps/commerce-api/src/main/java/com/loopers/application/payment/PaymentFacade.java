@@ -19,13 +19,13 @@ public class PaymentFacade {
     private final PaymentService paymentService;
     private final PaymentAdapter paymentAdapter;
 
-    public PaymentResult approve(Approve command) {
+    public PaymentResult requestPayment(Approve command) {
         paymentService.execute(command);
         PaymentRequestResult result = paymentAdapter.request(command);
         if (!result.isSuccess()) {
             throw new CoreException(ErrorType.INTERNAL_ERROR, result.reason());
         }
-        return new PaymentResult(result.transactionKey(), result.status());
+        return new PaymentResult(result.transactionKey());
     }
 
     public void handleCallback(Callback command) {
