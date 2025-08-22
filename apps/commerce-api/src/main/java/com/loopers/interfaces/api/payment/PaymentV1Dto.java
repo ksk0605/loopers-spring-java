@@ -56,14 +56,12 @@ public class PaymentV1Dto {
     public enum PaymentMethodDto {
         CREDIT_CARD,
         POINT,
-        CREDIT_CARD_AND_POINT,
         ;
 
         public PaymentMethod toPaymentMethod() {
             return switch (this) {
                 case CREDIT_CARD -> PaymentMethod.CREDIT_CARD;
                 case POINT -> PaymentMethod.POINT;
-                case CREDIT_CARD_AND_POINT -> PaymentMethod.CREDIT_CARD_AND_POINT;
             };
         }
     }
