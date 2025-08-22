@@ -19,6 +19,17 @@ public class PaymentCommand {
         BigDecimal amount,
         PaymentMethod method
     ) {
+        public Sync toSyncForPointPayment(String transactionKey) {
+            return new Sync(
+                orderId,
+                null,
+                null,
+                null,
+                amount,
+                PaymentStatus.SUCCESS,
+                null
+            );
+        }
     }
 
     public record Sync(
