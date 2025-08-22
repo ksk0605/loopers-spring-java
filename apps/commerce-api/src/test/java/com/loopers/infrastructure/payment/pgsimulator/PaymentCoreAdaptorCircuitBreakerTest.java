@@ -2,8 +2,11 @@ package com.loopers.infrastructure.payment.pgsimulator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,14 +16,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.PaymentCommand;
+import com.loopers.domain.payment.PaymentMethod;
+import com.loopers.infrastructure.payment.PaymentCoreAdapter;
+
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
 @SpringBootTest
-class PgSimulatorClientTest {
+class PaymentCoreAdaptorCircuitBreakerTest {
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;
+
+    private PaymentCoreAdapter paymentCoreAdapter;
 
     @MockitoBean
     private PgSimulatorClient pgSimulatorClient;
@@ -29,7 +39,8 @@ class PgSimulatorClientTest {
 
     @BeforeEach
     void setUp() {
-        circuitBreaker = circuitBreakerRegistry.circuitBreaker("pg-simulator");
+        circuitBreaker = circuitBreakerRegistry.circuitBreaker("pg-simulator-payment");
+        paymentCoreAdapter = new PaymentCoreAdapter(pgSimulatorClient);
     }
 
     @AfterEach
@@ -42,24 +53,29 @@ class PgSimulatorClientTest {
     void givenSlowCalls_whenExceedsSlowCallRateThreshold_thenTransitionsToOpen() throws Exception {
         // arrange
         // 800ms 걸리는 느린 호출
-        when(pgSimulatorClient.request(null, null)).thenAnswer(invocation -> {
+        PgSimulatorApiResponse.Metadata metadata = new PgSimulatorApiResponse.Metadata(PgSimulatorApiResponse.Metadata.Result.SUCCESS, null, null);
+        PgSimulatorDto.TransactionResponse transactionResponse = new PgSimulatorDto.TransactionResponse("transactionKey", PgSimulatorDto.TransactionStatusResponse.SUCCESS, "");
+        var response = new PgSimulatorApiResponse<>(metadata, transactionResponse);
+        when(pgSimulatorClient.request(any(), any())).thenAnswer(invocation -> {
             Thread.sleep(800);
-            return null;
+            return response;
         });
+
+        PaymentCommand.Request command = new PaymentCommand.Request("userId", "orderId", CardType.HYUNDAI, "1234-1234-1234-1234", BigDecimal.valueOf(10000), PaymentMethod.CREDIT_CARD);
 
         // act & assert
         // 최소 호출 수(3)를 만족시키기 위해 3번 호출
         // 느린 호출 2회 (실패로 기록)
-        circuitBreaker.executeCallable(() -> pgSimulatorClient.request(null, null));
-        circuitBreaker.executeCallable(() -> pgSimulatorClient.request(null, null));
+        circuitBreaker.executeCallable(() -> paymentCoreAdapter.request(command));
+        circuitBreaker.executeCallable(() -> paymentCoreAdapter.request(command));
 
         // 빠른 호출 (성공으로 기록)
         // Mockito 설정을 바꿔서 100ms 걸리는 빠른 호출 시뮬레이션
-        when(pgSimulatorClient.request(null, null)).thenAnswer(invocation -> {
+        when(pgSimulatorClient.request(any(), any())).thenAnswer(invocation -> {
             Thread.sleep(100);
-            return null;
+            return response;
         });
-        circuitBreaker.executeCallable(() -> pgSimulatorClient.request(null, null));
+        circuitBreaker.executeCallable(() -> paymentCoreAdapter.request(command));
 
         // 총 3번 호출, 그 중 2번이 느린 호출(실패). 느린 호출 비율 66.6% > 50%
         // 서킷은 OPEN 상태가 되어야 함
@@ -67,7 +83,7 @@ class PgSimulatorClientTest {
 
         // OPEN 상태이므로 추가 호출은 차단되어야 함
         assertThrows(CallNotPermittedException.class,
-            () -> circuitBreaker.executeCallable(() -> pgSimulatorClient.request(null, null)));
+            () -> circuitBreaker.executeCallable(() -> paymentCoreAdapter.request(command)));
     }
 
     @Test
@@ -77,7 +93,11 @@ class PgSimulatorClientTest {
         circuitBreaker.transitionToOpenState();
         circuitBreaker.transitionToHalfOpenState();
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.HALF_OPEN);
-        given(pgSimulatorClient.request(null, null)).willReturn(null);
+
+        PgSimulatorApiResponse.Metadata metadata = new PgSimulatorApiResponse.Metadata(PgSimulatorApiResponse.Metadata.Result.SUCCESS, null, null);
+        PgSimulatorDto.TransactionResponse transactionResponse = new PgSimulatorDto.TransactionResponse("transactionKey", PgSimulatorDto.TransactionStatusResponse.SUCCESS, "");
+        var response = new PgSimulatorApiResponse<>(metadata, transactionResponse);
+        given(pgSimulatorClient.request(any(), any())).willReturn(response);
 
         // act
         recordSuccess();
@@ -93,7 +113,7 @@ class PgSimulatorClientTest {
         circuitBreaker.transitionToOpenState();
         circuitBreaker.transitionToHalfOpenState();
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.HALF_OPEN);
-        given(pgSimulatorClient.request(null, null)).willThrow(new RuntimeException("Still failing"));
+        given(pgSimulatorClient.request(any(), any())).willThrow(new RuntimeException("Still failing"));
 
         // act
         recordFailure();
@@ -104,7 +124,8 @@ class PgSimulatorClientTest {
 
     private void recordSuccess() {
         try {
-            circuitBreaker.executeCallable(() -> pgSimulatorClient.request(null, null));
+            PaymentCommand.Request command = new PaymentCommand.Request("userId", "orderId", CardType.HYUNDAI, "1234-1234-1234-1234", BigDecimal.valueOf(10000), PaymentMethod.CREDIT_CARD);
+            circuitBreaker.executeCallable(() -> paymentCoreAdapter.request(command));
         } catch (Exception e) {
             // Should not happen in success case
         }
@@ -112,7 +133,8 @@ class PgSimulatorClientTest {
 
     private void recordFailure() {
         try {
-            circuitBreaker.executeCallable(() -> pgSimulatorClient.request(null, null));
+            PaymentCommand.Request command = new PaymentCommand.Request("userId", "orderId", CardType.HYUNDAI, "1234-1234-1234-1234", BigDecimal.valueOf(10000), PaymentMethod.CREDIT_CARD);
+            circuitBreaker.executeCallable(() -> paymentCoreAdapter.request(command));
         } catch (Exception e) {
             // Expected
         }
