@@ -4,8 +4,7 @@ import java.util.Arrays;
 
 public enum PaymentMethod {
     CREDIT_CARD,
-    POINT,
-    CREDIT_CARD_AND_POINT;
+    POINT;
 
     public static PaymentMethod from(String name) {
         return Arrays.stream(PaymentMethod.values())

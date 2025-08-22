@@ -52,7 +52,7 @@ class OrderFacadeTest extends IntegrationTest {
     void order() {
         // arrange
         User user = anUser().build();
-        user.updatePoint(1000000);
+        user.chargePoint(1000000);
         userJpaRepository.save(user);
 
         Product product = aProduct().name("상품 1").build();
