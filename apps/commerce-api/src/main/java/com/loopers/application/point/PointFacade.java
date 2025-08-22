@@ -25,7 +25,7 @@ public class PointFacade {
     public PointResult chargePoint(String userId, int amount) {
         User user = userService.get(userId);
         PointHistory pointHistory = pointHistoryService.earn(user.getUserId(), amount);
-        user = userService.updatePoint(userId, pointHistory.getBalance());
+        user = userService.chargePoint(userId, pointHistory.getBalance());
         return new PointResult(user.getPoint());
     }
 }

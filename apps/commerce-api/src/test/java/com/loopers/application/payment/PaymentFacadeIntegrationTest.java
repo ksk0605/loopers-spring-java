@@ -139,7 +139,7 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
         void executePayment_whenPointIsEnough() {
             // arrange
             User user = anUser().build();
-            user.updatePoint(10000);
+            user.chargePoint(10000);
             userJpaRepository.save(user);
             PaymentEvent paymentEvent = paymentEventJpaRepository.save(
                 aPaymentEvent()
@@ -164,7 +164,7 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
         void successPayment_whenMultipleRequest() throws InterruptedException {
             // arrange
             User user = anUser().build();
-            user.updatePoint(20000);
+            user.chargePoint(20000);
             userJpaRepository.save(user);
             PaymentEvent paymentEvent = paymentEventJpaRepository.save(
                 aPaymentEvent()

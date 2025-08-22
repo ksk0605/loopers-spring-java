@@ -83,10 +83,6 @@ public class User extends BaseEntity {
         }
     }
 
-    public void updatePoint(int balance) {
-        this.point = balance;
-    }
-
     public void usePoint(int amount) {
         this.point -= amount;
     }
