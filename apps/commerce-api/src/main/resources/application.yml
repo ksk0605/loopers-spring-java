@@ -22,6 +22,8 @@ resilience4j:
         retry-exceptions:
           - com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorRetryableException
           - feign.RetryableException
+        ignore-exceptions:
+          - io.github.resilience4j.circuitbreaker.CallNotPermittedException
     retry-aspect-order: 2
 
   circuitbreaker:
