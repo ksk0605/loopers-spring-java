@@ -9,6 +9,10 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -153,6 +157,51 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
             Optional<User> updatedUser = userJpaRepository.findById(1L);
             assertThat(updatedUser).isPresent();
             assertThat(updatedUser.get().getPoint()).isEqualTo(0);
+        }
+
+        @DisplayName("한명의 유저가 동시에 결제를 시도할 경우, 하나만 성공한다.")
+        @Test
+        void successPayment_whenMultipleRequest() throws InterruptedException {
+            // arrange
+            User user = anUser().build();
+            user.updatePoint(20000);
+            userJpaRepository.save(user);
+            PaymentEvent paymentEvent = paymentEventJpaRepository.save(
+                aPaymentEvent()
+                    .buyerId(user.getUserId())
+                    .build());
+            PaymentCommand.Request command = new PaymentCommand.Request(paymentEvent.getBuyerId(), paymentEvent.getOrderId(), null,
+                null, BigDecimal.valueOf(10000), PaymentMethod.POINT);
+
+            // act
+            int numberOfThreads = 2;
+            ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+            CountDownLatch latch = new CountDownLatch(numberOfThreads);
+
+            // act
+            List<Throwable> exceptions = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+            IntStream.range(0, numberOfThreads).forEach(i ->
+                executorService.submit(() -> {
+                    try {
+                        paymentFacade.requestPayment(command);
+                    } catch (Exception e) {
+                        exceptions.add(e);
+                    } finally {
+                        latch.countDown();
+                    }
+                })
+            );
+
+            latch.await();
+            executorService.shutdown();
+
+            // assert
+            long successCount = exceptions.size();
+            assertThat(successCount).isEqualTo(1);
+
+            User finalUser = userJpaRepository.findById(1L).orElseThrow();
+            assertThat(finalUser.getPoint()).isEqualTo(10000);
         }
     }
 }
