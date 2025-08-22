@@ -16,16 +16,17 @@ payment:
 resilience4j:
   retry:
     instances:
-      pg-simulator:
+      pg-simulator-payment:
         max-attempts: 2
         wait-duration: 500ms
         retry-exceptions:
           - com.loopers.infrastructure.payment.pgsimulator.exception.PgSimulatorRetryableException
           - feign.RetryableException
+    retry-aspect-order: 2
 
   circuitbreaker:
     instances:
-      pg-simulator:
+      pg-simulator-payment:
         slow-call-rate-threshold: 50
         failure-rate-threshold: 50
         slow-call-duration-threshold: 700
@@ -36,6 +37,7 @@ resilience4j:
         minimum-number-of-calls: 3
         wait-duration-in-open-state: 1000
         register-health-indicator: true
+    circuit-breaker-aspect-order: 1
 
 spring:
   main:
