@@ -1,3 +1,3 @@
 # Payment ERD
 
-![](../../image/Payment%20ERD.png)
+![](../../image/payment-erd.png)
