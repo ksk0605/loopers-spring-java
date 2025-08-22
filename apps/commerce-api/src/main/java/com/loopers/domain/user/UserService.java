@@ -1,5 +1,7 @@
 package com.loopers.domain.user;
 
+import java.math.BigDecimal;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,5 +49,12 @@ public class UserService {
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 유저가 존재하지 않습니다. [userId = " + userId + "]"));
         user.updatePoint(balance);
         return userRepository.save(user);
+    }
+
+    public void usePoint(String userId, BigDecimal amount) {
+        User user = userRepository.find(userId)
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "해당 ID의 유저가 존재하지 않습니다. [userId = " + userId + "]"));
+        user.usePoint(amount.intValue());
+        userRepository.save(user);
     }
 }

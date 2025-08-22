@@ -1,9 +1,9 @@
 package com.loopers.application.payment;
 
 import static com.loopers.support.fixture.PaymentEventFixture.aPaymentEvent;
+import static com.loopers.support.fixture.UserFixture.anUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -18,17 +18,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.CreditCardPaymentExecutor;
 import com.loopers.domain.payment.PaymentAdapter;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentEvent;
+import com.loopers.domain.payment.PaymentExecutorRegistry;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentRequestResult;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.payment.PaymentStatus;
-import com.loopers.domain.payment.PaymentTransaction;
-import com.loopers.domain.payment.TransactionInfo;
+import com.loopers.domain.payment.PointPaymentExecutor;
+import com.loopers.domain.user.User;
 import com.loopers.infrastructure.payment.PaymentEventJpaRepository;
-import com.loopers.infrastructure.payment.PaymentTransactionJpaRepository;
+import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.support.IntegrationTest;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -44,19 +46,25 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
     private PaymentEventJpaRepository paymentEventJpaRepository;
 
     @Autowired
-    private PaymentTransactionJpaRepository paymentTransactionJpaRepository;
+    private UserJpaRepository userJpaRepository;
+
+    @Autowired
+    private PointPaymentExecutor pointPaymentExecutor;
 
     @MockitoBean
     private PaymentAdapter paymentAdapter;
 
     @BeforeEach
     void setUp() {
-        paymentFacade = new PaymentFacade(paymentService, paymentAdapter);
+        CreditCardPaymentExecutor cardPaymentAdaptor = new CreditCardPaymentExecutor(paymentAdapter, paymentService);
+        paymentFacade = new PaymentFacade(
+            new PaymentExecutorRegistry(
+                List.of(cardPaymentAdaptor, pointPaymentExecutor)));
     }
 
-    @DisplayName("결제 승인 요청 시, ")
+    @DisplayName("신용카드 결제 승인 요청 시, ")
     @Nested
-    class Request {
+    class CreditCardPaymentRequest {
         @DisplayName("정상적인 결제 정보가 주어지면, 결제 이벤트는 실행중(EXECUTING) 상태로 변경된다.")
         @Test
         void createPaymentEvent_whenPaymentCreated() {
@@ -119,66 +127,32 @@ public class PaymentFacadeIntegrationTest extends IntegrationTest {
         }
     }
 
-    @DisplayName("결제 싱크를 시도할 때, ")
+    @DisplayName("포인트 결제 요청시, ")
     @Nested
-    class Sync {
-        @DisplayName("주어진 정보를 바탕으로 결제 이벤트 정보를 업데이트하고, 결제 이벤트에 대한 결제 트랜잭션을 생성한다.")
+    class PointPaymentRequest {
+        @DisplayName("포인트가 충분하면 결제에 성공한다.")
         @Test
-        void syncPayment_whenValidTransactionInfoProvided() {
+        void executePayment_whenPointIsEnough() {
             // arrange
-            PaymentEvent event = paymentEventJpaRepository.save(aPaymentEvent().build());
+            User user = anUser().build();
+            user.updatePoint(10000);
+            userJpaRepository.save(user);
+            PaymentEvent paymentEvent = paymentEventJpaRepository.save(
+                aPaymentEvent()
+                    .buyerId(user.getUserId())
+                    .build());
+            PaymentCommand.Request command = new PaymentCommand.Request(paymentEvent.getBuyerId(), paymentEvent.getOrderId(), null,
+                null, BigDecimal.valueOf(10000), PaymentMethod.POINT);
 
             // act
-            paymentFacade.syncPayment(new PaymentCommand.Sync(
-                event.getOrderId(),
-                "key-12345",
-                CardType.SAMSUNG,
-                "1234-1234-1234-1234",
-                event.getAmount(),
-                PaymentStatus.SUCCESS,
-                null
-            ));
+            PaymentResult result = paymentFacade.requestPayment(command);
 
             // assert
-            Optional<PaymentTransaction> transaction = paymentTransactionJpaRepository.findById(1L);
-            assertThat(transaction).isPresent();
-            assertThat(transaction.get().getOrderId()).isEqualTo(event.getOrderId());
-            assertThat(transaction.get().getTransactionKey()).isEqualTo("key-12345");
-            assertThat(transaction.get().getStatus()).isEqualTo(PaymentStatus.SUCCESS);
+            assertThat(result.transactionKey()).startsWith("POINT-");
 
-            Optional<PaymentEvent> updatedEvent = paymentEventJpaRepository.findById(event.getId());
-            assertThat(updatedEvent).isPresent();
-            assertThat(updatedEvent.get().getStatus()).isEqualTo(PaymentStatus.SUCCESS);
-            assertThat(updatedEvent.get().getTransactionKey()).isEqualTo("key-12345");
-            assertThat(updatedEvent.get().getAmount()).isEqualByComparingTo(event.getAmount());
-            assertThat(updatedEvent.get().getApprovedAt()).isNotNull();
-        }
-
-        @DisplayName("팬딩상태(EXECUTING,UNKNOWN) 결제를 모두 싱크한다.")
-        @Test
-        void syncAllPendingPayments() {
-            // arrange
-            PaymentEvent successEvent = aPaymentEvent().orderId("1234").build();
-            successEvent.success();
-            paymentEventJpaRepository.save(successEvent);
-            PaymentEvent executingEvent = aPaymentEvent().orderId("5678").build();
-            executingEvent.execute();
-            paymentEventJpaRepository.save(executingEvent);
-
-            when(paymentAdapter.getTransaction(any(), any())).
-                thenReturn(new TransactionInfo("key-12345", "5678", CardType.SAMSUNG, "1234-1234-1234-1234", BigDecimal.valueOf(10000), PaymentStatus.SUCCESS, null));
-
-            // act
-            paymentFacade.syncPayments();
-
-            // assert
-            List<PaymentEvent> events = paymentEventJpaRepository.findAll();
-            assertThat(events).hasSize(2);
-            assertThat(events.get(0).getStatus()).isEqualTo(PaymentStatus.SUCCESS);
-            assertThat(events.get(1).getStatus()).isEqualTo(PaymentStatus.SUCCESS);
-
-            List<PaymentTransaction> transactions = paymentTransactionJpaRepository.findAll();
-            assertThat(transactions).hasSize(1);
+            Optional<User> updatedUser = userJpaRepository.findById(1L);
+            assertThat(updatedUser).isPresent();
+            assertThat(updatedUser.get().getPoint()).isEqualTo(0);
         }
     }
 }
