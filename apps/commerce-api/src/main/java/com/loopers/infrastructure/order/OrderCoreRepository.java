@@ -26,6 +26,11 @@ public class OrderCoreRepository implements OrderRepository {
     }
 
     @Override
+    public Optional<Order> find(String orderId) {
+        return jpaRepository.findByOrderId(orderId);
+    }
+
+    @Override
     public Order save(Order order) {
         return jpaRepository.save(order);
     }

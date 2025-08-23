@@ -8,6 +8,8 @@ public interface OrderRepository {
 
     Optional<Order> find(Long id, Long userId);
 
+    Optional<Order> find(String orderId);
+
     Order save(Order order);
 
     List<Order> findAll(Long userId);

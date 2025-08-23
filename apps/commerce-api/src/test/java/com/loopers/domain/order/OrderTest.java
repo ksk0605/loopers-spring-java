@@ -103,7 +103,7 @@ public class OrderTest {
             Order order = anOrder().build();
 
             // act
-            order.pay();
+            order.completePayment();
 
             // assert
             assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
@@ -114,11 +114,11 @@ public class OrderTest {
         void payOrder_whenOrderIsPaid() {
             // arrange
             Order order = anOrder().build();
-            order.pay();
+            order.completePayment();
 
             // act & assert
             assertThrows(IllegalStateException.class,
-                () -> order.pay()
+                () -> order.completePayment()
             );
         }
     }
