@@ -45,6 +45,7 @@ class OrderEventHandlerTest {
         PaymentSuccessEvent event = new PaymentSuccessEvent(order.getOrderId());
 
         when(orderRepository.find(order.getOrderId())).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenReturn(order);
 
         // act
         orderEventHandler.handlePaymentSuccess(event);
