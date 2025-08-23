@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class PaymentService {
     private final PaymentEventRepository paymentEventRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
+    private final PaymentEventPublisher paymentEventPublisher;
 
     @Transactional
     public PaymentEvent create(PaymentCommand.Create command) {
@@ -42,6 +43,9 @@ public class PaymentService {
         event.sync(command);
         PaymentTransaction transaction = PaymentTransaction.of(command, event.getId());
         paymentTransactionRepository.save(transaction);
+        if (event.isSuccess()) {
+            paymentEventPublisher.publishSuccess(event.getOrderId());
+        }
     }
 
     @Transactional(readOnly = true)

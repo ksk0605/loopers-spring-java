@@ -99,4 +99,8 @@ public class PaymentEvent {
         this.status = PaymentStatus.FAILED;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public boolean isSuccess() {
+        return this.status == PaymentStatus.SUCCESS;
+    }
 }
