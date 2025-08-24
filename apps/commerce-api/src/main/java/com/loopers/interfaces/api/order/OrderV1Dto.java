@@ -19,9 +19,10 @@ public class OrderV1Dto {
         List<OrderItemRequest> items,
         Long couponId
     ) {
-        public OrderCriteria.Order toOrderCriteria(Long userId) {
+        public OrderCriteria.Order toOrderCriteria(Long userId, String username) {
             return new OrderCriteria.Order(
                 userId,
+                username,
                 items.stream()
                     .map(item ->
                         new OrderCriteria.Item(item.productId(), item.productOptionId(), item.quantity()))
@@ -45,21 +46,19 @@ public class OrderV1Dto {
 
     public record OrderResponse(
         Long id,
+        String orderId,
         List<OrderItemResponse> items,
         Long userId,
         String orderStatus,
-        String paymentMethod,
-        String paymentStatus,
         LocalDateTime orderDate,
         Long totalPrice) {
         public static OrderResponse from(OrderResult orderInfo) {
             return new OrderResponse(
                 orderInfo.id(),
+                orderInfo.orderId(),
                 orderInfo.items().stream().map(OrderItemResponse::from).toList(),
                 orderInfo.userId(),
                 orderInfo.status().name(),
-                orderInfo.paymentMethod().name(),
-                orderInfo.paymentStatus().name(),
                 orderInfo.orderDate(),
                 orderInfo.totalPrice().longValue());
         }

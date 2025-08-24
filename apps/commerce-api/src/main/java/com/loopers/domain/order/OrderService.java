@@ -33,4 +33,12 @@ public class OrderService {
         return orderRepository.find(orderId, userId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 주문입니다."));
     }
+
+    @Transactional
+    public Order completePayment(String orderId) {
+        Order order = orderRepository.find(orderId)
+            .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문이 존재하지 않습니다. [orderId = " + orderId + "]"));
+        order.completePayment();
+        return orderRepository.save(order);
+    }
 }

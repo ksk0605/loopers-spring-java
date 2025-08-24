@@ -3,13 +3,62 @@ package com.loopers.domain.payment;
 import java.math.BigDecimal;
 
 public class PaymentCommand {
-    public record Process(
-        Long orderId, PaymentMethod method, BigDecimal amount
+    public record Create(
+        String orderId,
+        BigDecimal amount,
+        Long userId,
+        String username
     ) {
     }
 
-    public record Pay(
-        Long orderId, PaymentMethod method, BigDecimal amount
+    public record Request(
+        String userId,
+        String orderId,
+        CardType cardType,
+        String cardNo,
+        BigDecimal amount,
+        PaymentMethod method
     ) {
+        public Sync toSyncForPointPayment(String transactionKey) {
+            return new Sync(
+                orderId,
+                null,
+                null,
+                null,
+                amount,
+                PaymentStatus.SUCCESS,
+                null
+            );
+        }
+    }
+
+    public record Sync(
+        String orderId,
+        String transactionKey,
+        CardType cardType,
+        String cardNo,
+        BigDecimal amount,
+        PaymentStatus status,
+        String reason
+    ) {
+        public static Sync from(TransactionInfo info) {
+            return new Sync(
+                info.orderId(),
+                info.transactionKey(),
+                info.cardType(),
+                info.cardNo(),
+                info.amount(),
+                info.status(),
+                info.reason()
+            );
+        }
+
+        public boolean success() {
+            return status == PaymentStatus.SUCCESS;
+        }
+
+        public boolean fail() {
+            return status == PaymentStatus.FAILED;
+        }
     }
 }
