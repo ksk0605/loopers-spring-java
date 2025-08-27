@@ -12,12 +12,14 @@ import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.inventory.InventoryService;
 import com.loopers.domain.like.LikeService;
 import com.loopers.domain.like.LikeTargetType;
-import com.loopers.domain.like.TargetLikeCount;
 import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductOptionInfo;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.usersignal.TargetLikeCount;
+import com.loopers.domain.usersignal.TargetType;
+import com.loopers.domain.usersignal.UserSignalService;
 import com.loopers.support.annotation.UseCase;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class ProductFacade {
     private final BrandService brandService;
     private final LikeService likeService;
     private final ProductCacheRepository productCacheRepository;
+    private final UserSignalService userSignalService;
 
     @Transactional(readOnly = true)
     public ProductDetailResult getProduct(Long productId) {
@@ -65,7 +68,7 @@ public class ProductFacade {
         List<Long> productIds = products.getContent().stream()
             .map(product -> product.getId())
             .toList();
-        List<TargetLikeCount> targetLikeCounts = likeService.getAllByTargetIn(productIds, LikeTargetType.PRODUCT);
+        List<TargetLikeCount> targetLikeCounts = userSignalService.getTargetLikeCountsIn(productIds, TargetType.PRODUCT);
         ProductResults productResults = ProductResults.of(products, brands, targetLikeCounts, pageInfo);
         productCacheRepository.setProductResults(command, productResults);
         return productResults;
