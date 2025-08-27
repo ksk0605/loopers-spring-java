@@ -16,6 +16,7 @@ import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.like.UnlikeEvent;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCreatedEvent;
+import com.loopers.domain.product.ProductViewedEvent;
 import com.loopers.infrastructure.event.InternalEventJpaRepository;
 import com.loopers.infrastructure.order.OrderJpaRepository;
 import com.loopers.support.IntegrationTest;
@@ -95,5 +96,26 @@ public class LoggableEventHandlerIntegrationTest extends IntegrationTest {
         assertThat(internalEvent.getCreatedAt()).isNotNull();
         assertThat(internalEvent.getAttributes()).containsEntry("targetId", 1);
         assertThat(internalEvent.getAttributes()).containsEntry("targetType", "PRODUCT");
+    }
+
+    @DisplayName("상품 조회 이벤트가 발행되면 비동기적으로 내부 이벤트로 변환 후 저장한다.")
+    @Test
+    void saveInternalEvent_whenProductViewedEventIsPublished() {
+        // arrange
+        ProductViewedEvent productViewedEvent = new ProductViewedEvent(1L);
+
+        // act
+        testEventPulisher.publish(productViewedEvent);
+        Awaitility.await()
+            .atMost(Durations.FIVE_SECONDS)
+            .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS)
+            .until(() -> internalEventJpaRepository.findById(1L).isPresent());
+
+        // assert
+        InternalEvent internalEvent = internalEventJpaRepository.findById(1L).orElseThrow();
+        assertThat(internalEvent.getEventType()).isEqualTo(productViewedEvent.getClass().getSimpleName());
+        assertThat(internalEvent.getAttributes()).isNotNull();
+        assertThat(internalEvent.getCreatedAt()).isNotNull();
+        assertThat(internalEvent.getAttributes()).containsEntry("productId", 1);
     }
 }
