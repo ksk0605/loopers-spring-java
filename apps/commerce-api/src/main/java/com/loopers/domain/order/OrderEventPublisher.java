@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderEventPublisher {
     private final ApplicationEventPublisher publisher;
 
-    public void publishOrderPaid(Order order) {
-        publisher.publishEvent(OrderPaidEvent.from(order));
+    public void publishOrderCreatedEvent(OrderCreatedEvent orderCreatedEvent) {
+        publisher.publishEvent(orderCreatedEvent);
     }
 }

@@ -35,10 +35,9 @@ public class OrderService {
     }
 
     @Transactional
-    public Order completePayment(String orderId) {
+    public void completePayment(String orderId) {
         Order order = orderRepository.find(orderId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문이 존재하지 않습니다. [orderId = " + orderId + "]"));
         order.completePayment();
-        return orderRepository.save(order);
     }
 }
