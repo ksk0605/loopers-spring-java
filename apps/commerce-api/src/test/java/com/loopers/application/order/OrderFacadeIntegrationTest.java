@@ -23,6 +23,7 @@ import com.loopers.domain.user.User;
 import com.loopers.infrastructure.coupon.CouponJpaRepository;
 import com.loopers.infrastructure.coupon.CouponUsageJpaRepository;
 import com.loopers.infrastructure.inventory.InventoryJpaRepository;
+import com.loopers.infrastructure.payment.PaymentEventJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.support.IntegrationTest;
@@ -47,7 +48,10 @@ class OrderFacadeIntegrationTest extends IntegrationTest {
     @Autowired
     private UserJpaRepository userJpaRepository;
 
-    @DisplayName("주문 정보가 정상적으로 주어지면, 재고가 차감되고 쿠폰 사용 정보가 저장되고 주문 결과를 반환한다.")
+    @Autowired
+    private PaymentEventJpaRepository paymentEventJpaRepository;
+
+    @DisplayName("주문 정보가 정상적으로 주어지면, 재고 차감, 쿠폰 적용, 결제 생성을 처리하고 주문 결과를 반환한다.")
     @Test
     void order() {
         // arrange
@@ -78,6 +82,7 @@ class OrderFacadeIntegrationTest extends IntegrationTest {
             () -> assertThat(result.status()).isEqualTo(OrderStatus.PENDING_PAYMENT),
             () -> assertThat(result.id()).isEqualTo(1L),
             () -> assertThat(inventoryJpaRepository.findById(1L).get().getQuantity()).isEqualTo(0),
-            () -> assertThat(couponUsageJpaRepository.findById(1L)).isPresent());
+            () -> assertThat(couponUsageJpaRepository.findById(1L)).isPresent(),
+            () -> assertThat(paymentEventJpaRepository.findById(1L)).isPresent());
     }
 }

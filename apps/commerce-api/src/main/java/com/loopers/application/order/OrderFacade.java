@@ -30,7 +30,7 @@ public class OrderFacade {
         Order order = orderService.create(criteria.toOrderCommandWithProductPrices(productPrices));
         BigDecimal discountAmount = couponService.calculateDiscountAmount(criteria.couponId(), order.getTotalPrice());
         order.applyDiscount(discountAmount);
-        orderEventPublisher.publishOrderCreatedEvent(new OrderCreatedEvent(order, criteria.couponId()));
+        orderEventPublisher.publishOrderCreatedEvent(new OrderCreatedEvent(order, criteria.couponId(), criteria.userName()));
         return OrderResult.of(order);
     }
 

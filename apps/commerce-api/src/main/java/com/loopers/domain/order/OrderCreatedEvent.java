@@ -11,10 +11,12 @@ import lombok.Getter;
 public class OrderCreatedEvent {
     private Order order;
     private Long couponId;
+    private String userName;
 
-    public OrderCreatedEvent(Order order, Long couponId) {
+    public OrderCreatedEvent(Order order, Long couponId, String userName) {
         this.order = order;
         this.couponId = couponId;
+        this.userName = userName;
     }
 
     public List<Option> getItems() {
@@ -29,5 +31,9 @@ public class OrderCreatedEvent {
 
     public BigDecimal getTotalPrice() {
         return order.getTotalPrice();
+    }
+
+    public String getOrderId() {
+        return order.getOrderId();
     }
 }
