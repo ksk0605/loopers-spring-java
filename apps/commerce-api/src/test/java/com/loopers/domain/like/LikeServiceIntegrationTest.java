@@ -1,7 +1,6 @@
 package com.loopers.domain.like;
 
 import static com.loopers.support.fixture.LikeFixture.aLike;
-import static com.loopers.support.fixture.LikeSummaryFixture.aLikeSummary;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -73,8 +72,6 @@ class LikeServiceIntegrationTest extends IntegrationTest {
         @Test
         void cancelLike_whenValidLikeInfoProvided() {
             // arrange
-            LikeSummary likeSummary = aLikeSummary().build();
-            likeSummary.incrementLikeCount();
             likeJpaRepository.save(aLike().build());
 
             // act

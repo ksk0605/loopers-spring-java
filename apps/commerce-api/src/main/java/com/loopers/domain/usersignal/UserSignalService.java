@@ -1,5 +1,7 @@
 package com.loopers.domain.usersignal;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,5 +32,12 @@ public class UserSignalService {
         UserSignal signal = userSignalRepository.find(type, targetId)
             .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
         signal.incrementViews();
+    }
+
+    public List<TargetLikeCount> getTargetLikeCountsIn(List<Long> productIds, TargetType targetType) {
+        List<UserSignal> signals = userSignalRepository.findAllIn(productIds, targetType);
+        return signals.stream()
+            .map(signal -> TargetLikeCount.from(signal))
+            .toList();
     }
 }

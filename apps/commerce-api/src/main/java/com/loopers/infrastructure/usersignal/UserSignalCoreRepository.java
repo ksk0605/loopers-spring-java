@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.usersignal;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -23,5 +24,10 @@ public class UserSignalCoreRepository implements UserSignalRepository {
     @Override
     public Optional<UserSignal> find(TargetType type, Long targetId) {
         return userSignalJpaRepository.findByTargetForUpdate(type, targetId);
+    }
+
+    @Override
+    public List<UserSignal> findAllIn(List<Long> productIds, TargetType targetType) {
+        return userSignalJpaRepository.findAllByTargetIdIn(productIds, targetType);
     }
 }

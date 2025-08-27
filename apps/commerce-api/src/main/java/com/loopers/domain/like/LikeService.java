@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.loopers.domain.usersignal.TargetLikeCount;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -12,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 public class LikeService {
     private final LikeRepository likeRepository;
     private final LikeEventPublisher likeEventPublisher;
-    private final LikeSummaryRepository likeSummaryRepository;
 
     @Transactional
     public void like(Long userId, Long targetId, LikeTargetType targetType) {
@@ -46,7 +47,6 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public List<TargetLikeCount> getAllByTargetIn(List<Long> productIds, LikeTargetType likeTargetType) {
-        List<LikeTarget> targets = productIds.stream().map(id -> new LikeTarget(id, likeTargetType)).toList();
-        return likeSummaryRepository.findAllByTargetIn(targets);
+        return List.of();
     }
 }
