@@ -5,8 +5,11 @@ import java.util.Map;
 import com.loopers.domain.event.InternalEvent;
 import com.loopers.domain.event.Loggable;
 
+import lombok.Getter;
+
+@Getter
 public class ProductViewedEvent implements Loggable {
-    private Long productId;
+    private final Long productId;
 
     public ProductViewedEvent(Long productId) {
         this.productId = productId;
