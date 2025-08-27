@@ -13,11 +13,9 @@ import lombok.RequiredArgsConstructor;
 public class OrderEventHandler {
 
     private final OrderService orderService;
-    private final OrderEventPublisher orderEventPublisher;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePaymentSuccess(PaymentSuccessEvent event) {
-        Order order = orderService.completePayment(event.getOrderId());
-        orderEventPublisher.publishOrderPaid(order);
+        orderService.completePayment(event.getOrderId());
     }
 }

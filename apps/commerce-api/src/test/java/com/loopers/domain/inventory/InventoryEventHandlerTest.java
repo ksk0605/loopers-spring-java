@@ -2,6 +2,7 @@ package com.loopers.domain.inventory;
 
 import static com.loopers.domain.inventory.InventoryCommand.Deduct;
 import static com.loopers.support.fixture.InventoryFixture.anInventory;
+import static com.loopers.support.fixture.OrderFixture.anOrder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -16,7 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.loopers.domain.order.OrderPaidEvent;
+import com.loopers.application.inventory.InventoryEventHandler;
+import com.loopers.domain.order.OrderCreatedEvent;
 
 @ExtendWith(MockitoExtension.class)
 class InventoryEventHandlerTest {
@@ -41,11 +43,7 @@ class InventoryEventHandlerTest {
         when(inventoryRepository.findAll(any(Deduct.class))).thenReturn(List.of(inventory));
 
         // act
-        inventoryEventHandler.handlePaymentSuccess(
-            new OrderPaidEvent(
-                1L,
-                List.of(new OrderPaidEvent.Item(1L, 1L, 10))
-            ));
+        inventoryEventHandler.handleOrderCreated(new OrderCreatedEvent(anOrder().build(), 1L));
 
         // assert
         assertThat(inventory.getQuantity()).isEqualTo(0);

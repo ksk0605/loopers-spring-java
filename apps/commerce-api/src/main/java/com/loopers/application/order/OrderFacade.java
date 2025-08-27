@@ -1,15 +1,15 @@
 package com.loopers.application.order;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import com.loopers.domain.coupon.CouponService;
-import com.loopers.domain.coupon.CouponUsage;
 import com.loopers.domain.order.Order;
+import com.loopers.domain.order.OrderCreatedEvent;
+import com.loopers.domain.order.OrderEventPublisher;
 import com.loopers.domain.order.OrderService;
-import com.loopers.domain.payment.PaymentCommand;
-import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.product.ProductPrice;
 import com.loopers.domain.product.ProductService;
 import com.loopers.support.annotation.UseCase;
@@ -22,17 +22,15 @@ public class OrderFacade {
     private final OrderService orderService;
     private final CouponService couponService;
     private final ProductService productService;
-    private final PaymentService paymentService;
+    private final OrderEventPublisher orderEventPublisher;
 
     @Transactional
     public OrderResult order(OrderCriteria.Order criteria) {
         List<ProductPrice> productPrices = productService.getAvailableProductPrices(criteria.toProductCommand());
         Order order = orderService.create(criteria.toOrderCommandWithProductPrices(productPrices));
-
-        CouponUsage userCoupon = couponService.apply(criteria.userId(), criteria.couponId(), order.getTotalPrice());
-        order.applyDiscount(userCoupon.getDiscountAmount());
-        paymentService.create(new PaymentCommand.Create(order.getOrderId(), order.getOrderAmount(), order.getUserId(), criteria.userName()));
-
+        BigDecimal discountAmount = couponService.calculateDiscountAmount(criteria.couponId(), order.getTotalPrice());
+        order.applyDiscount(discountAmount);
+        orderEventPublisher.publishOrderCreatedEvent(new OrderCreatedEvent(order, criteria.couponId()));
         return OrderResult.of(order);
     }
 

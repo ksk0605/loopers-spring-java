@@ -29,16 +29,13 @@ class OrderEventHandlerTest {
     @Mock
     private OrderRepository orderRepository;
 
-    @Mock
-    private OrderEventPublisher orderEventPublisher;
-
     @BeforeEach
     void setUp() {
-        orderEventHandler = new OrderEventHandler(orderService, orderEventPublisher);
+        orderEventHandler = new OrderEventHandler(orderService);
     }
 
     @Test
-    @DisplayName("PaymentSuccessEvent를 수신하면, 주문 상태를 '결제완료'로 변경하고 OrderPaid 이벤트를 발행해야 한다.")
+    @DisplayName("PaymentSuccessEvent를 수신하면, 주문 상태를 '결제완료'로 변경한다.")
     void handlePaymentSuccess_shouldUpdateOrderAndPublishEvent() {
         // arrange
         Order order = anOrder().build();
@@ -52,7 +49,6 @@ class OrderEventHandlerTest {
 
         // assert
         verify(orderRepository, times(1)).find(order.getOrderId());
-        verify(orderEventPublisher, times(1)).publishOrderPaid(order);
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
     }
 }

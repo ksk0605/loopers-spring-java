@@ -27,7 +27,7 @@ import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.support.IntegrationTest;
 
-class OrderFacadeTest extends IntegrationTest {
+class OrderFacadeIntegrationTest extends IntegrationTest {
 
     @Autowired
     private OrderFacade orderFacade;
@@ -47,7 +47,7 @@ class OrderFacadeTest extends IntegrationTest {
     @Autowired
     private UserJpaRepository userJpaRepository;
 
-    @DisplayName("주문 정보가 정상적으로 주어지면, 주문 결과를 반환한다.")
+    @DisplayName("주문 정보가 정상적으로 주어지면, 재고가 차감되고 쿠폰 사용 정보가 저장되고 주문 결과를 반환한다.")
     @Test
     void order() {
         // arrange
@@ -67,15 +67,17 @@ class OrderFacadeTest extends IntegrationTest {
         couponJpaRepository.save(coupon);
 
         // act
-        OrderCriteria.Order cri = new OrderCriteria.Order(1L, user.getUserId(), List.of(new OrderCriteria.Item(1L, 1L, 10)), 1L);
+        OrderCriteria.Order cri = new OrderCriteria.Order(1L, user.getUserId(),
+            List.of(new OrderCriteria.Item(1L, 1L, 10)), 1L);
         OrderResult result = orderFacade.order(cri);
 
         // assert
         assertAll(
             () -> assertThat(result.userId()).isEqualTo(1L),
-            () -> assertThat(result.totalPrice()).isEqualByComparingTo(BigDecimal.valueOf(205000)), // (기본20000원 + 옵션 추가1000원) * 10개 - 5000
+            () -> assertThat(result.totalPrice()).isEqualByComparingTo(BigDecimal.valueOf(205000)), // (기본20000원 +옵션 추가1000원) * 10개 - 5000
             () -> assertThat(result.status()).isEqualTo(OrderStatus.PENDING_PAYMENT),
-            () -> assertThat(result.id()).isEqualTo(1L)
-        );
+            () -> assertThat(result.id()).isEqualTo(1L),
+            () -> assertThat(inventoryJpaRepository.findById(1L).get().getQuantity()).isEqualTo(0),
+            () -> assertThat(couponUsageJpaRepository.findById(1L)).isPresent());
     }
 }
