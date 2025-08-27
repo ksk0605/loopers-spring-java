@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LikeService {
     private final LikeRepository likeRepository;
-    private final LikeSummaryModifier likeSummaryModifier;
+    private final LikeEventPublisher likeEventPublisher;
     private final LikeSummaryRepository likeSummaryRepository;
 
     @Transactional
@@ -21,7 +21,7 @@ public class LikeService {
         }
         Like like = new Like(userId, targetId, targetType);
         likeRepository.save(like);
-        likeSummaryModifier.increment(like.getTarget());
+        likeEventPublisher.publishLikeEvent(like.getTarget());
     }
 
     @Transactional
@@ -31,7 +31,7 @@ public class LikeService {
             return;
         }
         likeRepository.delete(userId, target);
-        likeSummaryModifier.decrement(target);
+        likeEventPublisher.publishUnlikeEvent(target);
     }
 
     @Transactional(readOnly = true)
