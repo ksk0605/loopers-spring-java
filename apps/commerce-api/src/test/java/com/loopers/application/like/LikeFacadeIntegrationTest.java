@@ -18,7 +18,6 @@ import java.util.concurrent.Future;
 
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -81,10 +80,10 @@ class LikeFacadeIntegrationTest extends IntegrationTest {
 
             // assert
             assertAll(
-                    () -> assertThat(results).hasSize(3),
-                    () -> assertThat(results.get(0).id()).isEqualTo(1L),
-                    () -> assertThat(results.get(1).id()).isEqualTo(3L),
-                    () -> assertThat(results.get(2).id()).isEqualTo(4L));
+                () -> assertThat(results).hasSize(3),
+                () -> assertThat(results.get(0).id()).isEqualTo(1L),
+                () -> assertThat(results.get(1).id()).isEqualTo(3L),
+                () -> assertThat(results.get(2).id()).isEqualTo(4L));
         }
     }
 
@@ -98,7 +97,7 @@ class LikeFacadeIntegrationTest extends IntegrationTest {
             brandJpaRepository.save(aBrand().build());
             productJpaRepository.save(aProduct().build());
             userJpaRepository.save(anUser().build());
-            
+
             userSignalJpaRepository.save(anUserSignal().build());
 
             // act
@@ -126,7 +125,7 @@ class LikeFacadeIntegrationTest extends IntegrationTest {
             brandJpaRepository.save(aBrand().build());
             productJpaRepository.save(aProduct().build());
             userJpaRepository.save(anUser().build());
-            
+
             var userSignal = anUserSignal().build();
             userSignalJpaRepository.save(userSignal);
 

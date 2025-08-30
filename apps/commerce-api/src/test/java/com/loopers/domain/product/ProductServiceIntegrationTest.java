@@ -75,12 +75,9 @@ public class ProductServiceIntegrationTest extends IntegrationTest {
             UserSignal signal1 = anUserSignal().build();
             UserSignal signal2 = anUserSignal().targetId(2L).build();
             UserSignal signal3 = anUserSignal().targetId(3L).build();
-            signal1.incrementLikeCount();
-            signal2.incrementLikeCount();
-            signal2.incrementLikeCount();
-            signal2.incrementLikeCount();
-            signal3.incrementLikeCount();
-            signal3.incrementLikeCount();
+            signal1.updateLikeCount(1L);
+            signal2.updateLikeCount(3L);
+            signal3.updateLikeCount(2L);
             userSignalJpaRepository.save(signal1);
             userSignalJpaRepository.save(signal2);
             userSignalJpaRepository.save(signal3);

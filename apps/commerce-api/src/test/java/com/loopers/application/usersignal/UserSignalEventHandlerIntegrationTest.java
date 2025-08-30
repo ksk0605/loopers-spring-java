@@ -1,5 +1,6 @@
 package com.loopers.application.usersignal;
 
+import static com.loopers.support.fixture.UserSignalFixture.anUserSignal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.awaitility.Awaitility;
@@ -13,13 +14,12 @@ import com.loopers.domain.usersignal.TargetType;
 import com.loopers.domain.usersignal.UserSignal;
 import com.loopers.infrastructure.usersignal.UserSignalJpaRepository;
 import com.loopers.support.IntegrationTest;
-import com.loopers.support.TestEventPulisher;
-import static com.loopers.support.fixture.UserSignalFixture.anUserSignal;
+import com.loopers.support.TestEventPublisher;
 
 public class UserSignalEventHandlerIntegrationTest extends IntegrationTest {
 
     @Autowired
-    private TestEventPulisher testEventPulisher;
+    private TestEventPublisher testEventPublisher;
 
     @Autowired
     private UserSignalJpaRepository userSignalJpaRepository;
@@ -32,7 +32,7 @@ public class UserSignalEventHandlerIntegrationTest extends IntegrationTest {
         ProductViewedEvent productViewedEvent = new ProductViewedEvent(1L);
 
         // act
-        testEventPulisher.publish(productViewedEvent);
+        testEventPublisher.publish(productViewedEvent);
         Awaitility.await()
             .atMost(Durations.FIVE_SECONDS)
             .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS)
