@@ -197,7 +197,7 @@ public class LikeV1ApiE2ETest {
                 LikeTargetType.PRODUCT));
 
             UserSignal userSignal = new UserSignal(1L, TargetType.PRODUCT);
-            userSignal.incrementLikeCount();
+            userSignal.updateLikeCount(1L);
             userSignalJpaRepository.save(userSignal);
 
             HttpHeaders headers = new HttpHeaders();

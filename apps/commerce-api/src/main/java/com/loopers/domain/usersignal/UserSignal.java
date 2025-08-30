@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "user_signal", uniqueConstraints = @UniqueConstraint(columnNames = { "target_id", "target_type" }))
+@Table(name = "user_signal", uniqueConstraints = @UniqueConstraint(columnNames = {"target_id", "target_type"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserSignal {
@@ -39,18 +39,14 @@ public class UserSignal {
         this.views = 0L;
     }
 
-    public void incrementLikeCount() {
-        likeCount++;
-    }
-
-    public void decreaseLikeCount() {
-        if (likeCount == MINIMUM_LIKE_COUNT) {
-            throw new IllegalStateException("좋아요 수는 0보다 작을 수 없습니다.");
-        }
-        likeCount--;
-    }
-
     public void incrementViews() {
         views++;
+    }
+
+    public void updateLikeCount(Long count) {
+        if (count < MINIMUM_LIKE_COUNT) {
+            throw new IllegalStateException("좋아요 수는 0보다 작을 수 없습니다.");
+        }
+        this.likeCount = count;
     }
 }

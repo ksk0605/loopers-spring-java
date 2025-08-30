@@ -20,11 +20,11 @@ class UserSignalTest {
 
     @DisplayName("유저시그널의 좋아요 수는 0보다 작을 수 없다.")
     @Test
-    void failDecreaseLikeCount() {
+    void updateLikeCount_whenLikeCountIsNegative() {
         // arrange
         UserSignal userSignal = new UserSignal(1L, TargetType.PRODUCT);
 
         // act & assert
-        assertThrows(IllegalStateException.class, () -> userSignal.decreaseLikeCount());
+        assertThrows(IllegalStateException.class, () -> userSignal.updateLikeCount(-1L));
     }
 }
