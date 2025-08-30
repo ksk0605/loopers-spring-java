@@ -1,8 +1,8 @@
 package com.loopers.domain.product;
 
 import static com.loopers.support.fixture.LikeFixture.aLike;
-import static com.loopers.support.fixture.LikeSummaryFixture.aLikeSummary;
 import static com.loopers.support.fixture.ProductFixture.aProduct;
+import static com.loopers.support.fixture.UserSignalFixture.anUserSignal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,11 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import com.loopers.domain.brand.Brand;
-import com.loopers.domain.like.LikeSummary;
+import com.loopers.domain.usersignal.UserSignal;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.infrastructure.like.LikeJpaRepository;
-import com.loopers.infrastructure.like.LikeSummaryJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
+import com.loopers.infrastructure.usersignal.UserSignalJpaRepository;
 import com.loopers.support.IntegrationTest;
 
 public class ProductServiceIntegrationTest extends IntegrationTest {
@@ -47,7 +47,7 @@ public class ProductServiceIntegrationTest extends IntegrationTest {
     private LikeJpaRepository likeJpaRepository;
 
     @Autowired
-    private LikeSummaryJpaRepository likeSummaryJpaRepository;
+    private UserSignalJpaRepository userSignalJpaRepository;
 
     @DisplayName("상품 목록을 조회할 때, ")
     @Nested
@@ -72,18 +72,18 @@ public class ProductServiceIntegrationTest extends IntegrationTest {
             likeJpaRepository.save(aLike().userId(2L).targetId(3L).build());
             likeJpaRepository.save(aLike().userId(3L).targetId(2L).build());
 
-            LikeSummary summary1 = aLikeSummary().build();
-            LikeSummary summary2 = aLikeSummary().targetId(2L).build();
-            LikeSummary summary3 = aLikeSummary().targetId(3L).build();
-            summary1.incrementLikeCount();
-            summary2.incrementLikeCount();
-            summary2.incrementLikeCount();
-            summary2.incrementLikeCount();
-            summary3.incrementLikeCount();
-            summary3.incrementLikeCount();
-            likeSummaryJpaRepository.save(summary1);
-            likeSummaryJpaRepository.save(summary2);
-            likeSummaryJpaRepository.save(summary3);
+            UserSignal signal1 = anUserSignal().build();
+            UserSignal signal2 = anUserSignal().targetId(2L).build();
+            UserSignal signal3 = anUserSignal().targetId(3L).build();
+            signal1.incrementLikeCount();
+            signal2.incrementLikeCount();
+            signal2.incrementLikeCount();
+            signal2.incrementLikeCount();
+            signal3.incrementLikeCount();
+            signal3.incrementLikeCount();
+            userSignalJpaRepository.save(signal1);
+            userSignalJpaRepository.save(signal2);
+            userSignalJpaRepository.save(signal3);
 
         }
 

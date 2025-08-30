@@ -26,10 +26,10 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
     Page<Product> findByStatusOrderByPrice(@Param("status") ProductStatus status, Pageable pageable);
 
     @Query("""
-        SELECT p FROM LikeSummary ls
-        JOIN Product p ON p.id = ls.target.id
-        WHERE ls.target.type = 'PRODUCT' AND p.status = :status
-        ORDER BY ls.likeCount DESC
+        SELECT p FROM UserSignal us
+        JOIN Product p ON p.id = us.targetId
+        WHERE us.targetType = 'PRODUCT' AND p.status = :status
+        ORDER BY us.likeCount DESC
         """)
     Page<Product> findByStatusOrderByLikes(@Param("status") ProductStatus status, Pageable pageable);
 }

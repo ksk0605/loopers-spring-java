@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.loopers.application.order.OrderEventHandler;
 import com.loopers.domain.payment.PaymentSuccessEvent;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,30 +30,25 @@ class OrderEventHandlerTest {
     @Mock
     private OrderRepository orderRepository;
 
-    @Mock
-    private OrderEventPublisher orderEventPublisher;
-
     @BeforeEach
     void setUp() {
-        orderEventHandler = new OrderEventHandler(orderService, orderEventPublisher);
+        orderEventHandler = new OrderEventHandler(orderService);
     }
 
     @Test
-    @DisplayName("PaymentSuccessEvent를 수신하면, 주문 상태를 '결제완료'로 변경하고 OrderPaid 이벤트를 발행해야 한다.")
+    @DisplayName("PaymentSuccessEvent를 수신하면, 주문 상태를 '결제완료'로 변경한다.")
     void handlePaymentSuccess_shouldUpdateOrderAndPublishEvent() {
         // arrange
         Order order = anOrder().build();
         PaymentSuccessEvent event = new PaymentSuccessEvent(order.getOrderId());
 
         when(orderRepository.find(order.getOrderId())).thenReturn(Optional.of(order));
-        when(orderRepository.save(order)).thenReturn(order);
 
         // act
         orderEventHandler.handlePaymentSuccess(event);
 
         // assert
         verify(orderRepository, times(1)).find(order.getOrderId());
-        verify(orderEventPublisher, times(1)).publishOrderPaid(order);
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
     }
 }

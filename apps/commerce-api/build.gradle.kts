@@ -21,6 +21,9 @@ dependencies {
     // querydsl
     implementation("com.querydsl:querydsl-jpa::jakarta")
 
+    // awaitility
+    testImplementation("org.awaitility:awaitility:4.3.0")
+
     // test-fixtures
     testImplementation(testFixtures(project(":modules:jpa")))
     testImplementation(testFixtures(project(":modules:redis")))

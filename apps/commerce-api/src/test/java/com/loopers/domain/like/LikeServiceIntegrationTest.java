@@ -1,7 +1,6 @@
 package com.loopers.domain.like;
 
 import static com.loopers.support.fixture.LikeFixture.aLike;
-import static com.loopers.support.fixture.LikeSummaryFixture.aLikeSummary;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import com.loopers.infrastructure.like.LikeJpaRepository;
-import com.loopers.infrastructure.like.LikeSummaryJpaRepository;
 import com.loopers.support.IntegrationTest;
 
 @SpringBootTest
@@ -30,9 +28,6 @@ class LikeServiceIntegrationTest extends IntegrationTest {
 
     @MockitoSpyBean
     private LikeJpaRepository likeJpaRepository;
-
-    @MockitoSpyBean
-    private LikeSummaryJpaRepository likeSummaryJpaRepository;
 
     @DisplayName("좋아요를 추가 할 때, ")
     @Nested
@@ -47,7 +42,6 @@ class LikeServiceIntegrationTest extends IntegrationTest {
             Optional<Like> like = likeJpaRepository.findById(1L);
             assertAll(
                 () -> verify(likeJpaRepository, times(1)).save(any(Like.class)),
-                () -> verify(likeSummaryJpaRepository, times(1)).save(any(LikeSummary.class)),
                 () -> assertThat(like).isPresent(),
                 () -> assertThat(like.get().getUserId()).isEqualTo(1L),
                 () -> assertThat(like.get().getTarget().id()).isEqualTo(1L),
@@ -67,7 +61,6 @@ class LikeServiceIntegrationTest extends IntegrationTest {
             List<Like> likes = likeJpaRepository.findAll();
             assertAll(
                 () -> verify(likeJpaRepository, times(1)).save(any(Like.class)),
-                () -> verify(likeSummaryJpaRepository, times(0)).save(any(LikeSummary.class)),
                 () -> assertThat(likes).hasSize(1));
         }
     }
@@ -79,9 +72,6 @@ class LikeServiceIntegrationTest extends IntegrationTest {
         @Test
         void cancelLike_whenValidLikeInfoProvided() {
             // arrange
-            LikeSummary likeSummary = aLikeSummary().build();
-            likeSummary.incrementLikeCount();
-            likeSummaryJpaRepository.save(likeSummary);
             likeJpaRepository.save(aLike().build());
 
             // act

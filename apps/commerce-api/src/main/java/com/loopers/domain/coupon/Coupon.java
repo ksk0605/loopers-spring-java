@@ -92,6 +92,10 @@ public class Coupon extends BaseEntity {
         if (limitCount != null && limitCount.compareTo(issuedCount) < 0) {
             throw new IllegalStateException("사용한도를 초과한 쿠폰입니다.");
         }
-        return new CouponUsage(this, userId, strategy.calculateDiscount(this, totalPrice));
+        return new CouponUsage(this, userId, calculateDiscountAmount(totalPrice, strategy));
+    }
+
+    public BigDecimal calculateDiscountAmount(BigDecimal totalPrice, CouponDiscountStrategy strategy) {
+        return strategy.calculateDiscount(this, totalPrice);
     }
 }

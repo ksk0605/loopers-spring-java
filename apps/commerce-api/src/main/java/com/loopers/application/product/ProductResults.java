@@ -6,8 +6,8 @@ import org.springframework.data.domain.Page;
 
 import com.loopers.application.common.PageInfo;
 import com.loopers.domain.brand.Brand;
-import com.loopers.domain.like.TargetLikeCount;
 import com.loopers.domain.product.Product;
+import com.loopers.domain.usersignal.TargetLikeCount;
 
 public record ProductResults(
     List<ProductResult> products,
@@ -35,7 +35,7 @@ public record ProductResults(
 
     private static Long getLikeCount(List<TargetLikeCount> targetLikeCounts, Product product) {
         return targetLikeCounts.stream()
-            .filter(tlc -> tlc.getTarget().id().equals(product.getId()))
+            .filter(tlc -> tlc.getTargetId().equals(product.getId()))
             .map(TargetLikeCount::getLikeCount)
             .findFirst()
             .orElse(0L);
