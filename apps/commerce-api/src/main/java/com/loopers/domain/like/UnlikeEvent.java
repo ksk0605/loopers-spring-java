@@ -1,8 +1,12 @@
 package com.loopers.domain.like;
 
+import java.util.Map;
+
+import com.loopers.domain.event.InternalEvent;
+import com.loopers.domain.event.Loggable;
 import com.loopers.domain.usersignal.TargetType;
 
-public class UnlikeEvent {
+public class UnlikeEvent implements Loggable {
     public LikeTarget target;
 
     public UnlikeEvent(LikeTarget target) {
@@ -15,5 +19,16 @@ public class UnlikeEvent {
 
     public Long getTargetId() {
         return target.getId();
+    }
+
+    @Override
+    public InternalEvent toInternalEvent() {
+        return new InternalEvent(
+            this.getClass().getSimpleName(),
+            Map.of(
+                "targetId", this.getTargetId(),
+                "targetType", this.getType()
+            )
+        );
     }
 }
