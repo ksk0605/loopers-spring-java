@@ -23,18 +23,19 @@ import org.springframework.http.ResponseEntity;
 
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.like.Like;
-import com.loopers.domain.like.LikeSummary;
 import com.loopers.domain.like.LikeTarget;
 import com.loopers.domain.like.LikeTargetType;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductStatus;
 import com.loopers.domain.user.Gender;
 import com.loopers.domain.user.User;
+import com.loopers.domain.usersignal.TargetType;
+import com.loopers.domain.usersignal.UserSignal;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.infrastructure.like.LikeJpaRepository;
-import com.loopers.infrastructure.like.LikeSummaryJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserJpaRepository;
+import com.loopers.infrastructure.usersignal.UserSignalJpaRepository;
 import com.loopers.interfaces.api.like.LikeV1Dto;
 import com.loopers.utils.DatabaseCleanUp;
 
@@ -60,10 +61,10 @@ public class LikeV1ApiE2ETest {
     private BrandJpaRepository brandJpaRepository;
 
     @Autowired
-    private DatabaseCleanUp databaseCleanUp;
+    private UserSignalJpaRepository userSignalJpaRepository;
 
     @Autowired
-    private LikeSummaryJpaRepository likeSummaryJpaRepository;
+    private DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
     void tearDown() {
@@ -195,9 +196,9 @@ public class LikeV1ApiE2ETest {
                 1L,
                 LikeTargetType.PRODUCT));
 
-            LikeSummary likeSummary = new LikeSummary(1L, LikeTargetType.PRODUCT);
-            likeSummary.incrementLikeCount();
-            likeSummaryJpaRepository.save(likeSummary);
+            UserSignal userSignal = new UserSignal(1L, TargetType.PRODUCT);
+            userSignal.updateLikeCount(1L);
+            userSignalJpaRepository.save(userSignal);
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("X-USER-ID", "testUser");

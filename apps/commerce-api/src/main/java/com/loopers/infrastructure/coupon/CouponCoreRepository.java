@@ -23,4 +23,9 @@ public class CouponCoreRepository implements CouponRepository {
     public Optional<Coupon> findForUpdate(Long id) {
         return couponJpaRepository.findByIdForUpdate(id);
     }
+
+    @Override
+    public Optional<Coupon> find(Long id) {
+        return couponJpaRepository.findById(id);
+    }
 }

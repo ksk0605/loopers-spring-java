@@ -4,6 +4,7 @@ import static com.loopers.support.fixture.BrandFixture.aBrand;
 import static com.loopers.support.fixture.LikeFixture.aLike;
 import static com.loopers.support.fixture.ProductFixture.aProduct;
 import static com.loopers.support.fixture.UserFixture.anUser;
+import static com.loopers.support.fixture.UserSignalFixture.anUserSignal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -15,6 +16,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.awaitility.Awaitility;
+import org.awaitility.Durations;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,13 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.loopers.application.product.ProductResult;
-import com.loopers.domain.like.LikeSummary;
 import com.loopers.domain.like.LikeTargetType;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.infrastructure.like.LikeJpaRepository;
-import com.loopers.infrastructure.like.LikeSummaryJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserJpaRepository;
+import com.loopers.infrastructure.usersignal.UserSignalJpaRepository;
 import com.loopers.support.IntegrationTest;
 
 @SpringBootTest
@@ -46,7 +48,7 @@ class LikeFacadeIntegrationTest extends IntegrationTest {
     private LikeJpaRepository likeJpaRepository;
 
     @Autowired
-    private LikeSummaryJpaRepository likeSummaryJpaRepository;
+    private UserSignalJpaRepository userSignalJpaRepository;
 
     @Autowired
     private UserJpaRepository userJpaRepository;
@@ -81,15 +83,86 @@ class LikeFacadeIntegrationTest extends IntegrationTest {
                 () -> assertThat(results).hasSize(3),
                 () -> assertThat(results.get(0).id()).isEqualTo(1L),
                 () -> assertThat(results.get(1).id()).isEqualTo(3L),
-                () -> assertThat(results.get(2).id()).isEqualTo(4L)
-            );
+                () -> assertThat(results.get(2).id()).isEqualTo(4L));
+        }
+    }
+
+    @DisplayName("좋아요 이벤트 처리 테스트")
+    @Nested
+    class LikeEventHandling {
+        @DisplayName("좋아요를 추가하면 UserSignal의 likeCount가 비동기로 증가한다.")
+        @Test
+        void increaseLikeCount_whenLikeProduct() {
+            // arrange
+            brandJpaRepository.save(aBrand().build());
+            productJpaRepository.save(aProduct().build());
+            userJpaRepository.save(anUser().build());
+
+            userSignalJpaRepository.save(anUserSignal().build());
+
+            // act
+            LikeCriteria.LikeProduct criteria = new LikeCriteria.LikeProduct("testUser", 1L, LikeTargetType.PRODUCT);
+            likeFacade.likeProduct(criteria);
+
+            // assert
+            Awaitility.await()
+                .atMost(Durations.FIVE_SECONDS)
+                .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS)
+                .until(() -> {
+                    var userSignal = userSignalJpaRepository.findById(1L);
+                    return userSignal.isPresent() && userSignal.get().getLikeCount() == 1L;
+                });
+
+            var userSignal = userSignalJpaRepository.findById(1L);
+            assertThat(userSignal).isPresent();
+            assertThat(userSignal.get().getLikeCount()).isEqualTo(1L);
+        }
+
+        @DisplayName("좋아요를 취소하면 UserSignal의 likeCount가 비동기로 감소한다.")
+        @Test
+        void decreaseLikeCount_whenUnlikeProduct() {
+            // arrange
+            brandJpaRepository.save(aBrand().build());
+            productJpaRepository.save(aProduct().build());
+            userJpaRepository.save(anUser().build());
+
+            var userSignal = anUserSignal().build();
+            userSignalJpaRepository.save(userSignal);
+
+            LikeCriteria.LikeProduct likeCriteria = new LikeCriteria.LikeProduct("testUser", 1L, LikeTargetType.PRODUCT);
+            likeFacade.likeProduct(likeCriteria);
+
+            Awaitility.await()
+                .atMost(Durations.FIVE_SECONDS)
+                .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS)
+                .until(() -> {
+                    var signal = userSignalJpaRepository.findById(1L);
+                    return signal.isPresent() && signal.get().getLikeCount() == 1L;
+                });
+
+            // act
+            LikeCriteria.UnlikeProduct unlikeCriteria = new LikeCriteria.UnlikeProduct("testUser", 1L, LikeTargetType.PRODUCT);
+            likeFacade.unlikeProduct(unlikeCriteria);
+
+            // assert
+            Awaitility.await()
+                .atMost(Durations.FIVE_SECONDS)
+                .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS)
+                .until(() -> {
+                    var signal = userSignalJpaRepository.findById(1L);
+                    return signal.isPresent() && signal.get().getLikeCount() == 0L;
+                });
+
+            var finalUserSignal = userSignalJpaRepository.findById(1L);
+            assertThat(finalUserSignal).isPresent();
+            assertThat(finalUserSignal.get().getLikeCount()).isEqualTo(0L);
         }
     }
 
     @DisplayName("동일 상품에 대해 여러명이 좋아요를 요청할 때, ")
     @Nested
     class ConcurrencyLike {
-        @DisplayName("여러명이 좋아요를 한번에 요청하면 모든 사용자의 좋아요가 정상적으로 기록된다.")
+        @DisplayName("여러명이 좋아요를 한번에 요청하면 모든 사용자의 좋아요가 정상적으로 기록되고 UserSignal도 비동기로 업데이트된다.")
         @Test
         void addLikeCount_whenConcurrencyLikeRequest() throws InterruptedException {
             // arrange
@@ -98,7 +171,8 @@ class LikeFacadeIntegrationTest extends IntegrationTest {
             userJpaRepository.save(anUser().userId("testUser1").build());
             userJpaRepository.save(anUser().userId("testUser2").build());
             userJpaRepository.save(anUser().userId("testUser3").build());
-            likeSummaryJpaRepository.save(new LikeSummary(1L, LikeTargetType.PRODUCT));
+
+            userSignalJpaRepository.save(anUserSignal().build());
 
             LikeCriteria.LikeProduct cri1 = new LikeCriteria.LikeProduct("testUser1", 1L, LikeTargetType.PRODUCT);
             LikeCriteria.LikeProduct cri2 = new LikeCriteria.LikeProduct("testUser2", 1L, LikeTargetType.PRODUCT);
@@ -153,10 +227,21 @@ class LikeFacadeIntegrationTest extends IntegrationTest {
 
             assertAll(
                 () -> assertThat(successfulOrders).isEqualTo(3),
-                () -> assertThat(likeJpaRepository.count()).isEqualTo(3),
-                () -> assertThat(likeSummaryJpaRepository.count()).isEqualTo(1),
-                () -> assertThat(likeSummaryJpaRepository.findById(1L)).isPresent(),
-                () -> assertThat(likeSummaryJpaRepository.findById(1L).get().getLikeCount()).isEqualTo(3L)
+                () -> assertThat(likeJpaRepository.count()).isEqualTo(3)
+            );
+
+            Awaitility.await()
+                .atMost(Durations.FIVE_SECONDS)
+                .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS)
+                .until(() -> {
+                    var userSignal = userSignalJpaRepository.findById(1L);
+                    return userSignal.isPresent() && userSignal.get().getLikeCount() == 3L;
+                });
+
+            var userSignal = userSignalJpaRepository.findById(1L);
+            assertAll(
+                () -> assertThat(userSignal).isPresent(),
+                () -> assertThat(userSignal.get().getLikeCount()).isEqualTo(3L)
             );
         }
     }

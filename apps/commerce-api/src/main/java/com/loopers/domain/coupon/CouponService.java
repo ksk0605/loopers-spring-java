@@ -27,4 +27,10 @@ public class CouponService {
         CouponUsage userCoupon = coupon.apply(userId, totalPrice, discountStrategyFactory.get(coupon));
         return couponUsageRepository.save(userCoupon);
     }
+
+    public BigDecimal calculateDiscountAmount(Long couponId, BigDecimal totalPrice) {
+        Coupon coupon = couponRepository.find(couponId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "[ID = " + couponId + "] 존재하지 않는 쿠폰입니다."));
+        return coupon.calculateDiscountAmount(totalPrice, discountStrategyFactory.get(coupon));
+    }
 }

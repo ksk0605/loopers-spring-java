@@ -5,14 +5,15 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.loopers.domain.usersignal.TargetLikeCount;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class LikeService {
     private final LikeRepository likeRepository;
-    private final LikeSummaryModifier likeSummaryModifier;
-    private final LikeSummaryRepository likeSummaryRepository;
+    private final LikeEventPublisher likeEventPublisher;
 
     @Transactional
     public void like(Long userId, Long targetId, LikeTargetType targetType) {
@@ -21,7 +22,7 @@ public class LikeService {
         }
         Like like = new Like(userId, targetId, targetType);
         likeRepository.save(like);
-        likeSummaryModifier.increment(like.getTarget());
+        likeEventPublisher.publishLikeEvent(like.getTarget());
     }
 
     @Transactional
@@ -31,7 +32,7 @@ public class LikeService {
             return;
         }
         likeRepository.delete(userId, target);
-        likeSummaryModifier.decrement(target);
+        likeEventPublisher.publishUnlikeEvent(target);
     }
 
     @Transactional(readOnly = true)
@@ -46,7 +47,6 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public List<TargetLikeCount> getAllByTargetIn(List<Long> productIds, LikeTargetType likeTargetType) {
-        List<LikeTarget> targets = productIds.stream().map(id -> new LikeTarget(id, likeTargetType)).toList();
-        return likeSummaryRepository.findAllByTargetIn(targets);
+        return List.of();
     }
 }
