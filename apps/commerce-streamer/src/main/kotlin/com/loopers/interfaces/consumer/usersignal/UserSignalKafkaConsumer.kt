@@ -1,6 +1,6 @@
 package com.loopers.interfaces.consumer.usersignal
 
-import com.loopers.application.UserSignalFacade
+import com.loopers.application.usersignal.UserSignalFacade
 import com.loopers.config.kafka.KafkaConfig
 import com.loopers.domain.common.InternalMessage
 import com.loopers.domain.usersignal.UserSignalEvent

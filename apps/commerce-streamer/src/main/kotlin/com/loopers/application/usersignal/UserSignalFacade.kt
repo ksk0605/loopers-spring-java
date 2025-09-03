@@ -1,4 +1,4 @@
-package com.loopers.application
+package com.loopers.application.usersignal
 
 import com.loopers.domain.common.InternalMessage
 import com.loopers.domain.usersignal.UserSignalEvent
