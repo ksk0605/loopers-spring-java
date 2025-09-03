@@ -16,8 +16,8 @@ class UserSignalKafkaConsumer(
         topics = ["\${kafka.topic.user-signals.topic}"],
         containerFactory = KafkaConfig.BATCH_LISTENER,
     )
-    fun consume(events: List<InternalMessage<UserSignalEvent>>, acknowledgment: Acknowledgment) {
-        userSignalFacade.updateUserSignal(events)
+    fun consume(messages: List<InternalMessage<UserSignalEvent>>, acknowledgment: Acknowledgment) {
+        userSignalFacade.updateUserSignal(messages)
         acknowledgment.acknowledge()
     }
 }
