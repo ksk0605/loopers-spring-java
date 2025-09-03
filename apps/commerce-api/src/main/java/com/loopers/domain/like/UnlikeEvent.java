@@ -43,7 +43,7 @@ public class UnlikeEvent extends Publishable {
     }
 
     private String getEventType() {
-        return EVENT_TYPE_PREFIX + "_" + this.getType().name();
+        return EVENT_TYPE_PREFIX;
     }
 
     private Map<String, Object> getPayload() {

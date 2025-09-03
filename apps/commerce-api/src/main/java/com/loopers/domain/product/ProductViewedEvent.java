@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 public class ProductViewedEvent extends Publishable {
-    private static final String EVENT_TYPE_PREFIX = "VIEWED_PRODUCT";
+    private static final String EVENT_TYPE_PREFIX = "VIEWED";
     private final Long productId;
 
     public ProductViewedEvent(Long productId) {
