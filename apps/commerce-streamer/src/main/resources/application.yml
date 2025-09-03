@@ -29,6 +29,12 @@ demo-kafka:
   test:
     topic-name: demo.internal.topic-v1
 
+kafka:
+  topic:
+    user-signals:
+      version: 1.0.0
+      topic: user-signals
+
 ---
 spring:
   config:
