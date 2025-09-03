@@ -2,7 +2,6 @@ package com.loopers.domain.commerceevent;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
 
 import com.loopers.support.JsonMapConverter;
 
@@ -63,7 +62,7 @@ public class CommerceEvent {
 
     public static CommerceEvent from(CommerceEventCommand.Log command) {
         return new CommerceEvent(
-            UUID.randomUUID().toString(), 
+            command.eventId(), 
             command.eventType(), 
             command.aggregateId(), 
             command.payload());

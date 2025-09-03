@@ -1,10 +1,10 @@
 package com.loopers.domain.commerceevent;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.loopers.infrastructure.commerceevent.CommerceEventJpaRepository;
 import com.loopers.support.IntegrationTest;
@@ -16,11 +16,11 @@ public class CommerceEventServiceIntegrationTest extends IntegrationTest {
     @Autowired
     private CommerceEventJpaRepository commerceEventJpaRepository;
 
-    @DisplayName("CommerceEvent를 로깅하면, 멱등성 처리를 위한 eventId가 랜덤으로 생성되고, 파티션 기반 제어를 위한 aggregateId, 이벤트 타입, payload가 저장된다.")
+    @DisplayName("CommerceEvent를 로깅하면, 멱등성 처리를 위한 eventId, 파티션 기반 제어를 위한 aggregateId, 이벤트 타입, payload가 저장된다.")
     @Test
     void logCommerceEvent() {
         // arrange
-        CommerceEventCommand.Log command = new CommerceEventCommand.Log("test", "test", null);
+        CommerceEventCommand.Log command = new CommerceEventCommand.Log("aaa-bbb-ccc-123", "test", "test", null);
 
         // act
         commerceEventService.log(command);
