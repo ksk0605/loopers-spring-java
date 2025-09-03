@@ -1,6 +1,6 @@
 package com.loopers.application
 
-import com.loopers.domain.common.InternalEvent
+import com.loopers.domain.common.InternalMessage
 import com.loopers.domain.usersignal.UserSignalEvent
 import com.loopers.domain.usersignal.UserSignalUpdaterRegistry
 import org.springframework.stereotype.Component
@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component
 class UserSignalFacade(
     private val registry: UserSignalUpdaterRegistry
 ) {
-    fun updateUserSignal(events: List<InternalEvent<UserSignalEvent>>) {
-        events.forEach { internalEvent ->
-            val userSignalEvent = internalEvent.payload
+    fun updateUserSignal(messages: List<InternalMessage<UserSignalEvent>>) {
+        messages.forEach { message ->
+            val userSignalEvent = message.payload
             registry.getUpdater(userSignalEvent.type).update(userSignalEvent)
         }
     }

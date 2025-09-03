@@ -1,6 +1,6 @@
 package com.loopers.domain.common
 
-data class InternalEvent<T>(
+data class InternalMessage<T>(
     val metadata: Metadata,
     val payload: T
 )
