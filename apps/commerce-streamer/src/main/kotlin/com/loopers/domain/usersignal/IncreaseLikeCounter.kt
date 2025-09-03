@@ -16,7 +16,10 @@ class IncreaseLikeCounter(
 
     override fun update(event: UserSignalEvent) {
         val signal = (userSignalRepository.findForUpdate(event.targetId, event.targetType)
-            ?: throw CoreException(ErrorType.NOT_FOUND))
+            ?: throw CoreException(
+                ErrorType.NOT_FOUND,
+                "존재하지 않는 유저 시그널입니다. [targetId = " + event.targetId + ", targetType = " + event.targetType + "]"
+            ))
         signal.increaseLikeCount()
     }
 }
