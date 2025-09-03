@@ -22,6 +22,9 @@ data class UserSignal(
     }
 
     fun decreaseLikeCount() {
+        if (likeCount == 0L) {
+            throw IllegalStateException("좋아요 수가 0보다 작을 수 없습니다.")
+        }
         likeCount--
     }
 
