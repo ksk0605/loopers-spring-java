@@ -18,8 +18,8 @@ public class ProductViewedEvent extends Publishable {
     }
 
     @Override
-    public CommerceEventCommand.Log toLogCommand() {
-        return new CommerceEventCommand.Log(
+    public CommerceEventCommand.Record toLogCommand() {
+        return new CommerceEventCommand.Record(
             eventId,
             getEventType(),
             getProductId().toString(),

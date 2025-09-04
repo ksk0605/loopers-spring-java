@@ -2,7 +2,7 @@ package com.loopers.domain.like;
 
 import java.util.Map;
 
-import com.loopers.domain.commerceevent.CommerceEventCommand.Log;
+import com.loopers.domain.commerceevent.CommerceEventCommand.Record;
 import com.loopers.domain.commerceevent.CommerceEventCommand.Send;
 import com.loopers.domain.commerceevent.Publishable;
 import com.loopers.domain.usersignal.TargetType;
@@ -36,8 +36,8 @@ public class LikeEvent extends Publishable {
     }
 
     @Override
-    public Log toLogCommand() {
-        return new Log(
+    public Record toLogCommand() {
+        return new Record(
             eventId,
             getEventType(),
             getTargetId().toString(),

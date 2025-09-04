@@ -14,7 +14,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,7 +51,7 @@ public class CommerceEvent {
     private Integer retryCount = 0;
 
     public CommerceEvent(String eventId, String eventType, String aggregateId,
-            Map<String, Object> payload) {
+        Map<String, Object> payload) {
         this.eventId = eventId;
         this.eventType = eventType;
         this.aggregateId = aggregateId;
@@ -60,11 +59,11 @@ public class CommerceEvent {
         this.createdAt = LocalDateTime.now();
     }
 
-    public static CommerceEvent from(CommerceEventCommand.Log command) {
+    public static CommerceEvent from(CommerceEventCommand.Record command) {
         return new CommerceEvent(
-            command.eventId(), 
-            command.eventType(), 
-            command.aggregateId(), 
+            command.eventId(),
+            command.eventType(),
+            command.aggregateId(),
             command.payload());
     }
 }

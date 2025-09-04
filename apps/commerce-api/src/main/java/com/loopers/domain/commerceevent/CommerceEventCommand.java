@@ -3,7 +3,7 @@ package com.loopers.domain.commerceevent;
 import java.util.Map;
 
 public class CommerceEventCommand {
-    public record Log(
+    public record Record(
         String eventId,
         String eventType,
         String aggregateId,

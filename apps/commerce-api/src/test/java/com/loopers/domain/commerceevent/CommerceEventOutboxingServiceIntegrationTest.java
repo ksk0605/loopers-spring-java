@@ -9,21 +9,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.loopers.infrastructure.commerceevent.CommerceEventJpaRepository;
 import com.loopers.support.IntegrationTest;
 
-public class CommerceEventServiceIntegrationTest extends IntegrationTest {
+public class CommerceEventOutboxingServiceIntegrationTest extends IntegrationTest {
     @Autowired
-    private CommerceEventService commerceEventService;
+    private CommerceEventOutboxingService commerceEventOutboxingService;
 
     @Autowired
     private CommerceEventJpaRepository commerceEventJpaRepository;
 
     @DisplayName("CommerceEvent를 로깅하면, 멱등성 처리를 위한 eventId, 파티션 기반 제어를 위한 aggregateId, 이벤트 타입, payload가 저장된다.")
     @Test
-    void logCommerceEvent() {
+    void recordCommerceEvent() {
         // arrange
-        CommerceEventCommand.Log command = new CommerceEventCommand.Log("aaa-bbb-ccc-123", "test", "test", null);
+        CommerceEventCommand.Record command = new CommerceEventCommand.Record("aaa-bbb-ccc-123", "test", "test", null);
 
         // act
-        commerceEventService.log(command);
+        commerceEventOutboxingService.record(command);
 
         // assert
         CommerceEvent commerceEvent = commerceEventJpaRepository.findById(1L).get();

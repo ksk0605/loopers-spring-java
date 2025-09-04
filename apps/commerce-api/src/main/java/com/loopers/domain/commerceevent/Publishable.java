@@ -2,7 +2,7 @@ package com.loopers.domain.commerceevent;
 
 import java.util.UUID;
 
-import com.loopers.domain.commerceevent.CommerceEventCommand.Log;
+import com.loopers.domain.commerceevent.CommerceEventCommand.Record;
 import com.loopers.domain.commerceevent.CommerceEventCommand.Send;
 
 public abstract class Publishable {
@@ -18,5 +18,5 @@ public abstract class Publishable {
 
     public abstract Send toSendCommand();
 
-    public abstract Log toLogCommand();
+    public abstract Record toLogCommand();
 }
