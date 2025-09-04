@@ -1,4 +1,4 @@
-package com.loopers.domain.inventory
+package com.loopers.domain.product
 
 import jakarta.persistence.*
 
@@ -9,13 +9,15 @@ data class Inventory(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long?,
     val productId: Long,
-    val productOptionId: Long,
+    @OneToOne
+    @JoinColumn(name = "product_option_id")
+    val productOption: ProductOption,
     var quantity: Int,
     var reservedQuantity: Int,
 ) {
     fun deduct(quantity: Int) {
-        require(quantity <= reservedQuantity && quantity >= this.quantity)
-        this.reservedQuantity += quantity
+        require(quantity <= reservedQuantity && quantity <= this.quantity)
+        this.reservedQuantity -= quantity
         this.quantity -= quantity
     }
 }
