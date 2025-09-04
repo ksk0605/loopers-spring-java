@@ -14,5 +14,9 @@ public class CommerceEventCommand {
         String eventId,
         String aggregateId,
         Map<String, Object> payload) {
+
+        public static Send from(CommerceEvent event) {
+            return new Send(event.getEventId(), event.getAggregateId(), event.getPayload());
+        }
     }
 }
