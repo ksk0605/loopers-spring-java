@@ -26,7 +26,7 @@ data class CommerceEvent(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    val status: CommerceEventStatus = CommerceEventStatus.PENDING,
+    var status: CommerceEventStatus = CommerceEventStatus.PENDING,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
@@ -36,6 +36,10 @@ data class CommerceEvent(
 ) {
     fun processed(): Boolean {
         return status == CommerceEventStatus.PUBLISHED
+    }
+
+    fun markAsProcessed() {
+        status = CommerceEventStatus.PUBLISHED
     }
 }
 

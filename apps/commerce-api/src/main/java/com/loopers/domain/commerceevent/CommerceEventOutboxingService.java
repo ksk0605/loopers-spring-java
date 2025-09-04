@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class CommerceEventService {
+public class CommerceEventOutboxingService {
     private final CommerceEventRepository commerceEventRepository;
 
-    public void log(CommerceEventCommand.Log command) {
+    public void record(CommerceEventCommand.Record command) {
         CommerceEvent commerceEvent = CommerceEvent.from(command);
         commerceEventRepository.save(commerceEvent);
     }

@@ -13,4 +13,10 @@ class CommerceEventService(
             ?: throw CoreException(ErrorType.NOT_FOUND)
         return event.processed()
     }
+
+    fun markAsProcessed(eventId: String) {
+        val event = (commerceEventRepository.find(eventId)
+            ?: throw CoreException(ErrorType.NOT_FOUND))
+        event.markAsProcessed();
+    }
 }
