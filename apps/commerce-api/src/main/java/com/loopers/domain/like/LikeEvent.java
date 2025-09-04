@@ -36,7 +36,7 @@ public class LikeEvent extends Publishable {
     }
 
     @Override
-    public Record toLogCommand() {
+    public Record toRecordCommand() {
         return new Record(
             eventId,
             getEventType(),

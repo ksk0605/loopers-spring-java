@@ -16,6 +16,6 @@ public class CommerceEventOutboxingHandler {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleLikeEvent(LikeEvent event) {
-        commerceEventOutboxingService.record(event.toLogCommand());
+        commerceEventOutboxingService.record(event.toRecordCommand());
     }
 }

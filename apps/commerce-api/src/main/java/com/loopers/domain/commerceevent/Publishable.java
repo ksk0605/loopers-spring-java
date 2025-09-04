@@ -18,5 +18,5 @@ public abstract class Publishable {
 
     public abstract Send toSendCommand();
 
-    public abstract Record toLogCommand();
+    public abstract Record toRecordCommand();
 }

@@ -27,7 +27,7 @@ public class PaymentSuccessEvent extends Publishable {
     }
 
     @Override
-    public CommerceEventCommand.Record toLogCommand() {
+    public CommerceEventCommand.Record toRecordCommand() {
         return new CommerceEventCommand.Record(
             eventId,
             EVENT_TYPE,
