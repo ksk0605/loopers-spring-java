@@ -30,8 +30,9 @@ public class CommerceEvent {
     @Column(name = "event_id", unique = true, nullable = false)
     private String eventId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false)
-    private String eventType;
+    private EventType eventType;
 
     @Column(name = "aggregate_id")
     private String aggregateId;
@@ -50,7 +51,7 @@ public class CommerceEvent {
     @Column(name = "retry_count")
     private Integer retryCount = 0;
 
-    public CommerceEvent(String eventId, String eventType, String aggregateId,
+    public CommerceEvent(String eventId, EventType eventType, String aggregateId,
         Map<String, Object> payload) {
         this.eventId = eventId;
         this.eventType = eventType;

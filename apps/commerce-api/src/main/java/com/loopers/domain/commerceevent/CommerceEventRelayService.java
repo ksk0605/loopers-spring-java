@@ -18,7 +18,7 @@ public class CommerceEventRelayService {
     public void relay() {
         List<CommerceEvent> events = commerceEventRepository.findPendingEvents();
         events.forEach(event -> {
-            commerceEventPublisher.publish(CommerceEventCommand.Send.from(event));
+            commerceEventPublisher.publish(event);
         });
     }
 }

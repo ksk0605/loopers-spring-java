@@ -20,7 +20,7 @@ public class CommerceEventOutboxingServiceIntegrationTest extends IntegrationTes
     @Test
     void recordCommerceEvent() {
         // arrange
-        CommerceEventCommand.Record command = new CommerceEventCommand.Record("aaa-bbb-ccc-123", "test", "test", null);
+        CommerceEventCommand.Record command = new CommerceEventCommand.Record("aaa-bbb-ccc-123", EventType.LIKE, "test", null);
 
         // act
         commerceEventOutboxingService.record(command);

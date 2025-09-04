@@ -3,7 +3,6 @@ package com.loopers.domain.commerceevent;
 import java.util.UUID;
 
 import com.loopers.domain.commerceevent.CommerceEventCommand.Record;
-import com.loopers.domain.commerceevent.CommerceEventCommand.Send;
 
 public abstract class Publishable {
     protected final String eventId;
@@ -15,8 +14,6 @@ public abstract class Publishable {
         this.eventType = eventType;
         this.aggregateId = aggregateId;
     }
-
-    public abstract Send toSendCommand();
 
     public abstract Record toRecordCommand();
 }

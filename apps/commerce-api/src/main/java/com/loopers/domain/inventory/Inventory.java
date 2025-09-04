@@ -52,4 +52,8 @@ public class Inventory extends BaseEntity {
         }
         this.reservedQuantity += quantity;
     }
+
+    public Integer getQuantity() {
+        return quantity - reservedQuantity;
+    }
 }

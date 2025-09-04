@@ -74,6 +74,9 @@ kafka:
     user-signals:
       version: 1.0.0
       topic: user-signals
+    payment:
+      version: 1.0.0
+      topic: payment
 
 ---
 spring:

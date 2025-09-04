@@ -3,17 +3,16 @@ package com.loopers.domain.like;
 import java.util.Map;
 
 import com.loopers.domain.commerceevent.CommerceEventCommand.Record;
-import com.loopers.domain.commerceevent.CommerceEventCommand.Send;
+import com.loopers.domain.commerceevent.EventType;
 import com.loopers.domain.commerceevent.Publishable;
 import com.loopers.domain.usersignal.TargetType;
 
 public class LikeEvent extends Publishable {
-    private static final String EVENT_TYPE_PREFIX = "LIKE";
     private final Long targetId;
     private final LikeTargetType targetType;
 
     public LikeEvent(LikeTarget target) {
-        super(EVENT_TYPE_PREFIX, target.getId().toString());
+        super(EventType.LIKE.name(), target.getId().toString());
         this.targetId = target.getId();
         this.targetType = target.getType();
     }
@@ -27,19 +26,10 @@ public class LikeEvent extends Publishable {
     }
 
     @Override
-    public Send toSendCommand() {
-        return new Send(
-            eventId,
-            getTargetId().toString(),
-            getPayload()
-        );
-    }
-
-    @Override
     public Record toRecordCommand() {
         return new Record(
             eventId,
-            getEventType(),
+            EventType.LIKE,
             getTargetId().toString(),
             getPayload()
         );
@@ -47,13 +37,9 @@ public class LikeEvent extends Publishable {
 
     private Map<String, Object> getPayload() {
         return Map.of(
-            "type", getEventType(),
+            "type", EventType.LIKE.name(),
             "targetId", getTargetId(),
             "targetType", getType()
         );
-    }
-
-    private String getEventType() {
-        return EVENT_TYPE_PREFIX;
     }
 }
