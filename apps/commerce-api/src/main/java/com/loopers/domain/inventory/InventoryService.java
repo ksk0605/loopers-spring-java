@@ -16,8 +16,14 @@ public class InventoryService {
 
     @Transactional
     public void deduct(InventoryCommand.Deduct command) {
-        Inventories inventories = new Inventories(inventoryRepository.findAll(command));
+        Inventories inventories = new Inventories(inventoryRepository.findAll(command.productIds(), command.productOptionIds()));
         inventories.deductAll(command);
+    }
+
+    @Transactional
+    public void reverse(InventoryCommand.Reverse command) {
+        Inventories inventories = new Inventories(inventoryRepository.findAll(command.productIds(), command.productOptionIds()));
+        inventories.reverse(command);
     }
 
     @Transactional(readOnly = true)
