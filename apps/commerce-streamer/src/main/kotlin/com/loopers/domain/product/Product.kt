@@ -24,6 +24,14 @@ data class Product(
         val productOption = options.find { it.id == productOptionId } ?: throw IllegalArgumentException("존재하지 않는 옵션입니다.")
         productOption.deduct(quantity)
     }
+
+    fun markAsSoldOut() {
+        this.status = ProductStatus.SOLD_OUT
+    }
+
+    fun isSoldOut(): Boolean {
+        return options.all { it.inventory.quantity == 0 }
+    }
 }
 
 enum class ProductStatus {

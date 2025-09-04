@@ -15,5 +15,7 @@ class ProductService(
                 val product = products.find { it.id == option.productId } ?: throw CoreException(ErrorType.NOT_FOUND)
                 product.deduct(option.productOptionId, option.quantity)
             }
+        products.filter { it.isSoldOut() }
+            .map { it.markAsSoldOut() }
     }
 }
