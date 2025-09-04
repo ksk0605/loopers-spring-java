@@ -34,7 +34,11 @@ kafka:
     user-signals:
       version: 1.0.0
       topic: user-signals
-
+      group-id: user-signal-consumer
+    payment:
+      version: 1.0.0
+      topic: payment
+      group-id: payment-consumer
 ---
 spring:
   config:
