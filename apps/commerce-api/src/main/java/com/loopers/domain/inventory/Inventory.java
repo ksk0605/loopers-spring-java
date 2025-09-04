@@ -39,13 +39,6 @@ public class Inventory extends BaseEntity {
         return this.productId.equals(productId) && this.productOptionId.equals(productOptionId);
     }
 
-    public void deduct(Integer quantity) {
-        if (!canOrder(quantity)) {
-            throw new IllegalArgumentException("재고가 부족합니다.");
-        }
-        this.quantity -= quantity;
-    }
-
     public void reserve(Integer quantity) {
         if (this.quantity - this.reservedQuantity < quantity) {
             throw new IllegalArgumentException("선점할 재고가 부족합니다.");
