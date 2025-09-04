@@ -3,7 +3,7 @@ package com.loopers.infrastructure.commerceevent.kafka;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import com.loopers.infrastructure.commerceevent.InternalEvent;
+import com.loopers.infrastructure.commerceevent.InternalMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class KafkaEventPublisher {
     private final KafkaTemplate<Object, Object> kafkaTemplate;
 
-    public void publish(InternalEvent event, String topic, String key) {
+    public void publish(InternalMessage event, String topic, String key) {
         kafkaTemplate.send(topic, key, event);
     }
 }

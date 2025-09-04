@@ -2,7 +2,7 @@ package com.loopers.infrastructure.commerceevent;
 
 import java.util.Map;
 
-public record InternalEvent(
+public record InternalMessage(
     Metadata metadata,
     Map<String, Object> payload
 ) {

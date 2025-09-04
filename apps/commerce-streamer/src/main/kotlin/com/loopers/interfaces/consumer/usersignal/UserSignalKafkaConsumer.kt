@@ -15,6 +15,7 @@ class UserSignalKafkaConsumer(
     @KafkaListener(
         topics = ["\${kafka.topic.user-signals.topic}"],
         containerFactory = KafkaConfig.BATCH_LISTENER,
+        groupId = "\${kafka.topic.user-signals.group-id}"
     )
     fun consume(messages: List<InternalMessage<UserSignalEvent>>, acknowledgment: Acknowledgment) {
         userSignalFacade.updateUserSignal(messages)

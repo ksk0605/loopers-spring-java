@@ -4,11 +4,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.loopers.domain.commerceevent.CommerceEvent;
+import com.loopers.domain.commerceevent.EventType;
 
 public class CommerceEventFixture {
     private String eventId = UUID.randomUUID().toString();
     private String aggregateId = "1";
-    private String eventType = "COMMERCE_EVENT";
+    private EventType eventType = EventType.LIKE;
     private Map<String, Object> payload = Map.of(
         "type", "CommerceEvent",
         "data", "testData"
@@ -28,7 +29,7 @@ public class CommerceEventFixture {
         return this;
     }
 
-    public CommerceEventFixture eventType(String eventType) {
+    public CommerceEventFixture eventType(EventType eventType) {
         this.eventType = eventType;
         return this;
     }
@@ -39,7 +40,7 @@ public class CommerceEventFixture {
     }
 
     public CommerceEvent build() {
-        return new CommerceEvent(eventId, aggregateId, eventType, payload);
+        return new CommerceEvent(eventId, eventType, aggregateId, payload);
     }
 
     private CommerceEventFixture() {
