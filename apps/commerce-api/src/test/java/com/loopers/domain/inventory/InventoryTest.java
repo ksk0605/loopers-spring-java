@@ -93,4 +93,22 @@ public class InventoryTest {
             assertThat(result.getMessage()).isEqualTo("재고가 부족합니다.");
         }
     }
+
+    @DisplayName("재고를 선점할 때, ")
+    @Nested
+    class Reverse {
+        @DisplayName("보유 재고 - 선점 재고 보다 높은 양을 선점하려고 하면 예외가 발생한다.")
+        @Test
+        void reverse_failsWhenRequestedQuantityIsLessThanAvailableQuantity() {
+            // arrange
+            Inventory inventory = anInventory().build(); // 10 개
+            inventory.reserve(5);
+
+            // act
+            var result = assertThrows(IllegalArgumentException.class, () -> inventory.reserve(6));
+
+            // assert
+            assertThat(result.getMessage()).isEqualTo("선점할 재고가 부족합니다.");
+        }
+    }
 }
