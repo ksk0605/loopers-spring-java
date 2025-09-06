@@ -1,6 +1,6 @@
-package com.loopers.domain.inventory
+package com.loopers.domain.product
 
-class InventoryCommand {
+class ProductCommand {
     data class Deduct(
         val options: List<Option>
     ) {
