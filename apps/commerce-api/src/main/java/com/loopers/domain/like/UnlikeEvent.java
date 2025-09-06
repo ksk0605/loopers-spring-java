@@ -2,14 +2,16 @@ package com.loopers.domain.like;
 
 import java.util.Map;
 
-import com.loopers.domain.event.InternalEvent;
-import com.loopers.domain.event.Loggable;
+import com.loopers.domain.commerceevent.CommerceEventCommand;
+import com.loopers.domain.commerceevent.EventType;
+import com.loopers.domain.commerceevent.Publishable;
 import com.loopers.domain.usersignal.TargetType;
 
-public class UnlikeEvent implements Loggable {
+public class UnlikeEvent extends Publishable {
     public LikeTarget target;
 
     public UnlikeEvent(LikeTarget target) {
+        super(EventType.UNLIKE.name(), target.getId().toString());
         this.target = target;
     }
 
@@ -22,13 +24,20 @@ public class UnlikeEvent implements Loggable {
     }
 
     @Override
-    public InternalEvent toInternalEvent() {
-        return new InternalEvent(
-            this.getClass().getSimpleName(),
-            Map.of(
-                "targetId", this.getTargetId(),
-                "targetType", this.getType()
-            )
+    public CommerceEventCommand.Record toRecordCommand() {
+        return new CommerceEventCommand.Record(
+            eventId,
+            EventType.UNLIKE,
+            getTargetId().toString(),
+            getPayload()
+        );
+    }
+
+    private Map<String, Object> getPayload() {
+        return Map.of(
+            "type", EventType.UNLIKE.name(),
+            "targetId", getTargetId(),
+            "targetType", getType()
         );
     }
 }

@@ -8,7 +8,7 @@ public interface InventoryRepository {
 
     Inventory save(Inventory inventory);
 
-    List<Inventory> findAll(InventoryCommand.Deduct command);
+    List<Inventory> findAll(List<Long> productIds, List<Long> productOptionIds);
 
     List<Inventory> findAll(List<Long> optionIds);
 }

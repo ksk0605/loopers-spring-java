@@ -77,20 +77,21 @@ public class InventoryTest {
         }
     }
 
-    @DisplayName("재고를 차감할 때, ")
+    @DisplayName("재고를 선점할 때, ")
     @Nested
-    class Deduct {
-        @DisplayName("보유 재고보다 높은 양을 차감하려고 하면 예외를 발생한다.")
+    class Reverse {
+        @DisplayName("보유 재고 - 선점 재고 보다 높은 양을 선점하려고 하면 예외가 발생한다.")
         @Test
-        void deduct_failsWhenRequestedQuantityIsGreaterThanAvailableQuantity() {
+        void reverse_failsWhenRequestedQuantityIsLessThanAvailableQuantity() {
             // arrange
-            Inventory inventory = anInventory().build();
+            Inventory inventory = anInventory().build(); // 10 개
+            inventory.reserve(5);
 
             // act
-            var result = assertThrows(IllegalArgumentException.class, () -> inventory.deduct(11));
+            var result = assertThrows(IllegalArgumentException.class, () -> inventory.reserve(6));
 
             // assert
-            assertThat(result.getMessage()).isEqualTo("재고가 부족합니다.");
+            assertThat(result.getMessage()).isEqualTo("선점할 재고가 부족합니다.");
         }
     }
 }

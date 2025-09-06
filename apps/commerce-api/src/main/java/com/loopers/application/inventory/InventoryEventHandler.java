@@ -17,6 +17,6 @@ public class InventoryEventHandler {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleOrderCreated(OrderCreatedEvent event) {
-        inventoryService.deduct(new InventoryCommand.Deduct(event.getItems()));
+        inventoryService.reverse(new InventoryCommand.Reverse(event.getItems()));
     }
 }

@@ -52,6 +52,7 @@ spring:
     import:
       - jpa.yml
       - redis.yml
+      - kafka.yml
       - logging.yml
       - monitoring.yml
 
@@ -67,6 +68,15 @@ springdoc:
   use-fqn: true
   swagger-ui:
     path: /swagger-ui.html
+
+kafka:
+  topic:
+    user-signals:
+      version: 1.0.0
+      topic: user-signals
+    payment:
+      version: 1.0.0
+      topic: payment
 
 ---
 spring:

@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import com.loopers.domain.inventory.Inventory;
-import com.loopers.domain.inventory.InventoryCommand;
 import com.loopers.domain.inventory.InventoryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -27,17 +26,8 @@ public class InventoryCoreRepository implements InventoryRepository {
     }
 
     @Override
-    public List<Inventory> findAll(InventoryCommand.Deduct command) {
-        List<Long> productIds = command.options().stream().map(InventoryCommand.Option::productId).toList();
-        List<Long> productOptionIds = command.options().stream().map(InventoryCommand.Option::productOptionId).toList();
-
-        List<Inventory> inventories = inventoryJpaRepository.findByProductIdInAndProductOptionIdIn(productIds, productOptionIds);
-
-        if (inventories.size() != command.options().size()) {
-            throw new IllegalArgumentException("Some inventories were not found for the provided product and option IDs.");
-        }
-
-        return inventories;
+    public List<Inventory> findAll(List<Long> productIds, List<Long> productOptionIds) {
+        return inventoryJpaRepository.findByProductIdInAndProductOptionIdIn(productIds, productOptionIds);
     }
 
     @Override

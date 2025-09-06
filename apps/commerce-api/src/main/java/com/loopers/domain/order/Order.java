@@ -66,10 +66,6 @@ public class Order extends BaseEntity {
         this.status = OrderStatus.PAYMENT_COMPLETED;
     }
 
-    public boolean isPaid() {
-        return this.status == OrderStatus.PAYMENT_COMPLETED;
-    }
-
     public BigDecimal getTotalPrice() {
         return items.stream()
             .map(item -> item.calculatePrice())
