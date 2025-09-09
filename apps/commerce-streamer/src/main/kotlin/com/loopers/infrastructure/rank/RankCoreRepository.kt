@@ -12,7 +12,7 @@ class RankCoreRepository(
     private val redisCacheRepository: RedisCacheRepository
 ) : RankRepository {
     companion object {
-        private const val KEY_PREFIX = "ranking:all:"
+        private const val KEY_PREFIX = "rank:all:"
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 
