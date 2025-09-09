@@ -1,5 +1,6 @@
 package com.loopers.domain.rank;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -16,5 +17,9 @@ public class RankService {
             command.date(),
             command.getStart(),
             command.getEnd());
+    }
+
+    public Long getTotalSize(LocalDate date) {
+        return rankRepository.getTotalSize(date);
     }
 }

@@ -53,6 +53,11 @@ public class RankCoreRepository implements RankRepository {
             .toList();
     }
 
+    @Override
+    public Long getTotalSize(LocalDate date) {
+        return redisCacheRepository.getZSetSize(generateKey(date));
+    }
+
     private String generateKey(LocalDate date) {
         return KEY_PREFIX + date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     }

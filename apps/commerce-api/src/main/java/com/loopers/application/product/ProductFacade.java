@@ -12,11 +12,15 @@ import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.inventory.InventoryService;
 import com.loopers.domain.like.LikeService;
 import com.loopers.domain.like.LikeTargetType;
+import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductOptionInfo;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.rank.RankCommand;
+import com.loopers.domain.rank.RankService;
+import com.loopers.domain.rank.RankedProduct;
 import com.loopers.domain.usersignal.TargetLikeCount;
 import com.loopers.domain.usersignal.TargetType;
 import com.loopers.domain.usersignal.UserSignalService;
@@ -33,6 +37,7 @@ public class ProductFacade {
     private final LikeService likeService;
     private final ProductCacheRepository productCacheRepository;
     private final UserSignalService userSignalService;
+    private final RankService rankService;
 
     @Transactional(readOnly = true)
     public ProductDetailResult getProduct(Long productId) {
@@ -72,5 +77,29 @@ public class ProductFacade {
         ProductResults productResults = ProductResults.of(products, brands, targetLikeCounts, pageInfo);
         productCacheRepository.setProductResults(command, productResults);
         return productResults;
+    }
+
+    @Transactional(readOnly = true)
+    public ProductResults getDailyRanking(RankCommand.Get command) {
+        List<RankedProduct> rankedProducts = rankService.getRankRangeWithScores(command);
+        List<Long> productIds = rankedProducts.stream()
+            .map(RankedProduct::productId)
+            .toList();
+        var products = productService.getAll(productIds);
+        List<Long> brandIds = products.stream()
+            .map(Product::getBrandId)
+            .toList();
+        var brands = brandService.getAll(brandIds);
+
+        Long totalElements = rankService.getTotalSize(command.date());
+        var pageInfo = new PageInfo(
+            command.page(),
+            command.size(),
+            (int)Math.ceil((double)totalElements / command.size()),
+            totalElements,
+            ((long)command.page() * command.size()) < totalElements);
+
+        List<TargetLikeCount> targetLikeCounts = userSignalService.getTargetLikeCountsIn(productIds, TargetType.PRODUCT);
+        return ProductResults.of(products, brands, targetLikeCounts, pageInfo);
     }
 }

@@ -67,4 +67,8 @@ public class RedisCacheRepository {
     public Set<ZSetOperations.TypedTuple<Object>> getRankRangeWithScores(String key, long start, long end) {
         return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
     }
+
+    public Long getZSetSize(String key) {
+        return redisTemplate.opsForZSet().zCard(key);
+    }
 }
