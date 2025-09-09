@@ -55,4 +55,10 @@ public class RedisCacheRepository {
     public void expire(String key, Duration ttl) {
         redisTemplate.expire(key, ttl);
     }
+
+    public Boolean setIfAbsent(String key, Object value, Duration ttl) {
+        return Boolean.TRUE.equals(
+            redisTemplate.opsForValue().setIfAbsent(key, value, ttl)
+        );
+    }
 }
