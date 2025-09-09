@@ -49,7 +49,24 @@ kafka:
 spring:
   config:
     activate:
-      on-profile: local, test
+      on-profile: local
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+
+server:
+  port: 8084
+
+management:
+  server:
+    port: 8085
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
 
 server:
   port: 8084
