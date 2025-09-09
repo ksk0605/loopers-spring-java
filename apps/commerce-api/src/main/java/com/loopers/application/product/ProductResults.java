@@ -26,6 +26,19 @@ public record ProductResults(
         return new ProductResults(productResults, pageInfo);
     }
 
+    public static ProductResults of(List<Product> products, List<Brand> brands, List<TargetLikeCount> targetLikeCounts,
+        PageInfo pageInfo) {
+        var productResults = products.stream()
+            .map(product -> {
+                var brand = getBrand(brands, product);
+                var likeCount = getLikeCount(targetLikeCounts, product);
+                return ProductResult.of(product, brand, likeCount);
+            })
+            .toList();
+
+        return new ProductResults(productResults, pageInfo);
+    }
+
     private static Brand getBrand(List<Brand> brands, Product product) {
         return brands.stream()
             .filter(brand -> brand.getId().equals(product.getBrandId()))

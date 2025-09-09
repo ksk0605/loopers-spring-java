@@ -4,8 +4,10 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -60,5 +62,13 @@ public class RedisCacheRepository {
         return Boolean.TRUE.equals(
             redisTemplate.opsForValue().setIfAbsent(key, value, ttl)
         );
+    }
+
+    public Set<ZSetOperations.TypedTuple<Object>> getRankRangeWithScores(String key, long start, long end) {
+        return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
+    }
+
+    public Long getZSetSize(String key) {
+        return redisTemplate.opsForZSet().zCard(key);
     }
 }
