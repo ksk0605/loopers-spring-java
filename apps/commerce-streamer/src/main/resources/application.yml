@@ -39,6 +39,12 @@ kafka:
       version: 1.0.0
       topic: payment
       group-id: payment-consumer
+    rank-user-signals:
+      version: 1.0.0
+      group-id: rank-user-signal-consumer
+    rank-order:
+      version: 1.0.0
+      group-id: rank-order-consumer
 ---
 spring:
   config:
