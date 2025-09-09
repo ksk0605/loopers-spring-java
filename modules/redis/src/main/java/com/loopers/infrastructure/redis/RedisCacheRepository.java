@@ -47,4 +47,12 @@ public class RedisCacheRepository {
     public Long decrement(String key) {
         return redisTemplate.opsForValue().decrement(key);
     }
+
+    public void incrementScore(String key, Object member, double score) {
+        redisTemplate.opsForZSet().incrementScore(key, member, score);
+    }
+
+    public void expire(String key, Duration ttl) {
+        redisTemplate.expire(key, ttl);
+    }
 }
