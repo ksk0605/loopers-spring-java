@@ -39,11 +39,34 @@ kafka:
       version: 1.0.0
       topic: payment
       group-id: payment-consumer
+    rank-user-signals:
+      version: 1.0.0
+      group-id: rank-user-signal-consumer
+    rank-order:
+      version: 1.0.0
+      group-id: rank-order-consumer
 ---
 spring:
   config:
     activate:
-      on-profile: local, test
+      on-profile: local
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+
+server:
+  port: 8084
+
+management:
+  server:
+    port: 8085
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
 
 server:
   port: 8084
