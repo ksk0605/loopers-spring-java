@@ -2,6 +2,7 @@ package com.loopers.application.rank
 
 import com.loopers.domain.common.EventDeduplicator
 import com.loopers.domain.common.InternalMessage
+import com.loopers.domain.order.OrderService
 import com.loopers.domain.payment.PaymentEvent
 import com.loopers.domain.rank.RankScoreCalculator
 import com.loopers.domain.rank.RankService
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component
 class RankFacade(
     private val eventDeduplicator: EventDeduplicator,
     private val rankService: RankService,
+    private val orderService: OrderService,
     private val rankScoreCalculator: RankScoreCalculator
 ) {
     fun applyUserSignalToRanking(messages: List<InternalMessage<UserSignalEvent>>) {
@@ -25,6 +27,16 @@ class RankFacade(
     }
 
     fun applyOrderToRanking(messages: List<InternalMessage<PaymentEvent>>) {
-        // TODO: 주문 점수 계산
+        val orderIds = messages
+            .filter { eventDeduplicator.checkAndMarkAsProcessed(it.metadata.eventId) }
+            .map { it.payload.orderId }
+        if (orderIds.isEmpty()) {
+            return
+        }
+        val orders = orderService.findAll(orderIds)
+        val scoreMap = rankScoreCalculator.calculateFromOrders(orders)
+        if (scoreMap.isNotEmpty()) {
+            rankService.applyScores(scoreMap)
+        }
     }
 }

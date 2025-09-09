@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface OrderJpaRepository : JpaRepository<Order, Long> {
     fun findByOrderId(orderId: String): Order?
+
+    fun findAllByOrderIdIn(orderIds: List<String>): List<Order>
 }
