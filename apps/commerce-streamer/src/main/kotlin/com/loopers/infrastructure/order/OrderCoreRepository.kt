@@ -11,4 +11,8 @@ class OrderCoreRepository(
     override fun find(orderId: String): Order? {
         return orderJpaRepository.findByOrderId(orderId)
     }
+
+    override fun findByOrderIdIn(orderIds: List<String>): List<Order> {
+        return orderJpaRepository.findAllByOrderIdIn(orderIds)
+    }
 }
