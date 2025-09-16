@@ -9,17 +9,22 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductCommand;
-import com.loopers.domain.product.SortBy;
 import com.loopers.domain.product.ProductStatus;
+import com.loopers.domain.product.SortBy;
+import com.loopers.domain.rank.RankCommand;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.infrastructure.like.LikeJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
@@ -43,6 +48,9 @@ class ProductFacadeIntegrationTest extends IntegrationTest {
 
     @Autowired
     private ProductFacade productFacade;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     @DisplayName("상품 정보를 조회할 때, ")
     @Nested
@@ -123,6 +131,41 @@ class ProductFacadeIntegrationTest extends IntegrationTest {
             assertThat(result.pageInfo().totalPages()).isEqualTo(1);
             assertThat(result.pageInfo().currentPage()).isEqualTo(0);
             assertThat(result.pageInfo().pageSize()).isEqualTo(10);
+            assertThat(result.pageInfo().hasNext()).isFalse();
+        }
+    }
+
+    @DisplayName("데일리 랭킹 순 상품을 조회할 때, ")
+    @Nested
+    class GetDailyRanking {
+        @DisplayName("날짜, 페이지, 사이즈가 주어지면 상품 목록을 반환한다.")
+        @Test
+        void returnsProductResults() {
+            // arrange
+            productJpaRepository.save(aProduct().name("상품1").build());
+            productJpaRepository.save(aProduct().name("상품2").build());
+            productJpaRepository.save(aProduct().name("상품3").build());
+            productJpaRepository.save(aProduct().name("상품4").build());
+            productJpaRepository.save(aProduct().name("상품5").build());
+            brandJpaRepository.save(aBrand().build());
+
+            LocalDate today = LocalDate.now();
+            String rankingKey = "rank:all:" + today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+            // 총 5개의 상품을 랭킹에 추가 (점수: 10.0 ~ 5.0)
+            for (int i = 0; i < 5; i++) {
+                redisTemplate.opsForZSet().add(rankingKey, String.valueOf(i + 1), (double)(10 - i));
+            }
+
+            // act
+            ProductResults result = productFacade.getDailyRanking(new RankCommand.Get(today, 10, 1));
+
+            // assert
+            assertThat(result.products()).hasSize(5);
+            assertThat(result.pageInfo().totalElements()).isEqualTo(5);
+            assertThat(result.pageInfo().totalPages()).isEqualTo(1);
+            assertThat(result.pageInfo().currentPage()).isEqualTo(1);
+            assertThat(result.pageInfo().pageSize()).isEqualTo(5);
             assertThat(result.pageInfo().hasNext()).isFalse();
         }
     }
