@@ -1,6 +1,5 @@
 package com.loopers.application.rank
 
-import com.loopers.domain.common.EventDeduplicator
 import com.loopers.domain.common.InternalMessage
 import com.loopers.domain.order.OrderService
 import com.loopers.domain.payment.PaymentEvent
@@ -11,15 +10,12 @@ import org.springframework.stereotype.Component
 
 @Component
 class RankFacade(
-    private val eventDeduplicator: EventDeduplicator,
     private val rankService: RankService,
     private val orderService: OrderService,
-    private val rankScoreCalculator: RankScoreCalculator
+    private val rankScoreCalculator: RankScoreCalculator,
 ) {
     fun applyUserSignalToRanking(messages: List<InternalMessage<UserSignalEvent>>) {
-        val userSignalEvents = messages
-            .filter { eventDeduplicator.checkAndMarkAsProcessed(it.metadata.eventId) }
-            .map { it.payload }
+        val userSignalEvents = messages.map { it.payload }
         val scoreMap = rankScoreCalculator.calculateFromUserSignals(userSignalEvents)
         if (scoreMap.isNotEmpty()) {
             rankService.applyScores(scoreMap)
@@ -27,9 +23,7 @@ class RankFacade(
     }
 
     fun applyOrderToRanking(messages: List<InternalMessage<PaymentEvent>>) {
-        val orderIds = messages
-            .filter { eventDeduplicator.checkAndMarkAsProcessed(it.metadata.eventId) }
-            .map { it.payload.orderId }
+        val orderIds = messages.map { it.payload.orderId }
         if (orderIds.isEmpty()) {
             return
         }
