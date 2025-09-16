@@ -14,6 +14,9 @@ dependencies {
     // JPA
     implementation(project(":modules:jpa"))
 
+    // Analytics domain (ProductMetrics entity/repository)
+    implementation(project(":modules:commerce-analytics"))
+
     // Redis
     implementation(project(":modules:redis"))
 
@@ -24,6 +27,9 @@ dependencies {
 
     // tests
     testImplementation("org.springframework.batch:spring-batch-test")
+    testImplementation(testFixtures(project(":modules:jpa")))
+    testImplementation(testFixtures(project(":modules:redis")))
+
 
     // Querydsl APT (if entities declared in this module)
     kapt("com.querydsl:querydsl-apt::jakarta")
