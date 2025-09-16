@@ -25,6 +25,14 @@ spring:
       - logging.yml
       - monitoring.yml
 
+analytics:
+  product-metrics:
+    # default period type and zone to derive periodKey
+    period-type: DAILY
+    zone-id: Asia/Seoul
+    # reuse kafka topic version for payload version
+    version: ${kafka.topic.product-metrics.version}
+
 demo-kafka:
   test:
     topic-name: demo.internal.topic-v1
@@ -45,6 +53,10 @@ kafka:
     rank-order:
       version: 1.0.0
       group-id: rank-order-consumer
+    product-metrics:
+      version: 1.0.0
+      topic: product-metrics
+      group-id: product-metrics-consumer
 ---
 spring:
   config:
