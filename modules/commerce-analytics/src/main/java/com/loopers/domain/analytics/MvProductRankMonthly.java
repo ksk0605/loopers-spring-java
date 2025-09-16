@@ -71,6 +71,19 @@ public class MvProductRankMonthly {
         this.generatedAt = LocalDateTime.now();
     }
 
+    public MvProductRankMonthly(String periodKey, String version, Integer rank, Long productId, Double score, Long likes,
+        Long views, Long orderCount) {
+        this.periodKey = periodKey;
+        this.version = version;
+        this.rank = rank;
+        this.productId = productId;
+        this.score = score;
+        this.likes = likes;
+        this.views = views;
+        this.orderCount = orderCount;
+        this.generatedAt = LocalDateTime.now();
+    }
+
     public Long getId() {
         return id;
     }
