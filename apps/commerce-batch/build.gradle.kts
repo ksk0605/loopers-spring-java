@@ -14,6 +14,9 @@ dependencies {
     // JPA
     implementation(project(":modules:jpa"))
 
+    // Analytics domain (ProductMetrics entity/repository)
+    implementation(project(":modules:commerce-analytics"))
+
     // Redis
     implementation(project(":modules:redis"))
 
