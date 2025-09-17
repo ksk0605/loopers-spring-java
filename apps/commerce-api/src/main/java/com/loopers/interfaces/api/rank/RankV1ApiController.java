@@ -40,6 +40,9 @@ public class RankV1ApiController implements RankV1ApiSpec {
         @RequestParam String periodType,
         @RequestParam Integer page,
         @RequestParam Integer size) {
-        return ApiResponse.success(null);
+        RankCommand.GetV2 command = RankCommand.GetV2.of(periodKey, periodType, page, size);
+        ProductResults result = productFacade.getRanking(command);
+        ProductV1Dto.ProductsResponse response = ProductV1Dto.ProductsResponse.from(result);
+        return ApiResponse.success(response);
     }
 }

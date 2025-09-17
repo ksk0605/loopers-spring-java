@@ -102,4 +102,28 @@ public class ProductFacade {
         List<TargetLikeCount> targetLikeCounts = userSignalService.getTargetLikeCountsIn(productIds, TargetType.PRODUCT);
         return ProductResults.of(products, brands, targetLikeCounts, pageInfo);
     }
+
+    @Transactional(readOnly = true)
+    public ProductResults getRanking(RankCommand.GetV2 command) {
+        List<RankedProduct> rankedProducts = rankService.getRankRangeWithScores(command);
+        List<Long> productIds = rankedProducts.stream()
+            .map(RankedProduct::productId)
+            .toList();
+        var products = productService.getAll(productIds);
+        List<Long> brandIds = products.stream()
+            .map(Product::getBrandId)
+            .toList();
+        var brands = brandService.getAll(brandIds);
+
+        Long totalElements = rankService.getTotalSize(command.period());
+        var pageInfo = new PageInfo(
+            command.page(),
+            command.size(),
+            (int)Math.ceil((double)totalElements / command.size()),
+            totalElements,
+            ((long)command.page() * command.size()) < totalElements);
+
+        List<TargetLikeCount> targetLikeCounts = userSignalService.getTargetLikeCountsIn(productIds, TargetType.PRODUCT);
+        return ProductResults.of(products, brands, targetLikeCounts, pageInfo);
+    }
 }
