@@ -30,5 +30,13 @@ public class RankCommand {
             Period period = Period.of(periodKey, periodType);
             return new GetV2(period, size, page);
         }
+
+        public Long getStart() {
+            return (long) (page - 1) * size;
+        }
+
+        public Long getEnd() {
+            return getStart() + size - 1;
+        }
     }
 }

@@ -2,6 +2,8 @@ package com.loopers.infrastructure.analytics;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.loopers.domain.analytics.MvProductRankMonthly;
@@ -10,4 +12,6 @@ public interface MvProductRankMonthlyJpaRepository extends JpaRepository<MvProdu
     void deleteByPeriodKeyAndVersion(String periodKey, String version);
 
     List<MvProductRankMonthly> findByPeriodKeyAndVersionOrderByRankAsc(String periodKey, String version);
+
+    Page<MvProductRankMonthly> findAllByPeriodKey(String periodKey, Pageable pageable);
 }

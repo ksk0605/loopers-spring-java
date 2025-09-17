@@ -1,5 +1,7 @@
 package com.loopers.domain.rank;
 
+import java.time.LocalDate;
+
 import lombok.Getter;
 
 @Getter
@@ -23,5 +25,13 @@ public class Period {
 
     public static Period of(String periodKey, String periodType) {
         return new Period(new PeriodKey(periodKey), PeriodType.from(periodType));
+    }
+
+    public LocalDate getDate() {
+        return periodKey.getDate();
+    }
+
+    public String getKey() {
+        return this.periodKey.getValue();
     }
 }

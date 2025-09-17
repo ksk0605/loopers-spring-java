@@ -106,4 +106,8 @@ public class PeriodKey {
     public int hashCode() {
         return value.hashCode();
     }
+
+    public LocalDate getDate() {
+        return LocalDate.parse(value, DAILY_FORMATTER);
+    }
 }
