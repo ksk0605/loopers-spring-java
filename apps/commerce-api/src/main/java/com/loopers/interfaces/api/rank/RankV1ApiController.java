@@ -33,4 +33,13 @@ public class RankV1ApiController implements RankV1ApiSpec {
         ProductV1Dto.ProductsResponse response = ProductV1Dto.ProductsResponse.from(result);
         return ApiResponse.success(response);
     }
+
+    @Override
+    public ApiResponse<ProductV1Dto.ProductsResponse> getRankingProducts(
+        @RequestParam String periodKey,
+        @RequestParam String periodType,
+        @RequestParam Integer page,
+        @RequestParam Integer size) {
+        return ApiResponse.success(null);
+    }
 }

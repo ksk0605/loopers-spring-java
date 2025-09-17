@@ -19,4 +19,15 @@ public interface RankV1ApiSpec {
         Integer page,
         Integer size
     );
+
+    @Operation(
+        summary = "상품 랭킹 순 목록 조회",
+        description = "기간 키(periodKey), 기간 타입(periodType)을 기반으로 일간,주간,월간 상품 랭킹을 조회합니다."
+    )
+    ApiResponse<ProductV1Dto.ProductsResponse> getRankingProducts(
+        String periodKey,
+        String periodType,
+        Integer page,
+        Integer size
+    );
 }
