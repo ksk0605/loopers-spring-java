@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
-import com.loopers.domain.rank.RankRepository;
+import com.loopers.domain.rank.RankCachedRepository;
 import com.loopers.domain.rank.RankedProduct;
 import com.loopers.infrastructure.redis.RedisCacheRepository;
 
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class RankCoreRepository implements RankRepository {
+public class RankCoreRepository implements RankCachedRepository {
     private static final String KEY_PREFIX = "rank:all:";
     private final RedisCacheRepository redisCacheRepository;
 

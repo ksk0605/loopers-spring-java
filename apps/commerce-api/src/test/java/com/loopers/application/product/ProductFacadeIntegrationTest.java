@@ -158,7 +158,7 @@ class ProductFacadeIntegrationTest extends IntegrationTest {
             }
 
             // act
-            ProductResults result = productFacade.getDailyRanking(new RankCommand.Get(today, 10, 1));
+            ProductResults result = productFacade.getRanking(RankCommand.GetV2.of("20250917", "daily", 20, 1));
 
             // assert
             assertThat(result.products()).hasSize(5);

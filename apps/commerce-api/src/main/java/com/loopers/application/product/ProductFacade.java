@@ -80,7 +80,7 @@ public class ProductFacade {
     }
 
     @Transactional(readOnly = true)
-    public ProductResults getDailyRanking(RankCommand.Get command) {
+    public ProductResults getRanking(RankCommand.GetV2 command) {
         List<RankedProduct> rankedProducts = rankService.getRankRangeWithScores(command);
         List<Long> productIds = rankedProducts.stream()
             .map(RankedProduct::productId)
@@ -91,7 +91,7 @@ public class ProductFacade {
             .toList();
         var brands = brandService.getAll(brandIds);
 
-        Long totalElements = rankService.getTotalSize(command.date());
+        Long totalElements = rankService.getTotalSize(command.period());
         var pageInfo = new PageInfo(
             command.page(),
             command.size(),

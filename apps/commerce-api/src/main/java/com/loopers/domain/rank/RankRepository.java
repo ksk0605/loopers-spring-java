@@ -1,10 +1,11 @@
 package com.loopers.domain.rank;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface RankRepository {
-    List<RankedProduct> getRankRangeWithScores(LocalDate date, Long start, Long end);
+    boolean supports(Period period);
 
-    Long getTotalSize(LocalDate date);
+    List<RankedProduct> getRankRangeWithScores(RankCommand.GetV2 command);
+
+    Long getTotalSize(Period period);
 }
